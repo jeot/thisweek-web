@@ -23,6 +23,7 @@ function App() {
         </button>
         <p>
           Hello, Shamim.
+          We are in dev mode!
         </p>
       </div>
       <p className="read-the-docs">
