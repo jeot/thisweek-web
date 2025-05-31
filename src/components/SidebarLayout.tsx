@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { useTheme } from 'next-themes';
 import { Button } from "@/components/ui/button"
-import { Sheet, SheetTrigger, SheetContent, SheetTitle, SheetHeader, SheetDescription } from "@/components/ui/sheet"
+import { Sheet, SheetTrigger, SheetContent, SheetTitle, SheetHeader, SheetDescription, SheetClose } from "@/components/ui/sheet"
 import { Menu, CheckCheck, Settings, CalendarHeart } from "lucide-react"
 import { Moon, Sun } from 'lucide-react';
 
@@ -11,7 +11,7 @@ export default function SidebarLayout({ children, onMenuClick, activeView }: { c
   const [open, setOpen] = useState(false); // only for sheet on mobile
   const [collapsed, setCollapsed] = useState(true); // only for drawer on desktop
   const { setTheme, theme } = useTheme();
-  const ThemeIcon = (theme === 'dark') ? Sun : Moon;
+  const ThemeIcon = (theme === 'light') ? Moon : Sun;
 
   const menuItems = [
     { icon: CheckCheck, label: "This Week", onClick: () => { onMenuClick('thisweek') } },
@@ -31,11 +31,16 @@ export default function SidebarLayout({ children, onMenuClick, activeView }: { c
               <Menu />
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-64 p-4">
-            <SheetHeader>
-              <SheetTitle>Menu</SheetTitle>
-              <SheetDescription>&nbsp;</SheetDescription>
-            </SheetHeader>
+          <SheetContent side="left" className="w-64 p-2">
+            <SheetClose className="border">
+              <Button
+                variant="ghost"
+                size="default"
+                className="w-full justify-start"
+              >
+                <Menu />
+              </Button>
+            </SheetClose>
             <div className="flex flex-col h-full space-y-2">
               {menuItems.map(({ icon: Icon, label, onClick }) => {
                 if (!Icon) return (<div key={label} className="mt-auto" />)
