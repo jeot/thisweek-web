@@ -59,6 +59,9 @@ export default function SidebarLayout({ children, onMenuClick, activeView }: { c
                 )
               })}
             </div>
+            <p className="text-xs text-muted-foreground text-center">
+              &nbsp;{open && `v${__APP_VERSION__}`}
+            </p>
           </SheetContent>
         </Sheet>
       </div>
@@ -92,6 +95,9 @@ export default function SidebarLayout({ children, onMenuClick, activeView }: { c
             )
           })}
         </div>
+        <p className="text-xs text-muted-foreground text-center">
+          &nbsp;{!collapsed && `v${__APP_VERSION__}`}
+        </p>
       </div>
 
       {/* Main Content */}
