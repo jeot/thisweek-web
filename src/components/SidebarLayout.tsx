@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { useTheme } from 'next-themes';
 import { Button } from "@/components/ui/button"
-import { Sheet, SheetTrigger, SheetContent, SheetTitle, SheetHeader, SheetDescription, SheetClose } from "@/components/ui/sheet"
+import { Sheet, SheetTrigger, SheetContent, SheetClose } from "@/components/ui/sheet"
 import { Menu, CheckCheck, Settings, CalendarHeart } from "lucide-react"
 import { Moon, Sun } from 'lucide-react';
 
