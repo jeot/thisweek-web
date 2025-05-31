@@ -1,34 +1,32 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
+import SidebarLayout from '@/components/SidebarLayout'
+import { lorem } from '@/assets/lorem'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [view, setView] = useState<'thisweek' | 'thisyear' | 'settings'>('thisweek');
+
+
+  const ThisWeekPage = () => <div><h1>ThisWeekPage</h1><p>{lorem}</p></div>;
+  const ThisYearPage = () => <div><h1>ThisYearPage</h1><p>{lorem}</p></div>;
+  const SettingsPage = () => <div><h1>SettingsPage</h1><p>{lorem}</p></div>;
+
+  const handleMenuClick = (key: typeof view) => {
+    setView(key);
+    // fetch or load data based on key
+  };
 
   return (
     <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Hello, Shamim.
-          We are in dev mode!
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <SidebarLayout
+        onMenuClick={handleMenuClick}
+        activeView={view}
+      >
+        {view === 'thisweek' && <ThisWeekPage />}
+        {view === 'thisyear' && <ThisYearPage />}
+        {view === 'settings' && <SettingsPage />}
+        {/* and so on */}
+      </SidebarLayout>
     </>
   )
 }
