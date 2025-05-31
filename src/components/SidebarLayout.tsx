@@ -32,7 +32,7 @@ export default function SidebarLayout({ children, onMenuClick, activeView }: { c
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="w-64 p-2">
-            <SheetClose className="border">
+            <SheetClose>
               <Button
                 variant="ghost"
                 size="default"
