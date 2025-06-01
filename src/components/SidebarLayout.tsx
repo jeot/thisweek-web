@@ -11,6 +11,7 @@ export default function SidebarLayout({ children, onMenuClick, activeView }: { c
   const [open, setOpen] = useState(false); // only for sheet on mobile
   const [collapsed, setCollapsed] = useState(true); // only for drawer on desktop
   const { setTheme, theme } = useTheme();
+  if (!theme) return;
   const ThemeIcon = (theme === 'light') ? Moon : Sun;
 
   const menuItems = [
@@ -18,7 +19,7 @@ export default function SidebarLayout({ children, onMenuClick, activeView }: { c
     { icon: CalendarHeart, label: "Year 2025", onClick: () => { onMenuClick('thisyear') } },
     { icon: null, label: "Spacer", onClick: () => { } },
     { icon: Settings, label: "Settings", onClick: () => { onMenuClick('settings') } },
-    { icon: ThemeIcon, label: theme === 'dark' ? 'Light' : 'Dark', onClick: () => setTheme(theme === 'dark' ? 'light' : 'dark') },
+    { icon: ThemeIcon, label: theme === 'light' ? 'Dark' : 'Light', onClick: () => setTheme(theme === 'light' ? 'dark' : 'light') },
   ]
 
   return (
