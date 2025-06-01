@@ -41,7 +41,7 @@ echo "🚀 Releasing version $VERSION..."
 git checkout main || exit 1
 git merge --ff-only dev || exit 1
 git tag "$VERSION" || exit 1
-git push origin main --tags || exit 1
+git push github main --tags || exit 1
 git checkout dev
 
 echo "🎉 Release $VERSION completed."
