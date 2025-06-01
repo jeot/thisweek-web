@@ -7,31 +7,37 @@ if [ -z "$VERSION" ]; then
   exit 1
 fi
 
+# Check working directory is clean
 if [ -n "$(git status --porcelain)" ]; then
   echo "❌ Working directory is dirty. Please commit or stash changes first."
   exit 1
 fi
 
+# Update version in package.json
 echo "📝 Updating package.json version to $VERSION..."
-
 jq --arg v "$VERSION" '.version = $v' package.json > package.tmp.json && mv package.tmp.json package.json
-
 if [ $? -ne 0 ]; then
   echo "❌ Failed to update version. Aborting."
   exit 1
 fi
 
+# Commit version bump
+git add package.json
+git commit -m "chore: bump version to $VERSION"
+
+# Run build
 echo "🛠 Running build..."
 pnpm build
 if [ $? -ne 0 ]; then
   echo "❌ Build failed. Aborting release."
+  git reset --soft HEAD~1
   exit 1
 fi
 
 echo "✅ Build passed."
 
+# Merge to main and tag
 echo "🚀 Releasing version $VERSION..."
-
 git checkout main || exit 1
 git merge --ff-only dev || exit 1
 git tag "$VERSION" || exit 1
