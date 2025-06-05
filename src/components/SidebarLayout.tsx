@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Sheet, SheetTrigger, SheetContent, SheetClose, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet"
 import { Menu, CheckCheck, Settings, CalendarHeart } from "lucide-react"
 import { Moon, Sun } from 'lucide-react';
+import HeaderContent from "./HeaderContent";
 
 type viewType = 'thisweek' | 'thisyear' | 'settings';
 
@@ -24,7 +25,8 @@ export default function SidebarLayout({ children, onMenuClick, activeView }: { c
 
   return (
     <div className="flex flex-row h-screen">
-      {/* Sidebar - Wide View (desktop or horizental mobile) */}
+
+      {/* Sidebar - Wide view only (desktop or horizental mobile) */}
       <div
         className={`hidden sm:flex flex-col flex-none transition-all duration-300 border-r box-content ${collapsed ? "w-16" : "w-48"}`}
       >
@@ -59,9 +61,10 @@ export default function SidebarLayout({ children, onMenuClick, activeView }: { c
 
       {/* Header + Content */}
       <div className="flex flex-col">
-        {/* Header */}
+
+        {/* Full Header */}
         <header className="flex h-13 items-center justify-left border-b box-content">
-          {/* Sheet open button (short width only) */}
+          {/* Sheet open button (visible on small view only) */}
           <div className="sm:hidden">
             <Sheet open={open} onOpenChange={setOpen}>
               <SheetTrigger asChild>
@@ -113,8 +116,9 @@ export default function SidebarLayout({ children, onMenuClick, activeView }: { c
               </SheetContent>
             </Sheet>
           </div>
-          <div className="p-2 border-s sm:border-none">
-            <span className="text-lg font-semibold">App Name</span>
+          {/* Header Content */}
+          <div className="p-0 m-0 flex-1 h-full border-s sm:border-none">
+            <HeaderContent />
           </div>
         </header>
 
@@ -127,7 +131,9 @@ export default function SidebarLayout({ children, onMenuClick, activeView }: { c
             {children}
           </div>
         </div>
+
       </div>
+
     </div >
   )
 }
