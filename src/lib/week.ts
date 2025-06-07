@@ -1,5 +1,5 @@
 import { CalendarLocaleType, weekdayMap, WeekdayType } from "@/types/types";
-import { DateTime, Info } from "luxon";
+import { DateTime } from "luxon";
 
 // todo: change all referenceDate from DateTime to millis timestamp (number)
 // this is must for all db quary and week range setting will be based on millis timestamp
@@ -133,7 +133,7 @@ export function getDateViewsInLocaleCalendarOfWeekLocal(
   referenceDate: DateTime = DateTime.local(),
   locale: string = "en-US",
   calendar: string = "gregory",
-  dateStyle: string = "full",
+  dateStyle: "full" | "long" | "medium" | "short" | undefined,
 ): DateView[] {
   const weekStartsOnNumber = weekdayMap[weekStartsOn];
   const dates = getDaysOfWeekLocal(weekStartsOnNumber, referenceDate);

@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 import { CalendarLocaleType, LocaleType } from '@/types/types';
-import locales from '../types/locales.json';
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/DateTimeFormat
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl#locales_argument

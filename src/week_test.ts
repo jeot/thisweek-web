@@ -1,5 +1,4 @@
-import { getUtcRangeForLocalWeek, getDaysOfWeekLocal, getDateViewsInLocaleCalendarOfWeekLocal } from "./lib/week"
-import { DateTime, Info } from "luxon";
+import { DateTime } from "luxon";
 
 console.log("hello testing");
 
@@ -34,6 +33,9 @@ export function display(range: number[], style: string = "en-US") {
 
 // calendar?: 'buddhist' | 'chinese' | 'coptic' | 'ethiopia' | 'ethiopic' | 'gregory' | 'hebrew' | 'indian' | 'islamic' | 'iso8601' | 'japanese' | 'persian' | 'roc',
 
+/*
+import { getDateViewsInLocaleCalendarOfWeekLocal } from "./lib/week"
+
 const test = getDateViewsInLocaleCalendarOfWeekLocal(
   'sat',
   DateTime.local(),
@@ -63,10 +65,11 @@ const test = getDateViewsInLocaleCalendarOfWeekLocal(
   // "long",
   // "short",
 );
-// console.log(test);
+console.log(test);
+*/
 
 var d = new Date();
 var millis = d.getTime();
-const dt = new DateTime(millis);
+const dt = DateTime.fromMillis(millis);
 console.log(millis);
 console.log(dt.toString());
