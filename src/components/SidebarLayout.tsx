@@ -5,10 +5,13 @@ import { Sheet, SheetTrigger, SheetContent, SheetClose, SheetHeader, SheetTitle,
 import { Menu, CheckCheck, Settings, CalendarHeart } from "lucide-react"
 import { Moon, Sun } from 'lucide-react';
 import HeaderContent from "./HeaderContent";
+import { ViewType } from "@/types/types";
 
-type viewType = 'thisweek' | 'thisyear' | 'settings';
 
-export default function SidebarLayout({ children, onMenuClick, activeView }: { children: React.ReactNode, onMenuClick: (view: viewType) => void, activeView: viewType }) {
+export default function SidebarLayout({ children, onMenuClick, activeView, title }: { children: React.ReactNode, onMenuClick: (view: ViewType) => void, activeView: ViewType, title: string }) {
+
+  activeView; // unused variable
+
   const [open, setOpen] = useState(false); // only for sheet on mobile
   const [collapsed, setCollapsed] = useState(true); // only for drawer on desktop
   const { setTheme, theme } = useTheme();
@@ -16,10 +19,10 @@ export default function SidebarLayout({ children, onMenuClick, activeView }: { c
   const ThemeIcon = (theme === 'light') ? Moon : Sun;
 
   const menuItems = [
-    { icon: CheckCheck, label: "This Week", onClick: () => { onMenuClick('thisweek') } },
-    { icon: CalendarHeart, label: "Year 2025", onClick: () => { onMenuClick('thisyear') } },
+    { icon: CheckCheck, label: "This Week", onClick: () => { onMenuClick('This Week') } },
+    { icon: CalendarHeart, label: "Year 2025", onClick: () => { onMenuClick('This Year') } },
     { icon: null, label: "Spacer", onClick: () => { } },
-    { icon: Settings, label: "Settings", onClick: () => { onMenuClick('settings') } },
+    { icon: Settings, label: "Settings", onClick: () => { onMenuClick('Settings') } },
     { icon: ThemeIcon, label: theme === 'light' ? 'Dark' : 'Light', onClick: () => setTheme(theme === 'light' ? 'dark' : 'light') },
   ]
 
@@ -60,7 +63,7 @@ export default function SidebarLayout({ children, onMenuClick, activeView }: { c
       </div>
 
       {/* Header + Content */}
-      <div className="flex flex-col">
+      <div className="flex flex-col w-full">
 
         {/* Full Header */}
         <header className="flex h-13 items-center justify-left border-b box-content">
@@ -118,18 +121,13 @@ export default function SidebarLayout({ children, onMenuClick, activeView }: { c
           </div>
           {/* Header Content */}
           <div className="p-0 m-0 flex-1 h-full border-s sm:border-none">
-            <HeaderContent />
+            <HeaderContent title={title} />
           </div>
         </header>
 
         {/* Main Content */}
         <div className="flex-1 overflow-y-auto p-4">
-          <div>
-            {activeView}
-          </div>
-          <div>
-            {children}
-          </div>
+          {children}
         </div>
 
       </div>

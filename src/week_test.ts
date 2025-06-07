@@ -63,6 +63,10 @@ const test = getDateViewsInLocaleCalendarOfWeekLocal(
   // "long",
   // "short",
 );
-
 // console.log(test);
 
+var d = new Date();
+var millis = d.getTime();
+const dt = new DateTime(millis);
+console.log(millis);
+console.log(dt.toString());

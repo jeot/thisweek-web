@@ -1,4 +1,8 @@
+import { CalendarLocaleType, weekdayMap, WeekdayType } from "@/types/types";
 import { DateTime, Info } from "luxon";
+
+// todo: change all referenceDate from DateTime to millis timestamp (number)
+// this is must for all db quary and week range setting will be based on millis timestamp
 
 /**
  * Get UTC start and end timestamps for the week that includes `referenceDate`,
@@ -50,8 +54,11 @@ dt.toLocaleString(DateTime.DATE_FULL);    // e.g., Friday, June 6, 2025
 dt.toLocaleString(DateTime.DATETIME_MED); // e.g., Jun 6, 2025, 3:30 PM
 */
 
-interface DateView {
-  originalDateTime: DateTime;
+export interface DateView {
+  originalDateTime: DateTime; // todo: no need!
+  // todo: millisUTC
+  // todo: timezone city
+  // todo: timezone offset number
   gregoryDisplay: string;
   localeDisplay: string;
   parts: {
@@ -122,15 +129,12 @@ function getParts(dt: DateTime, locale: string, calendar: string) {
 }
 
 export function getDateViewsInLocaleCalendarOfWeekLocal(
-  weekStartsOn: 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' = 'mon',
+  weekStartsOn: WeekdayType = 'mon',
   referenceDate: DateTime = DateTime.local(),
   locale: string = "en-US",
   calendar: string = "gregory",
   dateStyle: string = "full",
 ): DateView[] {
-  const weekdayMap: Record<string, number> = {
-    sun: 0, mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6,
-  };
   const weekStartsOnNumber = weekdayMap[weekStartsOn];
   const dates = getDaysOfWeekLocal(weekStartsOnNumber, referenceDate);
   return dates.map((d) => {
@@ -145,4 +149,40 @@ export function getDateViewsInLocaleCalendarOfWeekLocal(
       parts: parts,
     }
   });
+}
+
+export interface WeekView {
+  weekTitle: string;
+  weekDesc: string;
+  direction: 'ltr' | 'rtl';
+  dates: DateView[];
+  dates2: DateView[] | null;
+}
+
+export function buildFullWeekView(refMillisUTC: number, mainCal: CalendarLocaleType, secondCal: CalendarLocaleType | null): WeekView {
+  const dt = DateTime.fromMillis(refMillisUTC);
+  // console.log(dt.toString());
+  const weekStartsOn = mainCal.weekStartsOn; // should be same for both date views
+  const direction = mainCal.locale.direction; // should be same for both date views
+  const result: WeekView = {
+    weekTitle: "week title",
+    weekDesc: "week description",
+    direction: direction,
+    dates: getDateViewsInLocaleCalendarOfWeekLocal(
+      weekStartsOn,
+      dt,
+      mainCal.locale.locale,
+      mainCal.calendar,
+      "full",
+    ),
+    dates2: secondCal ? getDateViewsInLocaleCalendarOfWeekLocal(
+      weekStartsOn,
+      dt,
+      secondCal.locale.locale,
+      secondCal.calendar,
+      "full",
+    ) : null,
+
+  };
+  return result;
 }

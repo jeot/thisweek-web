@@ -120,5 +120,8 @@
   h1 {
     @apply text-4xl font-extrabold tracking-tight lg:text-5xl scroll-m-20;
   }
+  h2 {
+    @apply text-2xl font-extrabold tracking-tight lg:text-3xl scroll-m-20;
+  }
 }
 

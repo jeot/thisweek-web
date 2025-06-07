@@ -1,0 +1,306 @@
+[
+  {
+    "locale": "en-US",
+    "language": "English",
+    "region": "United States",
+    "nativeName": "English",
+    "flag": "🇺🇸",
+    "direction": "ltr"
+  },
+  {
+    "locale": "en-GB",
+    "language": "English",
+    "region": "United Kingdom",
+    "nativeName": "English",
+    "flag": "🇬🇧",
+    "direction": "ltr"
+  },
+  {
+    "locale": "es-ES",
+    "language": "Spanish",
+    "region": "Spain",
+    "nativeName": "Español",
+    "flag": "🇪🇸",
+    "direction": "ltr"
+  },
+  {
+    "locale": "es-MX",
+    "language": "Spanish",
+    "region": "Mexico",
+    "nativeName": "Español",
+    "flag": "🇲🇽",
+    "direction": "ltr"
+  },
+  {
+    "locale": "fr-FR",
+    "language": "French",
+    "region": "France",
+    "nativeName": "Français",
+    "flag": "🇫🇷",
+    "direction": "ltr"
+  },
+  {
+    "locale": "fr-CA",
+    "language": "French",
+    "region": "Canada",
+    "nativeName": "Français",
+    "flag": "🇨🇦",
+    "direction": "ltr"
+  },
+  {
+    "locale": "de-DE",
+    "language": "German",
+    "region": "Germany",
+    "nativeName": "Deutsch",
+    "flag": "🇩🇪",
+    "direction": "ltr"
+  },
+  {
+    "locale": "pt-BR",
+    "language": "Portuguese",
+    "region": "Brazil",
+    "nativeName": "Português",
+    "flag": "🇧🇷",
+    "direction": "ltr"
+  },
+  {
+    "locale": "pt-PT",
+    "language": "Portuguese",
+    "region": "Portugal",
+    "nativeName": "Português",
+    "flag": "🇵🇹",
+    "direction": "ltr"
+  },
+  {
+    "locale": "zh-CN",
+    "language": "Chinese",
+    "region": "China",
+    "nativeName": "中文",
+    "flag": "🇨🇳",
+    "direction": "ltr"
+  },
+  {
+    "locale": "zh-TW",
+    "language": "Chinese",
+    "region": "Taiwan",
+    "nativeName": "中文",
+    "flag": "🇹🇼",
+    "direction": "ltr"
+  },
+  {
+    "locale": "ja-JP",
+    "language": "Japanese",
+    "region": "Japan",
+    "nativeName": "日本語",
+    "flag": "🇯🇵",
+    "direction": "ltr"
+  },
+  {
+    "locale": "ko-KR",
+    "language": "Korean",
+    "region": "South Korea",
+    "nativeName": "한국어",
+    "flag": "🇰🇷",
+    "direction": "ltr"
+  },
+  {
+    "locale": "ru-RU",
+    "language": "Russian",
+    "region": "Russia",
+    "nativeName": "Русский",
+    "flag": "🇷🇺",
+    "direction": "ltr"
+  },
+  {
+    "locale": "it-IT",
+    "language": "Italian",
+    "region": "Italy",
+    "nativeName": "Italiano",
+    "flag": "🇮🇹",
+    "direction": "ltr"
+  },
+  {
+    "locale": "nl-NL",
+    "language": "Dutch",
+    "region": "Netherlands",
+    "nativeName": "Nederlands",
+    "flag": "🇳🇱",
+    "direction": "ltr"
+  },
+  {
+    "locale": "ar-EG",
+    "language": "Arabic",
+    "region": "Egypt",
+    "nativeName": "العربية",
+    "flag": "🇪🇬",
+    "direction": "rtl"
+  },
+  {
+    "locale": "ar-SA",
+    "language": "Arabic",
+    "region": "Saudi Arabia",
+    "nativeName": "العربية",
+    "flag": "🇸🇦",
+    "direction": "rtl"
+  },
+  {
+    "locale": "hi-IN",
+    "language": "Hindi",
+    "region": "India",
+    "nativeName": "हिन्दी",
+    "flag": "🇮🇳",
+    "direction": "ltr"
+  },
+  {
+    "locale": "bn-BD",
+    "language": "Bengali",
+    "region": "Bangladesh",
+    "nativeName": "বাংলা",
+    "flag": "🇧🇩",
+    "direction": "ltr"
+  },
+  {
+    "locale": "fa-IR",
+    "language": "Persian",
+    "region": "Iran",
+    "nativeName": "فارسی",
+    "flag": "🇮🇷",
+    "direction": "rtl"
+  },
+  {
+    "locale": "tr-TR",
+    "language": "Turkish",
+    "region": "Turkey",
+    "nativeName": "Türkçe",
+    "flag": "🇹🇷",
+    "direction": "ltr"
+  },
+  {
+    "locale": "vi-VN",
+    "language": "Vietnamese",
+    "region": "Vietnam",
+    "nativeName": "Tiếng Việt",
+    "flag": "🇻🇳",
+    "direction": "ltr"
+  },
+  {
+    "locale": "th-TH",
+    "language": "Thai",
+    "region": "Thailand",
+    "nativeName": "ไทย",
+    "flag": "🇹🇭",
+    "direction": "ltr"
+  },
+  {
+    "locale": "id-ID",
+    "language": "Indonesian",
+    "region": "Indonesia",
+    "nativeName": "Bahasa Indonesia",
+    "flag": "🇮🇩",
+    "direction": "ltr"
+  },
+  {
+    "locale": "pl-PL",
+    "language": "Polish",
+    "region": "Poland",
+    "nativeName": "Polski",
+    "flag": "🇵🇱",
+    "direction": "ltr"
+  },
+  {
+    "locale": "he-IL",
+    "language": "Hebrew",
+    "region": "Israel",
+    "nativeName": "עברית",
+    "flag": "🇮🇱",
+    "direction": "rtl"
+  },
+  {
+    "locale": "uk-UA",
+    "language": "Ukrainian",
+    "region": "Ukraine",
+    "nativeName": "Українська",
+    "flag": "🇺🇦",
+    "direction": "ltr"
+  },
+  {
+    "locale": "ro-RO",
+    "language": "Romanian",
+    "region": "Romania",
+    "nativeName": "Română",
+    "flag": "🇷🇴",
+    "direction": "ltr"
+  },
+  {
+    "locale": "cs-CZ",
+    "language": "Czech",
+    "region": "Czech Republic",
+    "nativeName": "Čeština",
+    "flag": "🇨🇿",
+    "direction": "ltr"
+  },
+  {
+    "locale": "sv-SE",
+    "language": "Swedish",
+    "region": "Sweden",
+    "nativeName": "Svenska",
+    "flag": "🇸🇪",
+    "direction": "ltr"
+  },
+  {
+    "locale": "no-NO",
+    "language": "Norwegian",
+    "region": "Norway",
+    "nativeName": "Norsk",
+    "flag": "🇳🇴",
+    "direction": "ltr"
+  },
+  {
+    "locale": "da-DK",
+    "language": "Danish",
+    "region": "Denmark",
+    "nativeName": "Dansk",
+    "flag": "🇩🇰",
+    "direction": "ltr"
+  },
+  {
+    "locale": "fi-FI",
+    "language": "Finnish",
+    "region": "Finland",
+    "nativeName": "Suomi",
+    "flag": "🇫🇮",
+    "direction": "ltr"
+  },
+  {
+    "locale": "hu-HU",
+    "language": "Hungarian",
+    "region": "Hungary",
+    "nativeName": "Magyar",
+    "flag": "🇭🇺",
+    "direction": "ltr"
+  },
+  {
+    "locale": "el-GR",
+    "language": "Greek",
+    "region": "Greece",
+    "nativeName": "Ελληνικά",
+    "flag": "🇬🇷",
+    "direction": "ltr"
+  },
+  {
+    "locale": "ms-MY",
+    "language": "Malay",
+    "region": "Malaysia",
+    "nativeName": "Bahasa Melayu",
+    "flag": "🇲🇾",
+    "direction": "ltr"
+  },
+  {
+    "locale": "am-ET",
+    "language": "Amharic",
+    "region": "Ethiopia",
+    "nativeName": "አማርኛ",
+    "flag": "🇪🇹",
+    "direction": "ltr"
+  }
+]
