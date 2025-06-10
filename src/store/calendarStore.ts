@@ -33,6 +33,24 @@ const secondaryFaIRLocale: LocaleType = {
 	direction: "rtl"
 };
 
+/*
+import localesData from '@/types/locales.json'
+const testLocale: LocaleType = {
+	locale: "en-US",
+	language: "English",
+	region: "United States",
+	nativeName: "English",
+	flag: "🇺🇸",
+	direction: "ltr"
+};
+const test_cal = 'hebrew';
+const test_region = 'Israel';
+const test_loc: LocaleType = (localesData as Array<LocaleType>).find((v) => (v.region === test_region)) || testLocale;
+const testCal: CalendarLocaleType = {
+	calendar: test_cal, locale: test_loc, weekStartsOn: 'mon'
+}
+*/
+
 const mainCalInit: CalendarLocaleType = {
 	calendar: 'gregory', locale: defaultEnUSLocale, weekStartsOn: 'mon'
 }
@@ -43,8 +61,9 @@ const secondCalInit: CalendarLocaleType = {
 
 export const useCalendarState = create<CalendarState>((set) => ({
 	mainCal: mainCalInit,
-	// secondCal: null,
+	// mainCal: testCal,
 	secondCal: secondCalInit,
+	// secondCal: null,
 	setMainCal: (cw) => set({ mainCal: cw }),
 	setSecondCal: (cw) => set({ secondCal: cw }),
 }));

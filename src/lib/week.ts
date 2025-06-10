@@ -130,8 +130,7 @@ function getParts(dt: DateTime, locale: string, calendar: string) {
 }
 
 
-function getLocaleString(date: DateTime, locale: string, calendar: string, dateStyle: "long" | "short" | "full" | "medium" | undefined) {
-  const opt = { calendar: calendar, dateStyle: dateStyle };
+function getLocaleString(date: DateTime, locale: string, calendar: string) {
   const formatter = new Intl.DateTimeFormat(locale, {
     calendar,
     day: "numeric",
@@ -159,11 +158,10 @@ export function getDateViewInLocaleCalendar(
   locale: string = "en-US",
   calendar: string = "gregory",
   direction: "rtl" | "ltr",
-  dateStyle: "full" | "long" | "medium" | "short" | undefined,
 ) {
   const date = referenceDate.setLocale(locale); // eg. "fa-IR"
   const parts = getParts(date, locale, calendar);
-  const localeDisplay = getLocaleString(date, locale, calendar, dateStyle);
+  const localeDisplay = getLocaleString(date, locale, calendar);
   return {
     originalDateTime: date,
     gregoryDisplay: date.toString(),
@@ -179,11 +177,10 @@ export function getDateViewsInLocaleCalendarOfWeekLocal(
   locale: string = "en-US",
   calendar: string = "gregory",
   direction: "rtl" | "ltr",
-  dateStyle: "full" | "long" | "medium" | "short" | undefined,
 ): DateView[] {
   const weekStartsOnNumber = weekdayMap[weekStartsOn];
   const dates = getDaysOfWeekLocal(weekStartsOnNumber, referenceDate);
-  return dates.map((d) => getDateViewInLocaleCalendar(d, locale, calendar, direction, dateStyle));
+  return dates.map((d) => getDateViewInLocaleCalendar(d, locale, calendar, direction));
 }
 
 export interface WeekViewType {
@@ -205,7 +202,6 @@ export function buildFullWeekView(refMillisUTC: number, mainCal: CalendarLocaleT
     mainCal.locale.locale,
     mainCal.calendar,
     mainCal.locale.direction,
-    "full",
   );
   const dates2 = secondCal ? getDateViewsInLocaleCalendarOfWeekLocal(
     weekStartsOn,
@@ -213,22 +209,21 @@ export function buildFullWeekView(refMillisUTC: number, mainCal: CalendarLocaleT
     secondCal.locale.locale,
     secondCal.calendar,
     secondCal.locale.direction,
-    "full",
   ) : null;
   //todo: add different year
-  let weekTitle = `${dates[0].parts.monthName} ${dates[0].parts.yearName || dates[0].parts.year}`;
+  let weekTitle = `${dates[0].parts.monthName} ${dates[0].parts.year}`;
   if (dates[0].parts.year !== dates[6].parts.year) {
-    weekTitle = `${dates[0].parts.monthName} ${dates[0].parts.yearName || dates[0].parts.year} - ${dates[6].parts.monthName} ${dates[6].parts.yearName || dates[6].parts.year}`;
+    weekTitle = `${dates[0].parts.monthName} ${dates[0].parts.year} - ${dates[6].parts.monthName} ${dates[6].parts.year}`;
   } else if (dates[0].parts.month !== dates[6].parts.month) {
-    weekTitle = `${dates[0].parts.monthName} - ${dates[6].parts.monthName} ${dates[6].parts.yearName || dates[6].parts.year}`;
+    weekTitle = `${dates[0].parts.monthName} - ${dates[6].parts.monthName} ${dates[6].parts.year}`;
   }
   let weekDescription = "";
   if (dates2) {
-    weekDescription = `${dates2[0].parts.monthName} ${dates2[0].parts.yearName || dates2[0].parts.year}`;
+    weekDescription = `${dates2[0].parts.monthName} ${dates2[0].parts.year}`;
     if (dates2[0].parts.year !== dates2[6].parts.year) {
-      weekDescription = `${dates2[0].parts.monthName} ${dates2[0].parts.yearName || dates2[0].parts.year} - ${dates2[6].parts.monthName} ${dates2[6].parts.yearName || dates2[6].parts.year}`;
+      weekDescription = `${dates2[0].parts.monthName} ${dates2[0].parts.year} - ${dates2[6].parts.monthName} ${dates2[6].parts.year}`;
     } else if (dates2[0].parts.month !== dates2[6].parts.month) {
-      weekDescription = `${dates2[0].parts.monthName} - ${dates2[6].parts.monthName} ${dates2[6].parts.yearName || dates2[6].parts.year}`;
+      weekDescription = `${dates2[0].parts.monthName} - ${dates2[6].parts.monthName} ${dates2[6].parts.year}`;
     }
   }
 

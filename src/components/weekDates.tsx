@@ -17,8 +17,8 @@ function WeekDates({ weekView, className, ...props }: WeekDatesProps) {
     >
       {weekView.dates.map((dv, i) => {
         return (
-          <div className="border-0 text-center min-w-full">
-            <div className="text-xs text-center uppercase text-primary/25">
+          <div key={i} className="border-0 text-center min-w-full">
+            <div className="text-xs text-center uppercase text-primary/40">
               {dv.parts.weekdayShort}
             </div>
             <Button

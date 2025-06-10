@@ -7,8 +7,8 @@ export default function HeaderContent({ title }: { title?: string }) {
   const mainCal = useCalendarState((state) => state.mainCal);
   const secondCal = useCalendarState((state) => state.secondCal);
 
-  const today = getDateViewInLocaleCalendar(DateTime.now(), mainCal.locale.locale, mainCal.calendar, mainCal.locale.direction, "full");
-  const today2 = secondCal && getDateViewInLocaleCalendar(DateTime.now(), secondCal.locale.locale, secondCal.calendar, secondCal.locale.direction, "long") || null;
+  const today = getDateViewInLocaleCalendar(DateTime.now(), mainCal.locale.locale, mainCal.calendar, mainCal.locale.direction);
+  const today2 = secondCal && getDateViewInLocaleCalendar(DateTime.now(), secondCal.locale.locale, secondCal.calendar, secondCal.locale.direction) || null;
 
   return (
     <div className="h-full flex items-center justify-between px-2 py-1">

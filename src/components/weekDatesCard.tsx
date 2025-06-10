@@ -3,6 +3,7 @@ import { useCalendarState } from "@/store/calendarStore";
 import { useWeekState } from "@/store/weekStore";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { WeekDates } from "./weekDates";
+import { ChevronRight, ChevronLeft } from 'lucide-react';
 import { buildFullWeekView } from "@/lib/week";
 
 const MILLISECONDS_IN_WEEK = 604800000;
@@ -23,11 +24,15 @@ function WeekDatesCard() {
     setWeekReference(weekReference + MILLISECONDS_IN_WEEK);
   }
 
+  const NextIcon = weekView.direction === 'ltr' ? ChevronRight : ChevronLeft;
+  const PrevIcon = weekView.direction === 'ltr' ? ChevronLeft : ChevronRight;
+
+
   return (
-    <Card dir={weekView.direction} className="w-full max-w-sm min-w-64">
-      <CardHeader>
-        <CardTitle>{weekView.weekTitle}</CardTitle>
-        <CardDescription>{weekView.weekDescription}</CardDescription>
+    <Card dir={weekView.direction} className="w-full max-w-sm min-w-64 pt-3 pb-2 gap-2">
+      <CardHeader className="gap-0">
+        <CardTitle className="text-sm">{weekView.weekTitle}</CardTitle>
+        <CardDescription className="text-xs">{weekView.weekDescription}</CardDescription>
       </CardHeader>
       {/*<CardHeader>
         <CardTitle>Login to your account</CardTitle>
@@ -39,13 +44,13 @@ function WeekDatesCard() {
         </CardAction>
       </CardHeader>*/}
       <CardContent className="px-2 flex flex-auto gap-1 place-content-around items-center">
-        <Button variant="secondary" size="sm" onClick={goPreviousWeek}
+        <Button variant="ghost_dim" size="sm" onClick={goPreviousWeek}
           className="w-1/12"
-        >&lt;</Button>
+        ><PrevIcon /></Button>
         <WeekDates weekView={weekView} className="w-10/12" />
-        <Button variant="secondary" size="sm" onClick={goNextWeek}
+        <Button variant="ghost_dim" size="sm" onClick={goNextWeek}
           className="w-1/12"
-        >&gt;</Button>
+        ><NextIcon /></Button>
       </CardContent>
       {/*<CardFooter className="flex-col gap-2">
         <Button type="submit" className="w-full">
