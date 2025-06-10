@@ -1,8 +1,9 @@
 import { Button } from "./ui/button";
 import { useCalendarState } from "@/store/calendarStore";
 import { useWeekState } from "@/store/weekStore";
-import { Card, CardContent } from "./ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { WeekDates } from "./weekDates";
+import { buildFullWeekView } from "@/lib/week";
 
 const MILLISECONDS_IN_WEEK = 604800000;
 
@@ -11,6 +12,9 @@ function WeekDatesCard() {
   const direction = mainCal.locale.direction;
   const weekReference = useWeekState((state) => state.weekReference);
   const setWeekReference = useWeekState((state) => state.setWeekReference);
+
+  const secondCal = useCalendarState((state) => state.secondCal);
+  const weekView = buildFullWeekView(weekReference, mainCal, secondCal);
 
   function goPreviousWeek(/*event: MouseEvent<HTMLButtonElement, MouseEvent>*/): void {
     setWeekReference(weekReference - MILLISECONDS_IN_WEEK);
@@ -22,6 +26,10 @@ function WeekDatesCard() {
 
   return (
     <Card dir={direction} className="w-full max-w-sm min-w-64">
+      <CardHeader>
+        <CardTitle>{weekView.weekTitle}</CardTitle>
+        <CardDescription>{weekView.weekDescription}</CardDescription>
+      </CardHeader>
       {/*<CardHeader>
         <CardTitle>Login to your account</CardTitle>
         <CardDescription>
@@ -35,7 +43,7 @@ function WeekDatesCard() {
         <Button variant="secondary" size="sm" onClick={goPreviousWeek}
           className="w-1/12"
         >&lt;</Button>
-        <WeekDates className="w-10/12" />
+        <WeekDates weekView={weekView} className="w-10/12" />
         <Button variant="secondary" size="sm" onClick={goNextWeek}
           className="w-1/12"
         >&gt;</Button>

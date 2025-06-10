@@ -1,17 +1,14 @@
-import { buildFullWeekView } from "@/lib/week";
+import { WeekViewType } from "@/lib/week";
 import { Separator } from "@/components/ui/separator"
 import { Button } from "./ui/button";
-import { useCalendarState } from "@/store/calendarStore";
-import { useWeekState } from "@/store/weekStore";
 import { cn } from "@/lib/utils";
 
-function WeekDates({ className, ...props }: React.ComponentProps<"div">) {
+type WeekDatesProps = {
+  weekView: WeekViewType;
+  className?: string;
+} & React.ComponentProps<"div">;
 
-  const mainCal = useCalendarState((state) => state.mainCal);
-  const secondCal = useCalendarState((state) => state.secondCal);
-  const weekReference = useWeekState((state) => state.weekReference);
-
-  const weekView = buildFullWeekView(weekReference, mainCal, secondCal);
+function WeekDates({ weekView, className, ...props }: WeekDatesProps) {
 
   return (
     <div

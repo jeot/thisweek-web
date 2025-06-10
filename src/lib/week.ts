@@ -151,38 +151,56 @@ export function getDateViewsInLocaleCalendarOfWeekLocal(
   });
 }
 
-export interface WeekView {
+export interface WeekViewType {
   weekTitle: string;
-  weekDesc: string;
+  weekDescription: string;
   direction: 'ltr' | 'rtl';
   dates: DateView[];
   dates2: DateView[] | null;
 }
 
-export function buildFullWeekView(refMillisUTC: number, mainCal: CalendarLocaleType, secondCal: CalendarLocaleType | null): WeekView {
+export function buildFullWeekView(refMillisUTC: number, mainCal: CalendarLocaleType, secondCal: CalendarLocaleType | null): WeekViewType {
   const dt = DateTime.fromMillis(refMillisUTC);
   // console.log(dt.toString());
   const weekStartsOn = mainCal.weekStartsOn; // should be same for both date views
   const direction = mainCal.locale.direction; // should be same for both date views
-  const result: WeekView = {
-    weekTitle: "week title",
-    weekDesc: "week description",
-    direction: direction,
-    dates: getDateViewsInLocaleCalendarOfWeekLocal(
-      weekStartsOn,
-      dt,
-      mainCal.locale.locale,
-      mainCal.calendar,
-      "full",
-    ),
-    dates2: secondCal ? getDateViewsInLocaleCalendarOfWeekLocal(
-      weekStartsOn,
-      dt,
-      secondCal.locale.locale,
-      secondCal.calendar,
-      "full",
-    ) : null,
+  const dates = getDateViewsInLocaleCalendarOfWeekLocal(
+    weekStartsOn,
+    dt,
+    mainCal.locale.locale,
+    mainCal.calendar,
+    "full",
+  );
+  const dates2 = secondCal ? getDateViewsInLocaleCalendarOfWeekLocal(
+    weekStartsOn,
+    dt,
+    secondCal.locale.locale,
+    secondCal.calendar,
+    "full",
+  ) : null;
+  //todo: add different year
+  let weekTitle = `${dates[0].parts.monthName} ${dates[0].parts.yearName || dates[0].parts.year}`;
+  if (dates[0].parts.year !== dates[6].parts.year) {
+    weekTitle = `${dates[0].parts.monthName} ${dates[0].parts.yearName || dates[0].parts.year} - ${dates[6].parts.monthName} ${dates[6].parts.yearName || dates[6].parts.year}`;
+  } else if (dates[0].parts.month !== dates[6].parts.month) {
+    weekTitle = `${dates[0].parts.monthName} - ${dates[6].parts.monthName} ${dates[6].parts.yearName || dates[6].parts.year}`;
+  }
+  let weekDescription = "";
+  if (dates2) {
+    weekDescription = `${dates2[0].parts.monthName} ${dates2[0].parts.yearName || dates2[0].parts.year}`;
+    if (dates2[0].parts.year !== dates2[6].parts.year) {
+      weekDescription = `${dates2[0].parts.monthName} ${dates2[0].parts.yearName || dates2[0].parts.year} - ${dates2[6].parts.monthName} ${dates2[6].parts.yearName || dates2[6].parts.year}`;
+    } else if (dates2[0].parts.month !== dates2[6].parts.month) {
+      weekDescription = `${dates2[0].parts.monthName} - ${dates2[6].parts.monthName} ${dates2[6].parts.yearName || dates2[6].parts.year}`;
+    }
+  }
 
+  const result: WeekViewType = {
+    weekTitle: weekTitle,
+    weekDescription: weekDescription,
+    direction: direction,
+    dates: dates,
+    dates2: dates2,
   };
   return result;
 }
