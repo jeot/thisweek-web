@@ -61,6 +61,7 @@ export interface DateView {
   // todo: timezone offset number
   gregoryDisplay: string;
   localeDisplay: string;
+  direction: string;
   parts: {
     day: string;
     month: string;
@@ -128,27 +129,61 @@ function getParts(dt: DateTime, locale: string, calendar: string) {
   };
 }
 
+
+function getLocaleString(date: DateTime, locale: string, calendar: string, dateStyle: "long" | "short" | "full" | "medium" | undefined) {
+  const opt = { calendar: calendar, dateStyle: dateStyle };
+  const formatter = new Intl.DateTimeFormat(locale, {
+    calendar,
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    weekday: "long",
+  });
+  const parts = formatter.formatToParts(date.toJSDate());
+  // console.log(parts);
+  // patch: the construction for "fa-IR" direction is incorrect
+  if (calendar == "persian" && locale == "fa-IR") {
+    // console.log("patching fa-IR");
+    const reversed = parts.reverse().map((p) => p.value).join("");
+    const text = reversed.replace(",", "،");
+    // console.log(text);
+    return text;
+  }
+  const text = parts.map((p) => p.value).join("");
+  // console.log(text);
+  return text;
+}
+
+export function getDateViewInLocaleCalendar(
+  referenceDate: DateTime = DateTime.local(),
+  locale: string = "en-US",
+  calendar: string = "gregory",
+  direction: "rtl" | "ltr",
+  dateStyle: "full" | "long" | "medium" | "short" | undefined,
+) {
+  const date = referenceDate.setLocale(locale); // eg. "fa-IR"
+  const parts = getParts(date, locale, calendar);
+  const localeDisplay = getLocaleString(date, locale, calendar, dateStyle);
+  return {
+    originalDateTime: date,
+    gregoryDisplay: date.toString(),
+    localeDisplay: localeDisplay,
+    direction: direction,
+    parts: parts,
+  }
+}
+
 export function getDateViewsInLocaleCalendarOfWeekLocal(
   weekStartsOn: WeekdayType = 'mon',
   referenceDate: DateTime = DateTime.local(),
   locale: string = "en-US",
   calendar: string = "gregory",
+  direction: "rtl" | "ltr",
   dateStyle: "full" | "long" | "medium" | "short" | undefined,
 ): DateView[] {
   const weekStartsOnNumber = weekdayMap[weekStartsOn];
   const dates = getDaysOfWeekLocal(weekStartsOnNumber, referenceDate);
-  return dates.map((d) => {
-    const date = d.setLocale(locale); // eg. "fa-IR"
-    const opt = { calendar: calendar, dateStyle: dateStyle };
-    const parts = getParts(date, locale, calendar);
-    // console.log(parts);
-    return {
-      originalDateTime: date,
-      gregoryDisplay: date.toString(),
-      localeDisplay: date.toLocaleString(opt),
-      parts: parts,
-    }
-  });
+  return dates.map((d) => getDateViewInLocaleCalendar(d, locale, calendar, direction, dateStyle));
 }
 
 export interface WeekViewType {
@@ -169,6 +204,7 @@ export function buildFullWeekView(refMillisUTC: number, mainCal: CalendarLocaleT
     dt,
     mainCal.locale.locale,
     mainCal.calendar,
+    mainCal.locale.direction,
     "full",
   );
   const dates2 = secondCal ? getDateViewsInLocaleCalendarOfWeekLocal(
@@ -176,6 +212,7 @@ export function buildFullWeekView(refMillisUTC: number, mainCal: CalendarLocaleT
     dt,
     secondCal.locale.locale,
     secondCal.calendar,
+    secondCal.locale.direction,
     "full",
   ) : null;
   //todo: add different year

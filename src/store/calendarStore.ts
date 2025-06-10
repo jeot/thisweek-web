@@ -33,10 +33,18 @@ const secondaryFaIRLocale: LocaleType = {
 	direction: "rtl"
 };
 
+const mainCalInit: CalendarLocaleType = {
+	calendar: 'gregory', locale: defaultEnUSLocale, weekStartsOn: 'mon'
+}
+
+const secondCalInit: CalendarLocaleType = {
+	calendar: 'persian', locale: secondaryFaIRLocale, weekStartsOn: 'sat'
+}
+
 export const useCalendarState = create<CalendarState>((set) => ({
-	mainCal: { calendar: 'gregory', locale: defaultEnUSLocale, weekStartsOn: 'mon' },
+	mainCal: mainCalInit,
 	// secondCal: null,
-	secondCal: { calendar: 'persian', locale: secondaryFaIRLocale, weekStartsOn: 'sat' },
+	secondCal: secondCalInit,
 	setMainCal: (cw) => set({ mainCal: cw }),
 	setSecondCal: (cw) => set({ secondCal: cw }),
 }));

@@ -9,11 +9,10 @@ const MILLISECONDS_IN_WEEK = 604800000;
 
 function WeekDatesCard() {
   const mainCal = useCalendarState((state) => state.mainCal);
-  const direction = mainCal.locale.direction;
+  const secondCal = useCalendarState((state) => state.secondCal);
   const weekReference = useWeekState((state) => state.weekReference);
   const setWeekReference = useWeekState((state) => state.setWeekReference);
 
-  const secondCal = useCalendarState((state) => state.secondCal);
   const weekView = buildFullWeekView(weekReference, mainCal, secondCal);
 
   function goPreviousWeek(/*event: MouseEvent<HTMLButtonElement, MouseEvent>*/): void {
@@ -25,7 +24,7 @@ function WeekDatesCard() {
   }
 
   return (
-    <Card dir={direction} className="w-full max-w-sm min-w-64">
+    <Card dir={weekView.direction} className="w-full max-w-sm min-w-64">
       <CardHeader>
         <CardTitle>{weekView.weekTitle}</CardTitle>
         <CardDescription>{weekView.weekDescription}</CardDescription>

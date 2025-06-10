@@ -1,47 +1,4 @@
 import { create } from 'zustand';
-import locales from '@/types/locales.json';
-
-// today
-
-interface DateViewForToday {
-	date: Date;
-	text: string;
-	dir: string;
-};
-
-type TodayState = {
-	today: DateViewForToday;
-	today2: DateViewForToday;
-	today3: DateViewForToday;
-	setToday: (t: DateViewForToday) => void;
-	setToday2: (t: DateViewForToday) => void;
-	setToday3: (t: DateViewForToday) => void;
-};
-
-const dateToDateViewForToday = (
-	d: Date, locale: string, cal: string,
-	dateStyle?: "full" | "long" | "medium" | "short" | undefined
-) => {
-	const dir = locales.find((value) => (value.locale === locale))?.direction || "ltr";
-	const result: DateViewForToday = {
-		date: d,
-		text: d.toLocaleDateString(locale, { calendar: cal, dateStyle: dateStyle }),
-		dir: dir,
-	};
-	return result;
-}
-
-export const useTodayState = create<TodayState>((set) => ({
-	today: dateToDateViewForToday(new Date, "fa-IR", "persian", "long"),
-	today2: dateToDateViewForToday(new Date, "en-US", "gregory", "full"),
-	today3: dateToDateViewForToday(new Date, "en-US", "gregory", "full"),
-	setToday: (t) => set({ today: t }),
-	setToday2: (t) => set({ today2: t }),
-	setToday3: (t) => set({ today3: t }),
-}));
-
-
-/////// week
 
 type WeekState = {
 	weekReference: number;
