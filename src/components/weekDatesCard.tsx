@@ -11,10 +11,11 @@ const MILLISECONDS_IN_WEEK = 604800000;
 function WeekDatesCard() {
   const mainCal = useCalendarState((state) => state.mainCal);
   const secondCal = useCalendarState((state) => state.secondCal);
+  const secondCalEnabled = useCalendarState((state) => state.secondCalEnabled);
   const weekReference = useWeekState((state) => state.weekReference);
   const setWeekReference = useWeekState((state) => state.setWeekReference);
 
-  const weekView = buildFullWeekView(weekReference, mainCal, secondCal);
+  const weekView = buildFullWeekView(weekReference, mainCal, secondCal, secondCalEnabled);
 
   function goPreviousWeek(/*event: MouseEvent<HTMLButtonElement, MouseEvent>*/): void {
     setWeekReference(weekReference - MILLISECONDS_IN_WEEK);

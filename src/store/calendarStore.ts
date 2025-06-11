@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { CalendarLocaleType, LocaleType } from '@/types/types';
+import { CalendarType } from '@/types/calendarLocales';
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/DateTimeFormat
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl#locales_argument
@@ -10,12 +11,17 @@ import { CalendarLocaleType, LocaleType } from '@/types/types';
 
 type CalendarState = {
 	mainCal: CalendarLocaleType;
-	secondCal: CalendarLocaleType | null;
+	secondCal: CalendarLocaleType;
+	secondCalEnabled: boolean;
 	setMainCal: (cw: CalendarLocaleType) => void;
-	setSecondCal: (cw: CalendarLocaleType | null) => void;
+	setMainCalCalendar: (cal: CalendarType) => void;
+	setMainCalLocale: (loc: LocaleType) => void;
+	setSecondCal: (cw: CalendarLocaleType) => void;
+	setSecondCalLocale: (loc: LocaleType) => void;
+	setSecondCalEnabled: (en: boolean) => void;
 };
 
-const defaultEnUSLocale: LocaleType = {
+const enUSLocale: LocaleType = {
 	locale: "en-US",
 	language: "English",
 	region: "United States",
@@ -24,48 +30,33 @@ const defaultEnUSLocale: LocaleType = {
 	direction: "ltr"
 };
 
-const secondaryFaIRLocale: LocaleType = {
-	locale: "fa-IR",
-	language: "Persian",
-	region: "Iran",
-	nativeName: "فارسی",
-	flag: "🇮🇷",
-	direction: "rtl"
-};
-
-/*
 import localesData from '@/types/locales.json'
-const testLocale: LocaleType = {
-	locale: "en-US",
-	language: "English",
-	region: "United States",
-	nativeName: "English",
-	flag: "🇺🇸",
-	direction: "ltr"
-};
+import { calendars } from '@/types/calendarLocales'
 const test_cal = 'hebrew';
-const test_region = 'Israel';
-const test_loc: LocaleType = (localesData as Array<LocaleType>).find((v) => (v.region === test_region)) || testLocale;
+const test_default_loc = calendars.find((cal) => cal.name === test_cal)!;
+const test_loc_str = test_default_loc.locales[0].locale;
+const test_week_start = test_default_loc.locales[0].startWeekday;
+const test_locale: LocaleType = localesData.find((loc) => loc.locale === test_loc_str)! as LocaleType;
 const testCal: CalendarLocaleType = {
-	calendar: test_cal, locale: test_loc, weekStartsOn: 'mon'
+	calendar: test_cal, locale: test_locale, weekStartsOn: test_week_start
 }
-*/
 
 const mainCalInit: CalendarLocaleType = {
-	calendar: 'gregory', locale: defaultEnUSLocale, weekStartsOn: 'mon'
+	calendar: 'gregory', locale: enUSLocale, weekStartsOn: 'mon'
 }
 
-const secondCalInit: CalendarLocaleType = {
-	calendar: 'persian', locale: secondaryFaIRLocale, weekStartsOn: 'sat'
-}
+const secondCalInit: CalendarLocaleType = testCal;
 
-export const useCalendarState = create<CalendarState>((set) => ({
+export const useCalendarState = create<CalendarState>((set, get) => ({
 	mainCal: mainCalInit,
-	// mainCal: testCal,
 	secondCal: secondCalInit,
-	// secondCal: null,
+	secondCalEnabled: false,
 	setMainCal: (cw) => set({ mainCal: cw }),
+	setMainCalCalendar: (cal) => set({ mainCal: { ...get().mainCal, calendar: cal } }),
+	setMainCalLocale: (loc) => set({ mainCal: { ...get().mainCal, locale: loc } }),
 	setSecondCal: (cw) => set({ secondCal: cw }),
+	setSecondCalLocale: (loc) => set({ secondCal: { ...get().secondCal, locale: loc } }),
+	setSecondCalEnabled: (en) => set({ secondCalEnabled: en }),
 }));
 
 

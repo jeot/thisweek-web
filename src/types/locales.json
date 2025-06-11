@@ -302,5 +302,13 @@
     "nativeName": "አማርኛ",
     "flag": "🇪🇹",
     "direction": "ltr"
+  },
+  {
+    "locale": "ur-PK",
+    "language": "Urdu",
+    "region": "Pakistan",
+    "nativeName": "اردو",
+    "flag": "🇵🇰",
+    "direction": "rtl"
   }
 ]

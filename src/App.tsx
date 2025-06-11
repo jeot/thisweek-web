@@ -4,7 +4,7 @@ import SidebarLayout from '@/components/SidebarLayout'
 import { lorem } from '@/assets/lorem'
 import { WeekDatesCard } from './components/weekDatesCard';
 import { ViewType } from '@/types/types';
-import { SettingsPage } from './components/SettingsPage';
+import { Settings as SettingsPage } from './components/Settings';
 
 function App() {
   const [view, setView] = useState<ViewType>('This Week');

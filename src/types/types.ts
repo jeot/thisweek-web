@@ -1,6 +1,14 @@
+import { CalendarType } from "./calendarLocales";
+
 export type ViewType = 'This Week' | 'This Year' | 'Settings';
 
-export type CalendarType = 'gregory' | 'chinese' | 'hebrew' | 'islamic' | 'japanese' | 'indian' | 'persian' | 'iso8601' | 'buddhist' | 'roc' | 'coptic' | 'ethiopic' | 'ethiopia';
+export type WeekdayString = 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat';
+export type WeekdayNumbers = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+export type WeekdayType = WeekdayString | WeekdayNumbers;
+
+export const weekdayMap: Record<string, number> = {
+  sun: 0, mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6,
+};
 
 export interface LocaleType {
   locale: string;
@@ -10,12 +18,6 @@ export interface LocaleType {
   flag: string;
   direction: "ltr" | "rtl";
 }
-
-export type WeekdayType = 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat';
-
-export const weekdayMap: Record<string, number> = {
-  sun: 0, mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6,
-};
 
 export interface CalendarLocaleType {
   calendar: CalendarType;

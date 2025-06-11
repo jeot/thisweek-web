@@ -158,7 +158,7 @@ export function getDateViewInLocaleCalendar(
   locale: string = "en-US",
   calendar: string = "gregory",
   direction: "rtl" | "ltr",
-) {
+): DateView {
   const date = referenceDate.setLocale(locale); // eg. "fa-IR"
   const parts = getParts(date, locale, calendar);
   const localeDisplay = getLocaleString(date, locale, calendar);
@@ -178,7 +178,14 @@ export function getDateViewsInLocaleCalendarOfWeekLocal(
   calendar: string = "gregory",
   direction: "rtl" | "ltr",
 ): DateView[] {
-  const weekStartsOnNumber = weekdayMap[weekStartsOn];
+  let weekStartsOnNumber: number = 0;
+  if (typeof weekStartsOn === 'string') { // value is of type WeekdayString
+    // console.log('Got a string weekday:', weekStartsOn);
+    weekStartsOnNumber = weekdayMap[weekStartsOn];
+  } else { // value is of type WeekdayNumbers
+    // console.log('Got a number weekday:', weekStartsOn);
+    weekStartsOnNumber = weekStartsOn;
+  }
   const dates = getDaysOfWeekLocal(weekStartsOnNumber, referenceDate);
   return dates.map((d) => getDateViewInLocaleCalendar(d, locale, calendar, direction));
 }
@@ -191,7 +198,7 @@ export interface WeekViewType {
   dates2: DateView[] | null;
 }
 
-export function buildFullWeekView(refMillisUTC: number, mainCal: CalendarLocaleType, secondCal: CalendarLocaleType | null): WeekViewType {
+export function buildFullWeekView(refMillisUTC: number, mainCal: CalendarLocaleType, secondCal: CalendarLocaleType, secondCalEnabled: boolean): WeekViewType {
   const dt = DateTime.fromMillis(refMillisUTC);
   // console.log(dt.toString());
   const weekStartsOn = mainCal.weekStartsOn; // should be same for both date views
@@ -203,7 +210,7 @@ export function buildFullWeekView(refMillisUTC: number, mainCal: CalendarLocaleT
     mainCal.calendar,
     mainCal.locale.direction,
   );
-  const dates2 = secondCal ? getDateViewsInLocaleCalendarOfWeekLocal(
+  const dates2 = secondCalEnabled ? getDateViewsInLocaleCalendarOfWeekLocal(
     weekStartsOn,
     dt,
     secondCal.locale.locale,

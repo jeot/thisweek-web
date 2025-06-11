@@ -1,21 +1,21 @@
 import { lorem } from "@/assets/lorem";
 import { Button } from "./ui/button";
 import { useSettingsState, SettingPageType } from "@/store/settingsStore";
+import { SettingsCalendar } from "@/components/SettingsCalendar"
 
-export function SettingsPage() {
+export function Settings() {
   const settingPage = useSettingsState((state) => state.settingPage);
   const setSettingPage = useSettingsState((state) => state.setSettingPage);
 
-  const GeneralPage = <div><h1>General!</h1><p>{lorem}</p></div>;
-  const CalendarPage = <div><h1>Calendar!</h1><p>{lorem}</p></div>;
-  const KeymapPage = <div><h1>Keymaps!</h1><p>{lorem}</p></div>;
+  const SettingsGeneral = () => <div><h1>General!</h1><p>{lorem}</p></div>;
+  const SettingsKeymap = () => <div><h1>Keymaps!</h1><p>{lorem}</p></div>;
 
-  const settings: Array<{ name: SettingPageType, child: any }> = [
-    { name: "General", child: GeneralPage },
-    { name: "Calendars", child: CalendarPage },
-    { name: "Keybinds", child: KeymapPage },
+  const settings: Array<{ name: SettingPageType, child: () => JSX.Element }> = [
+    { name: "General", child: SettingsGeneral },
+    { name: "Calendars", child: SettingsCalendar },
+    { name: "Keybinds", child: SettingsKeymap },
   ];
-  const pageContent = settings.find((v) => { return (v.name === settingPage) })?.child;
+  const SettingContent = settings.find((v) => { return (v.name === settingPage) })?.child!;
 
   return (
     <div className="flex flex-row justify-self-stretch h-full">
@@ -28,7 +28,7 @@ export function SettingsPage() {
         })}
       </div>
       <div className="flex-3 p-4 min-w-sm overflow-y-auto">
-        {pageContent || "No Content Available"}
+        <SettingContent />
       </div>
     </div >
   );
