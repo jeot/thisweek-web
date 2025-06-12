@@ -68,9 +68,9 @@ export function SettingsCalendar() {
           <SelectValue placeholder="Select Calendar" />
         </SelectTrigger>
         <SelectContent>
-          {calendars.map((calMeta) => {
+          {calendars.map((calMeta, index) => {
             return (
-              <SelectItem className="justify-items-start" value={calMeta.name}>
+              <SelectItem key={index} className="justify-items-start" value={calMeta.name}>
                 {calMeta.displayName}
               </SelectItem>
             );
@@ -87,10 +87,10 @@ export function SettingsCalendar() {
           <SelectValue placeholder="Select Language/Region" />
         </SelectTrigger>
         <SelectContent>
-          {calendarMeta?.locales.map((calLocMeta) => {
+          {calendarMeta?.locales.map((calLocMeta, index) => {
             const flag = locales.find((v) => v.locale === calLocMeta.locale)?.flag;
             return (
-              <SelectItem className="justify-items-start" value={calLocMeta.locale}>
+              <SelectItem key={index} className="justify-items-start" value={calLocMeta.locale}>
                 <div className="w-[260px] flex items-center">
                   <div className="flex-1 text-left">{calLocMeta.displayName}</div>
                   <Badge className="flex-none text-xs ml-auto font-mono" variant="secondary">{calLocMeta.locale}&nbsp;{flag}</Badge>

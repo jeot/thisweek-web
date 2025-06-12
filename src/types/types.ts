@@ -20,7 +20,7 @@ export interface LocaleType {
 }
 
 export interface CalendarLocaleType {
-  calendar: CalendarType;
+  calendar: CalendarType; // string
   locale: LocaleType;
   weekStartsOn: WeekdayType;
 }

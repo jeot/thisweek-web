@@ -29,14 +29,14 @@ export function Settings() {
         <TabsList className="w-full">
           {settings.map((v) => {
             return (
-              <TabsTrigger value={v.name} className="hover:bg-primary/5 m-1">{v.name}</TabsTrigger>
+              <TabsTrigger key={v.name} value={v.name} className="hover:bg-primary/5 m-1">{v.name}</TabsTrigger>
             );
           })}
         </TabsList>
         {settings.map((v) => {
           const Content = v.child;
           return (
-            <TabsContent value={v.name}><Content /></TabsContent>
+            <TabsContent key={v.name} value={v.name}><Content /></TabsContent>
           );
         })}
       </Tabs>
@@ -46,7 +46,7 @@ export function Settings() {
           {settings.map((v) => {
             const variant = settingPage === v.name ? "default" : "shk";
             return (
-              <Button className="text-base" variant={variant} onClick={() => { handleTabChange(v.name) }}>{v.name}</Button>
+              <Button key={v.name} className="text-base" variant={variant} onClick={() => { handleTabChange(v.name) }}>{v.name}</Button>
             );
           })}
         </div>

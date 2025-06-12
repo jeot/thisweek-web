@@ -1,13 +1,38 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import './App.css'
 import SidebarLayout from '@/components/SidebarLayout'
 import { lorem } from '@/assets/lorem'
 import { WeekDatesCard } from './components/weekDatesCard';
 import { ViewType } from '@/types/types';
 import { Settings as SettingsPage } from './components/Settings';
+import { ensureValidAppConfig, getAppConfigFromIDB } from './store/appConfigIDB';
+import { useCalendarState } from "@/store/calendarStore";
 
 function App() {
   const [view, setView] = useState<ViewType>('This Week');
+  const setMainCal = useCalendarState((state) => state.setMainCal);
+  const setSecondCal = useCalendarState((state) => state.setSecondCal);
+  const setSecondCalEnabled = useCalendarState((state) => state.setSecondCalEnabled);
+
+
+  useEffect(() => {
+    (async () => {
+      await ensureValidAppConfig();
+      const saved = await getAppConfigFromIDB();
+      if (saved) {
+        console.log("saved config: ", saved);
+        setMainCal(saved.mainCalendar, false);
+        setSecondCal(saved.secondCalendar, false);
+        setSecondCalEnabled(saved.secondCalendarEnabled, false);
+        // if (saved?.theme) {
+        //   setTheme(saved.theme); // from useThemeStore
+        // }
+        // ... repeat for other configs
+      } else {
+        console.log("no config found!");
+      }
+    })();
+  }, []);
 
 
   const ThisWeekPage = () =>

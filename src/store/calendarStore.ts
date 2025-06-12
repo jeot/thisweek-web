@@ -1,6 +1,6 @@
 import { create } from 'zustand';
+import { DEFAULT_SECOND_CAL_LOC, DEFAULT_MAIN_CAL_LOC, saveAppConfigToIDBPartial } from '../store/appConfigIDB';
 import { CalendarLocaleType, LocaleType } from '@/types/types';
-import { CalendarType } from '@/types/calendarLocales';
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/DateTimeFormat
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl#locales_argument
@@ -13,50 +13,41 @@ type CalendarState = {
 	mainCal: CalendarLocaleType;
 	secondCal: CalendarLocaleType;
 	secondCalEnabled: boolean;
-	setMainCal: (cw: CalendarLocaleType) => void;
-	setMainCalCalendar: (cal: CalendarType) => void;
-	setMainCalLocale: (loc: LocaleType) => void;
-	setSecondCal: (cw: CalendarLocaleType) => void;
-	setSecondCalLocale: (loc: LocaleType) => void;
-	setSecondCalEnabled: (en: boolean) => void;
+	setMainCal: (cl: CalendarLocaleType, save?: boolean) => void;
+	// setMainCalCalendar: (cal: CalendarType) => void;
+	setMainCalLocale: (loc: LocaleType, save?: boolean) => void;
+	setSecondCal: (cl: CalendarLocaleType, save?: boolean) => void;
+	setSecondCalLocale: (loc: LocaleType, save?: boolean) => void;
+	setSecondCalEnabled: (en: boolean, save?: boolean) => void;
 };
-
-const enUSLocale: LocaleType = {
-	locale: "en-US",
-	language: "English",
-	region: "United States",
-	nativeName: "English",
-	flag: "🇺🇸",
-	direction: "ltr"
-};
-
-import localesData from '@/types/locales.json'
-import { calendars } from '@/types/calendarLocales'
-const test_cal = 'hebrew';
-const test_default_loc = calendars.find((cal) => cal.name === test_cal)!;
-const test_loc_str = test_default_loc.locales[0].locale;
-const test_week_start = test_default_loc.locales[0].startWeekday;
-const test_locale: LocaleType = localesData.find((loc) => loc.locale === test_loc_str)! as LocaleType;
-const testCal: CalendarLocaleType = {
-	calendar: test_cal, locale: test_locale, weekStartsOn: test_week_start
-}
-
-const mainCalInit: CalendarLocaleType = {
-	calendar: 'gregory', locale: enUSLocale, weekStartsOn: 'mon'
-}
-
-const secondCalInit: CalendarLocaleType = testCal;
 
 export const useCalendarState = create<CalendarState>((set, get) => ({
-	mainCal: mainCalInit,
-	secondCal: secondCalInit,
+	mainCal: DEFAULT_MAIN_CAL_LOC,
+	secondCal: DEFAULT_SECOND_CAL_LOC,
 	secondCalEnabled: false,
-	setMainCal: (cw) => set({ mainCal: cw }),
-	setMainCalCalendar: (cal) => set({ mainCal: { ...get().mainCal, calendar: cal } }),
-	setMainCalLocale: (loc) => set({ mainCal: { ...get().mainCal, locale: loc } }),
-	setSecondCal: (cw) => set({ secondCal: cw }),
-	setSecondCalLocale: (loc) => set({ secondCal: { ...get().secondCal, locale: loc } }),
-	setSecondCalEnabled: (en) => set({ secondCalEnabled: en }),
+	setMainCal: (cl, save = true) => {
+		set({ mainCal: cl });
+		if (save) saveAppConfigToIDBPartial({ mainCalendar: cl });
+	},
+	// setMainCalCalendar: (cal) => set({ mainCal: { ...get().mainCal, calendar: cal } }),
+	setMainCalLocale: (loc, save = true) => {
+		const cl = { ...get().mainCal, locale: loc };
+		set({ mainCal: cl });
+		if (save) saveAppConfigToIDBPartial({ mainCalendar: cl });
+	},
+	setSecondCal: (cl, save = true) => {
+		set({ secondCal: cl });
+		if (save) saveAppConfigToIDBPartial({ secondCalendar: cl });
+	},
+	setSecondCalLocale: (loc, save = true) => {
+		const cl = { ...get().secondCal, locale: loc };
+		set({ secondCal: cl });
+		if (save) saveAppConfigToIDBPartial({ secondCalendar: cl });
+	},
+	setSecondCalEnabled: (en, save = true) => {
+		set({ secondCalEnabled: en });
+		if (save) saveAppConfigToIDBPartial({ secondCalendarEnabled: en });
+	}
 }));
 
 
