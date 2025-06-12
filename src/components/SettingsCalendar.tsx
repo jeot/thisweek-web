@@ -5,6 +5,7 @@ import { useCalendarState } from "@/store/calendarStore"
 import { LocaleType } from "@/types/types";
 import { Badge } from "./ui/badge";
 import { Switch } from "@/components/ui/switch"
+import { WeekDatesCard } from "./weekDatesCard";
 
 
 export function SettingsCalendar() {
@@ -104,18 +105,21 @@ export function SettingsCalendar() {
 
   return (
     <div className="flex flex-col gap-3">
-      <h2>Main Calendar</h2>
+      <h2 className="mt-2">Main Calendar</h2>
 
       <CalendarSelector selected={mainCal.calendar} onChange={handleMainCalCalendarChange} />
       <LocaleSelector selected={mainCal.locale.locale} calendarMeta={mainCalendarMeta} onChange={handleMainCalLocaleChange} />
 
       <div className="flex items-baseline space-x-5">
-        <h2>Second Calendar</h2>
+        <h2 className="mt-4">Second Calendar</h2>
         <Switch checked={secondCalEnabled} onCheckedChange={setSecondCalEnabled} />
       </div>
 
       <CalendarSelector disabled={!secondCalEnabled} selected={secondCal.calendar} onChange={handleSecondCalCalendarChange} />
       <LocaleSelector disabled={!secondCalEnabled} selected={secondCal.locale.locale} calendarMeta={secondCalendarMeta} onChange={handleSecondCalLocaleChange} />
+
+      <h3 className="mt-4 text-primary/50">Week Card Preview</h3>
+      <WeekDatesCard />
     </div>
   );
 }

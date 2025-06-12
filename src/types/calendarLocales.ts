@@ -293,12 +293,12 @@ export const calendars: CalendarMeta[] = [
       {
         "locale": "fa-IR",
         "displayName": "\u0641\u0627\u0631\u0633\u06cc (Iran)",
-        "startWeekday": 1
+        "startWeekday": 6
       },
       {
         "locale": "en-US",
         "displayName": "English (United States)",
-        "startWeekday": 0
+        "startWeekday": 6
       }
     ]
   },

@@ -30,7 +30,7 @@ function WeekDatesCard() {
 
 
   return (
-    <Card dir={weekView.direction} className="w-full max-w-sm min-w-64 pt-3 pb-2 gap-2">
+    <Card dir={weekView.direction} className="w-full max-w-md min-w-64 pt-3 pb-2 gap-2">
       <CardHeader className="gap-0">
         <CardTitle className="text-sm">{weekView.weekTitle}</CardTitle>
         <CardDescription className="text-xs">{weekView.weekDescription}</CardDescription>
@@ -44,7 +44,7 @@ function WeekDatesCard() {
           <Button variant="link">Sign Up</Button>
         </CardAction>
       </CardHeader>*/}
-      <CardContent className="px-2 flex flex-auto gap-1 place-content-around items-center">
+      <CardContent className="px-1 flex flex-auto gap-0 place-content-around items-center">
         <Button variant="ghost_dim" size="sm" onClick={goPreviousWeek}
           className="w-1/12"
         ><PrevIcon /></Button>

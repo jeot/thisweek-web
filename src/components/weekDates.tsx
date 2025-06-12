@@ -12,12 +12,12 @@ function WeekDates({ weekView, className, ...props }: WeekDatesProps) {
 
   return (
     <div
-      className={cn("grid grid-cols-7 place-content-around gap-2", className)}
+      className={cn("grid grid-cols-7 place-content-around gap-0", className)}
       {...props}
     >
       {weekView.dates.map((dv, i) => {
         return (
-          <div key={i} className="border-0 text-center min-w-full">
+          <div key={i} className="min-w-full gap-0">
             <div className="text-xs text-center uppercase text-primary/40">
               {dv.parts.weekdayShort}
             </div>
