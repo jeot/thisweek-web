@@ -96,7 +96,7 @@ const DEFAULT_APP_CONFIG: AppConfig = {
   }
 };
 
-const db = openDB<AppDB>(APP_CONFIG_DB, 6, {
+const db = openDB<AppDB>(APP_CONFIG_DB, 1, {
   upgrade(db) {
     console.log("upgrading...");
     try {
