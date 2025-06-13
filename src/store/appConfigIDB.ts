@@ -1,5 +1,5 @@
 import { CalendarLocaleType, LocaleType, WeekdayType } from '@/types/types';
-import { openDB } from 'idb';
+import { DBSchema, openDB } from 'idb';
 
 const enUSLocale: LocaleType = {
   locale: "en-US",
@@ -29,7 +29,12 @@ export const DEFAULT_MAIN_CAL_LOC: CalendarLocaleType = {
 
 export const DEFAULT_SECOND_CAL_LOC: CalendarLocaleType = testCal;
 
-type AppConfig = {
+const APP_CONFIG_DB = "app-config-db";
+const CONFIG_STORE = "app-config-store";
+// const ITEMS_STORE = "items";
+const USER_APP_CONFIG_KEY = "user-app-config";
+
+interface AppConfig {
   theme: {
     mode: 'light' | 'dark';
     custom?: {
@@ -50,7 +55,27 @@ type AppConfig = {
     customDays: WeekdayType[];
     autoFetchEnabled: boolean;
   };
-};
+}
+
+/* example for the future
+interface ItemType {
+  todo: string;
+  note: string;
+}
+*/
+
+interface AppDB extends DBSchema {
+  'app-config-store': {
+    key: string
+    value: AppConfig;
+  };
+  /* example for the future
+  items: {
+    key: string
+    value: ItemType;
+  };
+  */
+}
 
 const DEFAULT_APP_CONFIG: AppConfig = {
   theme: {
@@ -71,39 +96,76 @@ const DEFAULT_APP_CONFIG: AppConfig = {
   }
 };
 
-const APP_CONFIG_DB = 'app-config-db';
-const APP_CONFIG_STORE = 'app-config-store';
-const USER_APP_CONFIG_KEY = 'user-app-config';
-
-const db = openDB(APP_CONFIG_DB, 1, {
+const db = openDB<AppDB>(APP_CONFIG_DB, 6, {
   upgrade(db) {
-    db.createObjectStore(APP_CONFIG_STORE);
+    console.log("upgrading...");
+    try {
+      if (!db.objectStoreNames.contains(CONFIG_STORE)) {
+        db.createObjectStore(CONFIG_STORE);
+      }
+    } catch (err) {
+      console.log("error in upgrade:", err);
+    }
+  },
+  blocked(currentVersion, blockedVersion, event) {
+    console.log("blocked!");
+    console.log(currentVersion, blockedVersion, event);
+    // …
+  },
+  blocking(currentVersion, blockedVersion, event) {
+    console.log("blocking?!");
+    console.log(currentVersion, blockedVersion, event);
+    // …
+  },
+  terminated() {
+    console.log("terminated!!");
+    // …
   },
 });
 
-export async function getAppConfigFromIDB(): Promise<AppConfig | null> {
-  return (await db).get(APP_CONFIG_STORE, USER_APP_CONFIG_KEY);
+export async function getAppConfigFromIDB(): Promise<AppConfig | undefined> {
+  try {
+    // console.log("geting config...");
+    const result = (await db).get(CONFIG_STORE, USER_APP_CONFIG_KEY);
+    return result;
+  } catch (err) {
+    console.log("catch error: ", err);
+  }
 }
 
 async function saveAppConfigToIDB(value: AppConfig) {
-  return (await db).put(APP_CONFIG_STORE, value, USER_APP_CONFIG_KEY);
+  try {
+    console.log("saving config... ", value);
+    return (await db).put(CONFIG_STORE, value, USER_APP_CONFIG_KEY);
+  } catch (err) {
+    console.log("catch error: ", err);
+  }
 }
 
 export async function ensureValidAppConfig() {
-  const existing = await getAppConfigFromIDB();
-  if (!existing) {
-    await saveAppConfigToIDBPartial(DEFAULT_APP_CONFIG);
+  try {
+    const existing = await getAppConfigFromIDB();
+    if (!existing) {
+      console.log("no config found! saving default...");
+      await saveAppConfigToIDBPartial(DEFAULT_APP_CONFIG);
+    }
+  } catch (err) {
+    console.log("catch error: ", err);
   }
 }
 
 export async function saveAppConfigToIDBPartial(partial: Partial<AppConfig>) {
-  const current = await getAppConfigFromIDB();
-  if (current) {
-    const merged = { ...current, ...partial };
-    await saveAppConfigToIDB(merged);
-  } else {
-    const merged = { ...DEFAULT_APP_CONFIG, ...partial };
-    await saveAppConfigToIDB(merged);
+  try {
+    const current = await getAppConfigFromIDB();
+    if (current) {
+      const merged = { ...current, ...partial };
+      await saveAppConfigToIDB(merged);
+    } else {
+      const merged = { ...DEFAULT_APP_CONFIG, ...partial };
+      await saveAppConfigToIDB(merged);
+    }
+  } catch (err) {
+    console.log("catch error: ", err);
   }
 }
 

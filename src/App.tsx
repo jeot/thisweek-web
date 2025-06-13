@@ -17,19 +17,23 @@ function App() {
 
   useEffect(() => {
     (async () => {
-      await ensureValidAppConfig();
-      const saved = await getAppConfigFromIDB();
-      if (saved) {
+      try {
+        await ensureValidAppConfig();
+        const saved = await getAppConfigFromIDB();
         console.log("saved config: ", saved);
-        setMainCal(saved.mainCalendar, false);
-        setSecondCal(saved.secondCalendar, false);
-        setSecondCalEnabled(saved.secondCalendarEnabled, false);
-        // if (saved?.theme) {
-        //   setTheme(saved.theme); // from useThemeStore
-        // }
-        // ... repeat for other configs
-      } else {
-        console.log("no config found!");
+        if (saved) {
+          setMainCal(saved.mainCalendar, false);
+          setSecondCal(saved.secondCalendar, false);
+          setSecondCalEnabled(saved.secondCalendarEnabled, false);
+          // if (saved?.theme) {
+          //   setTheme(saved.theme); // from useThemeStore
+          // }
+          // ... repeat for other configs
+        } else {
+          console.log("no config found!");
+        }
+      } catch (err) {
+        console.log("app startup error:", err);
       }
     })();
   }, []);
