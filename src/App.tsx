@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import './App.css'
 import SidebarLayout from '@/components/SidebarLayout'
-import { lorem } from '@/assets/lorem'
 import { WeekDatesCard } from './components/weekDatesCard';
+import { Settings as SettingsPage } from '@/components/Settings';
+import { lorem } from '@/assets/lorem'
 import { ViewType } from '@/types/types';
-import { Settings as SettingsPage } from './components/Settings';
-import { ensureValidAppConfig, getAppConfigFromIDB } from './store/appConfigIDB';
+import { ensureValidAppConfig, getAppConfigFromIDB } from '@/lib/appConfigIDB';
 import { useCalendarState } from "@/store/calendarStore";
+import { ListOfItemsContainer } from './components/ListOfItems';
 
 function App() {
   const [view, setView] = useState<ViewType>('This Week');
@@ -45,7 +46,7 @@ function App() {
         <WeekDatesCard />
       </div>
       <p>&nbsp;</p>
-      <p>{lorem}</p>
+      <ListOfItemsContainer />
     </div>;
   const ThisYearPage = () => <div><h1>ThisYearPage</h1><p>{lorem}</p></div>;
   const handleMenuClick = (key: typeof view) => {
