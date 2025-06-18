@@ -46,7 +46,9 @@ function App() {
         <WeekDatesCard />
       </div>
       <p>&nbsp;</p>
-      <ListOfItemsContainer />
+      <div className="flex flex-col justify-center items-center">
+        <ListOfItemsContainer />
+      </div>
     </div>;
   const ThisYearPage = () => <div><h1>ThisYearPage</h1><p>{lorem}</p></div>;
   const handleMenuClick = (key: typeof view) => {

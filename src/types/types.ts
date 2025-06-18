@@ -25,3 +25,11 @@ export interface CalendarLocaleType {
   weekStartsOn: WeekdayType;
 }
 
+// export type ItemContextMenuType = Array<{ name: 'Edit' | 'Copy' | 'Delete', action: (iat: ItemActionType) => void }>;
+
+export interface ItemType {
+  id: number;
+  title: string;
+  status: string;
+}
+

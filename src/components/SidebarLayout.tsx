@@ -70,7 +70,7 @@ export default function SidebarLayout({ children, onMenuClick, activeView, title
           {/* Sheet open button (visible on small view only) */}
           <div className="sm:hidden">
             <Sheet open={open} onOpenChange={setOpen}>
-              <SheetTrigger asChild>
+              <SheetTrigger>
                 <Button
                   variant="ghost" size="icon"
                   className="p-2 m-2 w-12 justify-center"
