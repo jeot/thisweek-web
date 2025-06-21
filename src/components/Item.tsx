@@ -5,10 +5,10 @@ import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } 
 import { db } from "@/lib/db";
 import { useState } from "react";
 import { Button } from "./ui/button";
-import { CheckIcon, Circle, CircleCheckBig, CircleCheck, CircleX } from "lucide-react";
+import { CheckIcon, Circle, CircleCheckBig, CircleX } from "lucide-react";
 
 
-export function Item({ className, item, onItemAction, ...props }: { item: ItemType, onItemAction?: (action: string, item: ItemType) => void } & React.ComponentProps<"div">) {
+export function Item({ className, item, selected, onItemAction, ...props }: { item: ItemType, selected?: boolean, onItemAction?: (action: string, item: ItemType) => void } & React.ComponentProps<"div">) {
   const [editing, setEditing] = useState(false);
   const [localTitle, setLocalTitle] = useState(item.title);
 
@@ -42,7 +42,11 @@ export function Item({ className, item, onItemAction, ...props }: { item: ItemTy
     <ContextMenu>
       <ContextMenuTrigger asChild>
         <div
-          className={cn("flex flex-row items-streach w-full gap-2", className)}
+          className={cn(
+            "rounded-md flex flex-row items-streach w-full gap-2",
+            `${selected ? "ring-1 ring-indigo-500" : ""}`,
+            className
+          )}
           {...props}
         >
           <Button variant="ghost" className="pt-2 text-primary/40"

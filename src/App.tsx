@@ -1,20 +1,21 @@
 import { useEffect, useState } from 'react'
 import './App.css'
-import SidebarLayout from '@/components/SidebarLayout'
-import { WeekDatesCard } from './components/weekDatesCard';
+import { SidebarLayout } from '@/components/SidebarLayout'
+import { ThisWeekPage } from '@/components/ThisWeekPage';
 import { Settings as SettingsPage } from '@/components/Settings';
 import { lorem } from '@/assets/lorem'
 import { ViewType } from '@/types/types';
 import { ensureValidAppConfig, getAppConfigFromIDB } from '@/lib/appConfigIDB';
 import { useCalendarState } from "@/store/calendarStore";
-import { ListOfItemsContainer } from './components/ListOfItems';
+import * as keymap from '@/lib/keymaps';
+import { useTheme } from 'next-themes';
 
 function App() {
   const [view, setView] = useState<ViewType>('This Week');
   const setMainCal = useCalendarState((state) => state.setMainCal);
   const setSecondCal = useCalendarState((state) => state.setSecondCal);
   const setSecondCalEnabled = useCalendarState((state) => state.setSecondCalEnabled);
-
+  const { setTheme, theme } = useTheme();
 
   useEffect(() => {
     (async () => {
@@ -37,19 +38,24 @@ function App() {
         console.log("app startup error:", err);
       }
     })();
+
+    keymap.init();
+    return () => {
+      keymap.deinit();
+    }
   }, []);
 
+  function handleKeymapCallback(action: string): void {
+    if (action === 'toggle_theme') setTheme(theme === 'light' ? 'dark' : 'light');
+  }
 
-  const ThisWeekPage = () =>
-    <div className="p-4">
-      <div className="flex justify-center">
-        <WeekDatesCard />
-      </div>
-      <p>&nbsp;</p>
-      <div className="flex flex-col justify-center items-center">
-        <ListOfItemsContainer />
-      </div>
-    </div>;
+  useEffect(() => {
+    const unliten = keymap.listen(handleKeymapCallback);
+    return () => {
+      unliten();
+    }
+  }, [theme]);
+
   const ThisYearPage = () => <div><h1>ThisYearPage</h1><p>{lorem}</p></div>;
   const handleMenuClick = (key: typeof view) => {
     setView(key);

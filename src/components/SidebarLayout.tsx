@@ -8,7 +8,7 @@ import HeaderContent from "./HeaderContent";
 import { ViewType } from "@/types/types";
 
 
-export default function SidebarLayout({ children, onMenuClick, activeView, title }: { children: React.ReactNode, onMenuClick: (view: ViewType) => void, activeView: ViewType, title: string }) {
+export function SidebarLayout({ children, onMenuClick, activeView, title }: { children: React.ReactNode, onMenuClick: (view: ViewType) => void, activeView: ViewType, title: string }) {
 
   activeView; // unused variable
 

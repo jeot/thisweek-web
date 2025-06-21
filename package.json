@@ -1,7 +1,7 @@
 {
   "name": "vite-react",
   "private": true,
-  "version": "0.3.1",
+  "version": "0.3.2",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -24,6 +24,7 @@
     "clsx": "^2.1.1",
     "dexie": "^4.0.11",
     "dexie-react-hooks": "^1.1.7",
+    "hotkeys-js": "^3.13.14",
     "idb": "^8.0.3",
     "lucide-react": "^0.511.0",
     "luxon": "^3.6.1",
@@ -31,6 +32,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.57.0",
+    "react-hotkeys-hook": "^5.1.0",
     "tailwind-merge": "^3.3.0",
     "tailwindcss": "^4.1.8",
     "zustand": "^5.0.5"
