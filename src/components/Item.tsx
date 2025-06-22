@@ -5,7 +5,7 @@ import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } 
 import { db } from "@/lib/db";
 import { useState } from "react";
 import { Button } from "./ui/button";
-import { CheckIcon, Circle, CircleCheckBig, CircleX } from "lucide-react";
+import { CheckIcon, Circle, CircleCheckBig, CircleX, NotebookText } from "lucide-react";
 
 
 export function Item({ className, item, selected, onItemAction, ...props }: { item: ItemType, selected?: boolean, onItemAction?: (action: string, item: ItemType) => void } & React.ComponentProps<"div">) {
@@ -38,6 +38,7 @@ export function Item({ className, item, selected, onItemAction, ...props }: { it
     },
   ];
 
+  // console.log(item);
   return (
     <ContextMenu>
       <ContextMenuTrigger asChild>
@@ -49,16 +50,20 @@ export function Item({ className, item, selected, onItemAction, ...props }: { it
           )}
           {...props}
         >
-          <Button variant="ghost" className="pt-2 text-primary/40"
-            onClick={() => {
-              let newItem = item;
-              newItem.status = item.status === 'done' ? 'undone' : 'done';
-              db.items.update(item.id, newItem);
-            }}>
-            {item.status === 'done' ? <CircleCheckBig /> : <Circle />}
-          </Button>
+          {item.type === 'todo' &&
+            <Button variant="ghost" className="pt-2 text-primary/60"
+              onClick={() => {
+                let newItem = item;
+                newItem.status = item.status === 'done' ? 'undone' : 'done';
+                db.items.update(item.id, newItem);
+              }}>
+              {item.status === 'done' ? <CircleCheckBig /> : <Circle />}
+            </Button>}
+          {item.type === 'note' &&
+            <Button variant="ghost" className="pt-2 text-primary/40" >
+              <NotebookText />
+            </Button>}
           <Textarea
-            rows={1}
             wrap="soft"
             value={editing && localTitle || item.title}
             className={cn("resize-none h-auto min-h-1 w-full bg-input/30 transition-all duration-200 border-none",

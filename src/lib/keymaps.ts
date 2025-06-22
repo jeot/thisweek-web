@@ -156,8 +156,12 @@ export const init = () => {
     if (key === 'shift+o') broadcastAction("create_item_above");
   });
 
-
-
+  // toggle task type
+  hotkeys('ctrl+x', 'KEY_SCOPE_FIRST', function(event, handler) {
+    const key = handler.key;
+    event.preventDefault()
+    if (key === 'ctrl+x') broadcastAction("toggle_item_type");
+  });
 }
 
 export const deinit = () => {

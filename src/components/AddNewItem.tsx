@@ -2,10 +2,10 @@ import { useState } from "react";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
 import { ItemType } from "@/types/types";
+import { Circle, NotebookText } from "lucide-react";
 
-export function NewItemInput({ addNewItem, cancelNewItem }:
-  { addNewItem: (newItem: ItemType) => void, cancelNewItem: () => void }
-) {
+export function NewItemInput({ itemType, addNewItem, cancelNewItem, onChangeItemType }:
+  { itemType: 'todo' | 'note', addNewItem: (newItem: ItemType) => void, cancelNewItem: () => void, onChangeItemType: () => void }) {
   const [title, setTitle] = useState('');
 
   const handleKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (event: React.KeyboardEvent) => {
@@ -28,17 +28,24 @@ export function NewItemInput({ addNewItem, cancelNewItem }:
       addNewItem({
         id: 0,
         title: title,
+        type: itemType,
         status: 'undone',
       });
     } else if (escape) {
       event.stopPropagation();
       event.preventDefault();
       cancelNewItem();
+    } else if (event.key === 'x' && event.ctrlKey) {
+      onChangeItemType();
     } else { }
   }
 
   return (
     <div className="flex w-full gap-2 items-center">
+      <Button variant="ghost" className="pt-2 text-primary/40">
+        {itemType === 'todo' && <Circle />}
+        {itemType === 'note' && <NotebookText />}
+      </Button>
       <Textarea
         autoFocus
         value={title}
@@ -53,6 +60,7 @@ export function NewItemInput({ addNewItem, cancelNewItem }:
           addNewItem({
             id: 0,
             title: title,
+            type: itemType,
             status: 'undone',
           });
         }}

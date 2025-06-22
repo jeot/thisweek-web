@@ -6,6 +6,7 @@ import * as keymap from '@/lib/keymaps';
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { ItemType } from "@/types/types";
+import { CirclePlus } from "lucide-react";
 
 // let mycount: number = 0;
 
@@ -13,9 +14,14 @@ interface ListOfItemsProps {
   startUtcMillis: number;
   endUtcMillis: number;
 }
+interface NewItemType {
+  position: number | 'top' | 'bottom';
+  type: 'todo' | 'note';
+}
+
 export function ListOfItems({ startUtcMillis, endUtcMillis }: ListOfItemsProps) {
 
-  const [newItem, setNewItem] = useState<number | 'top' | 'bottom' | null>(null);
+  const [newItem, setNewItem] = useState<NewItemType | null>(null);
 
   async function cancelNewItem() {
     setNewItem(null);
@@ -26,11 +32,14 @@ export function ListOfItems({ startUtcMillis, endUtcMillis }: ListOfItemsProps) 
       // Add the new friend!
       const id = await db.items.add({
         title: item.title,
+        type: item.type,
         status: item.status,
       });
       const msg = `Item successfully added. Got id ${id}`;
       console.log(msg);
     } catch (error) {
+      const msg = `Error adding item. err: ${error}`;
+      console.log(msg);
     }
     setNewItem(null);
   }
@@ -38,13 +47,12 @@ export function ListOfItems({ startUtcMillis, endUtcMillis }: ListOfItemsProps) 
   const items = useLiveQuery(
     async () => {
       // Query Dexie's API
-      const friends = await db.items
+      const items = await db.items
         // .where('age')
         // .between(startUtcMillis, endUtcMillis)
         .toArray();
-
       // Return result
-      return friends;
+      return items;
     },
     // specify vars that affect query:
     [startUtcMillis, endUtcMillis]
@@ -65,9 +73,6 @@ export function ListOfItems({ startUtcMillis, endUtcMillis }: ListOfItemsProps) 
   useEffect(() => {
     if (!action) return;
     if (!items) return;
-    console.log("new action:", action);
-    console.log("selectedIndex:", selectedIndex);
-    console.log("itemsLength:", itemsLength);
     const selectedIndexNotValid = (selectedIndex !== null && ((selectedIndex < 0) || (selectedIndex >= itemsLength)));
     // do these things based on selected item
     if (action === 'up') {
@@ -109,33 +114,59 @@ export function ListOfItems({ startUtcMillis, endUtcMillis }: ListOfItemsProps) 
       }
     }
     if (action === 'create_item') {
-      if (selectedIndex === null || selectedIndexNotValid) setNewItem('bottom');
-      else setNewItem(selectedIndex);
+      if (selectedIndex === null || selectedIndexNotValid) setNewItem({ position: 'bottom', type: 'todo' });
+      else setNewItem({ position: selectedIndex, type: 'todo' });
       setSelectedIndex(null)
     }
     if (action === 'create_item_above') {
-      if (selectedIndex === null || selectedIndexNotValid || selectedIndex === 0) setNewItem('top');
-      else setNewItem(selectedIndex - 1);
+      if (selectedIndex === null || selectedIndexNotValid || selectedIndex === 0) setNewItem({ position: 'top', type: 'todo' });
+      else setNewItem({ position: selectedIndex - 1, type: 'todo' });
       setSelectedIndex(null)
+    }
+    if (action === 'toggle_item_type') {
+      if (newItem === null) return;
+      const type = (newItem.type === 'todo') ? 'note' : 'todo';
+      setNewItem({ ...newItem, type: type });
     }
 
     setAction(null);
     return () => { }
-  }, [action, selectedIndex, itemsLength, items]);
+  }, [action, selectedIndex, itemsLength, items, newItem]);
 
   return (
     <div className="flex flex-col flex-1 w-full max-w-xl items-center gap-2">
-      {newItem === 'top' && <NewItemInput addNewItem={addNewItem} cancelNewItem={cancelNewItem} />}
+      {newItem?.position === 'top' &&
+        <NewItemInput itemType={newItem.type} addNewItem={addNewItem} cancelNewItem={cancelNewItem}
+          onChangeItemType={() => {
+            if (newItem === null) return;
+            const type = (newItem.type === 'todo') ? 'note' : 'todo';
+            setNewItem({ ...newItem, type: type });
+          }}
+        />}
       {items?.map((item, i) => {
         return (
-          <>
+          <div key={item.id} className="w-full">
             <Item key={item.id} item={item} selected={(selectedIndex === i)} />
-            {newItem !== null && typeof newItem === 'number' && newItem === i && <NewItemInput addNewItem={addNewItem} cancelNewItem={cancelNewItem} />}
-          </>
+            {newItem !== null && typeof newItem.position === 'number' && newItem.position === i &&
+              <NewItemInput key={`new-item-${item.id}`} itemType={newItem.type} addNewItem={addNewItem} cancelNewItem={cancelNewItem}
+                onChangeItemType={() => {
+                  if (newItem === null) return;
+                  const type = (newItem.type === 'todo') ? 'note' : 'todo';
+                  setNewItem({ ...newItem, type: type });
+                }}
+              />}
+          </div>
         );
       })}
-      {newItem === 'bottom' && <NewItemInput addNewItem={addNewItem} cancelNewItem={cancelNewItem} />}
-      {newItem === null && <Button variant="outline" onClick={() => { setNewItem("bottom"); }}>Add New Item</Button>}
+      {newItem?.position === 'bottom' &&
+        <NewItemInput itemType={newItem.type} addNewItem={addNewItem} cancelNewItem={cancelNewItem}
+          onChangeItemType={() => {
+            if (newItem === null) return;
+            const type = (newItem.type === 'todo') ? 'note' : 'todo';
+            setNewItem({ ...newItem, type: type });
+          }}
+        />}
+      {newItem === null && <Button variant="outline" onClick={() => { setNewItem({ position: 'bottom', type: 'todo' }); }}><CirclePlus />New Item</Button>}
     </div>
   );
 }
