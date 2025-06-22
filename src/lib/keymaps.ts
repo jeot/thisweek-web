@@ -148,6 +148,16 @@ export const init = () => {
     broadcastAction("cancel");
   });
 
+  // create tasks
+  hotkeys('o,shift+o', 'KEY_SCOPE_FIRST', function(event, handler) {
+    const key = handler.key;
+    event.preventDefault()
+    if (key === 'o') broadcastAction("create_item");
+    if (key === 'shift+o') broadcastAction("create_item_above");
+  });
+
+
+
 }
 
 export const deinit = () => {
