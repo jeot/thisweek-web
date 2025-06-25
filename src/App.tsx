@@ -50,7 +50,7 @@ function App() {
   }
 
   useEffect(() => {
-    const unliten = keymap.listen(handleKeymapCallback);
+    const unliten = keymap.listenToActions(handleKeymapCallback);
     return () => {
       unliten();
     }

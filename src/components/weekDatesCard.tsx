@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/
 import { WeekDates } from "./weekDates";
 import { ChevronRight, ChevronLeft } from 'lucide-react';
 import { buildFullWeekView } from "@/lib/week";
+import { useActionListener } from "@/lib/useActionListener";
 
 const MILLISECONDS_IN_WEEK = 604800000;
 
@@ -16,6 +17,7 @@ function WeekDatesCard() {
   const setWeekReference = useWeekState((state) => state.setWeekReference);
 
   const weekView = buildFullWeekView(weekReference, mainCal, secondCal, secondCalEnabled);
+  const defaultDirection = (weekView.direction === 'ltr');
 
   function goPreviousWeek(/*event: MouseEvent<HTMLButtonElement, MouseEvent>*/): void {
     setWeekReference(weekReference - MILLISECONDS_IN_WEEK);
@@ -25,8 +27,19 @@ function WeekDatesCard() {
     setWeekReference(weekReference + MILLISECONDS_IN_WEEK);
   }
 
-  const NextIcon = weekView.direction === 'ltr' ? ChevronRight : ChevronLeft;
-  const PrevIcon = weekView.direction === 'ltr' ? ChevronLeft : ChevronRight;
+  useActionListener('right', () => {
+    if (defaultDirection) goNextWeek();
+    else goPreviousWeek();
+  });
+
+  useActionListener('left', () => {
+    if (defaultDirection) goPreviousWeek();
+    else goNextWeek();
+  });
+
+
+  const NextIcon = defaultDirection ? ChevronRight : ChevronLeft;
+  const PrevIcon = defaultDirection ? ChevronLeft : ChevronRight;
 
 
   return (

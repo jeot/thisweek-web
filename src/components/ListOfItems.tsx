@@ -1,15 +1,15 @@
 import { useLiveQuery } from "dexie-react-hooks";
 import { NewItemInput } from "./AddNewItem";
 import { Item } from "@/components/Item"
-import * as keymap from '@/lib/keymaps';
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "./ui/button";
 import { CirclePlus } from "lucide-react";
-import { addNewItem, updateItem } from "@/lib/items";
+import { addNewItem, deleteItem, updateItem } from "@/lib/items";
 import { db } from "@/lib/db";
 import { useCalendarState } from "@/store/calendarStore";
 import { useWeekState } from "@/store/weekStore";
 import { getUtcRangeForLocalWeekByRefMillis } from "@/lib/week";
+import { useActionListener } from "@/lib/useActionListener";
 
 // let mycount: number = 0;
 
@@ -22,12 +22,10 @@ interface NewItemType {
 }
 
 export function ListOfItems({ }: ListOfItemsProps) {
-
   const [newItem, setNewItem] = useState<NewItemType | null>(null);
   const mainCal = useCalendarState((state) => state.mainCal);
   const weekReference = useWeekState((state) => state.weekReference);
   const [startUtcMillis, endUtcMillis] = getUtcRangeForLocalWeekByRefMillis(mainCal.weekStartsOn, weekReference);
-  console.log(startUtcMillis, endUtcMillis);
 
   async function cancelNewItem() {
     setNewItem(null);
@@ -52,80 +50,71 @@ export function ListOfItems({ }: ListOfItemsProps) {
     [startUtcMillis, endUtcMillis]
   );
 
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
-  const [action, setAction] = useState<string | null>(null);
-
-  useEffect(() => {
-    const unliten = keymap.listen((action: string) => { setAction(action) });
-    return () => {
-      unliten();
-    }
-  }, []);
-
   const itemsLength = items?.length || 0;
 
-  useEffect(() => {
-    if (!action) return;
-    if (!items) return;
-    const selectedIndexNotValid = (selectedIndex !== null && ((selectedIndex < 0) || (selectedIndex >= itemsLength)));
-    // do these things based on selected item
-    if (action === 'up') {
-      if (selectedIndex === null || selectedIndexNotValid) setSelectedIndex(itemsLength - 1);
-      else if (selectedIndex === 0) return;
-      else setSelectedIndex(selectedIndex - 1);
-    }
-    if (action === 'down') {
-      if (selectedIndex === null || selectedIndexNotValid) setSelectedIndex(0);
-      else if (selectedIndex === itemsLength - 1) return;
-      else setSelectedIndex(selectedIndex + 1);
-    }
-    if (action === 'cancel') {
-      if (selectedIndex !== null) {
-        setSelectedIndex(null);
-      }
-      if (newItem !== null) {
-        setNewItem(null);
-      }
-    }
-    if (action === 'delete') {
-      if (selectedIndex === null || selectedIndexNotValid) {
-        setSelectedIndex(null);
-        return;
-      } else {
-        let item = items[selectedIndex];
-        db.items.delete(item.id)
-        if (selectedIndex === itemsLength - 1) setSelectedIndex(null);
-      }
-    }
-    if (action === 'toggle_status') {
-      if (selectedIndex === null || selectedIndexNotValid) {
-        setSelectedIndex(null);
-        return;
-      } else {
-        const item = items[selectedIndex];
-        const newStatus = item.status === 'done' ? 'undone' : 'done';
-        updateItem({ ...item, status: newStatus });
-      }
-    }
-    if (action === 'create_item') {
-      if (selectedIndex === null || selectedIndexNotValid) setNewItem({ position: 'bottom', type: 'todo' });
-      else setNewItem({ position: selectedIndex, type: 'todo' });
-      setSelectedIndex(null)
-    }
-    if (action === 'create_item_above') {
-      if (selectedIndex === null || selectedIndexNotValid || selectedIndex === 0) setNewItem({ position: 'top', type: 'todo' });
-      else setNewItem({ position: selectedIndex - 1, type: 'todo' });
-      setSelectedIndex(null)
-    }
-    if (action === 'toggle_item_type') {
-      if (newItem === null) return;
-      const type = (newItem.type === 'todo') ? 'note' : 'todo';
-      setNewItem({ ...newItem, type: type });
-    }
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const selectedIndexNotValid = (selectedIndex !== null && ((selectedIndex < 0) || (selectedIndex >= itemsLength)));
 
-    setAction(null);
-    return () => { }
-  }, [action, selectedIndex, itemsLength, items, newItem]);
+  useActionListener('up', () => {
+    if (selectedIndex === null || selectedIndexNotValid) setSelectedIndex(itemsLength - 1);
+    else if (selectedIndex === 0) return;
+    else setSelectedIndex(selectedIndex - 1);
+  });
+
+  useActionListener('down', () => {
+    if (selectedIndex === null || selectedIndexNotValid) setSelectedIndex(0);
+    else if (selectedIndex === itemsLength - 1) return;
+    else setSelectedIndex(selectedIndex + 1);
+  });
+
+  useActionListener('cancel', () => {
+    if (newItem !== null) {
+      setNewItem(null);
+    } else if (selectedIndex !== null) {
+      setSelectedIndex(null);
+    } else {
+    }
+  });
+
+  useActionListener('delete', () => {
+    if (!items || selectedIndex === null || selectedIndexNotValid) {
+      setSelectedIndex(null);
+      return;
+    } else {
+      let item = items[selectedIndex];
+      deleteItem(item);
+      if (selectedIndex === itemsLength - 1) setSelectedIndex(null);
+    }
+  });
+
+  useActionListener('toggle_status', () => {
+    if (!items || selectedIndex === null || selectedIndexNotValid) {
+      setSelectedIndex(null);
+      return;
+    } else {
+      const item = items[selectedIndex];
+      const newStatus = item.status === 'done' ? 'undone' : 'done';
+      updateItem({ ...item, status: newStatus });
+    }
+  });
+
+  useActionListener('create_item', () => {
+    if (selectedIndex === null || selectedIndexNotValid) setNewItem({ position: 'bottom', type: 'todo' });
+    else setNewItem({ position: selectedIndex, type: 'todo' });
+    setSelectedIndex(null)
+  });
+
+  useActionListener('create_item_above', () => {
+    if (selectedIndex === null || selectedIndexNotValid || selectedIndex === 0) setNewItem({ position: 'top', type: 'todo' });
+    else setNewItem({ position: selectedIndex - 1, type: 'todo' });
+    setSelectedIndex(null)
+  });
+
+  useActionListener('toggle_item_type', () => {
+    if (newItem === null) return;
+    const type = (newItem.type === 'todo') ? 'note' : 'todo';
+    setNewItem({ ...newItem, type: type });
+  });
 
   return (
     <div className="flex flex-col flex-1 w-full max-w-xl items-center gap-2">
@@ -138,7 +127,6 @@ export function ListOfItems({ }: ListOfItemsProps) {
           }}
         />}
       {items?.map((item, i) => {
-        console.log(item);
         return (
           <div key={item.id} className="w-full">
             <Item key={item.id} item={item} selected={(selectedIndex === i)} />
@@ -167,7 +155,6 @@ export function ListOfItems({ }: ListOfItemsProps) {
 }
 
 export function ListOfItemsContainer() {
-
   return (
     <div className="flex flex-col max-w-xl w-full gap-4">
       <h2>Todos/Notes</h2>

@@ -1,9 +1,8 @@
 import hotkeys from 'hotkeys-js';
 
-
 let listeners: Array<(action: string) => void> = [];
 
-export function listen(cb: (action: string) => void) {
+export function listenToActions(cb: (action: string) => void) {
   if (!listeners.includes(cb)) { // avoid multiple same callback register
     listeners.push(cb);
   }
@@ -30,6 +29,12 @@ export const init = () => {
     const key = handler.key
     if (key === 'k' || key === 'j+k') broadcastAction("up");
     if (key === 'j' || key === 'k+j') broadcastAction("down");
+  });
+  hotkeys('h,l,h+l,l+h', 'KEY_SCOPE_FIRST', function(event, handler) {
+    event.preventDefault()
+    const key = handler.key
+    if (key === 'h' || key === 'l+h') broadcastAction("left");
+    if (key === 'l' || key === 'h+l') broadcastAction("right");
   });
 
   // scopes (for key sequence)
