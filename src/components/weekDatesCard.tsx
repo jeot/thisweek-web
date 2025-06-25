@@ -15,32 +15,39 @@ function WeekDatesCard() {
   const secondCalEnabled = useCalendarState((state) => state.secondCalEnabled);
   const weekReference = useWeekState((state) => state.weekReference);
   const setWeekReference = useWeekState((state) => state.setWeekReference);
+  const resetWeekReference = useWeekState((state) => state.resetWeekReference);
 
   const weekView = buildFullWeekView(weekReference, mainCal, secondCal, secondCalEnabled);
   const defaultDirection = (weekView.direction === 'ltr');
 
-  function goPreviousWeek(/*event: MouseEvent<HTMLButtonElement, MouseEvent>*/): void {
+  function gotoThisWeek(): void {
+    resetWeekReference();
+  }
+
+  function gotoPreviousWeek(/*event: MouseEvent<HTMLButtonElement, MouseEvent>*/): void {
     setWeekReference(weekReference - MILLISECONDS_IN_WEEK);
   }
 
-  function goNextWeek(/*event: MouseEvent<HTMLButtonElement, MouseEvent>*/): void {
+  function gotoNextWeek(/*event: MouseEvent<HTMLButtonElement, MouseEvent>*/): void {
     setWeekReference(weekReference + MILLISECONDS_IN_WEEK);
   }
 
   useActionListener('right', () => {
-    if (defaultDirection) goNextWeek();
-    else goPreviousWeek();
+    if (defaultDirection) gotoNextWeek();
+    else gotoPreviousWeek();
   });
 
   useActionListener('left', () => {
-    if (defaultDirection) goPreviousWeek();
-    else goNextWeek();
+    if (defaultDirection) gotoPreviousWeek();
+    else gotoNextWeek();
   });
 
+  useActionListener('today', () => {
+    gotoThisWeek();
+  });
 
   const NextIcon = defaultDirection ? ChevronRight : ChevronLeft;
   const PrevIcon = defaultDirection ? ChevronLeft : ChevronRight;
-
 
   return (
     <Card dir={weekView.direction} className="w-full max-w-md min-w-64 pt-3 pb-2 gap-2">
@@ -58,11 +65,11 @@ function WeekDatesCard() {
         </CardAction>
       </CardHeader>*/}
       <CardContent className="px-1 flex flex-auto gap-0 place-content-around items-center">
-        <Button variant="ghost_dim" size="sm" onClick={goPreviousWeek}
+        <Button variant="ghost_dim" size="sm" onClick={gotoPreviousWeek}
           className="w-1/12"
         ><PrevIcon /></Button>
         <WeekDates weekView={weekView} className="w-10/12" />
-        <Button variant="ghost_dim" size="sm" onClick={goNextWeek}
+        <Button variant="ghost_dim" size="sm" onClick={gotoNextWeek}
           className="w-1/12"
         ><NextIcon /></Button>
       </CardContent>

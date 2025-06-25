@@ -36,6 +36,11 @@ export const init = () => {
     if (key === 'h' || key === 'l+h') broadcastAction("left");
     if (key === 'l' || key === 'h+l') broadcastAction("right");
   });
+  hotkeys('t', 'KEY_SCOPE_FIRST', function(event, handler) {
+    event.preventDefault()
+    const key = handler.key
+    if (key === 't') broadcastAction("today");
+  });
 
   // scopes (for key sequence)
   // g: goto (then 'i' for example)

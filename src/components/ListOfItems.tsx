@@ -1,19 +1,16 @@
-import { useLiveQuery } from "dexie-react-hooks";
 import { NewItemInput } from "./AddNewItem";
 import { Item } from "@/components/Item"
 import { useState } from "react";
 import { Button } from "./ui/button";
 import { CirclePlus } from "lucide-react";
 import { addNewItem, deleteItem, updateItem } from "@/lib/items";
-import { db } from "@/lib/db";
+import { useActionListener } from "@/lib/useActionListener";
+import { ItemType } from "@/types/types";
 import { useCalendarState } from "@/store/calendarStore";
 import { useWeekState } from "@/store/weekStore";
-import { getUtcRangeForLocalWeekByRefMillis } from "@/lib/week";
-import { useActionListener } from "@/lib/useActionListener";
-
-// let mycount: number = 0;
 
 interface ListOfItemsProps {
+  items: ItemType[];
 }
 
 interface NewItemType {
@@ -21,11 +18,10 @@ interface NewItemType {
   type: 'todo' | 'note';
 }
 
-export function ListOfItems({ }: ListOfItemsProps) {
+export function ListOfItems({ items }: ListOfItemsProps) {
   const [newItem, setNewItem] = useState<NewItemType | null>(null);
   const mainCal = useCalendarState((state) => state.mainCal);
   const weekReference = useWeekState((state) => state.weekReference);
-  const [startUtcMillis, endUtcMillis] = getUtcRangeForLocalWeekByRefMillis(mainCal.weekStartsOn, weekReference);
 
   async function cancelNewItem() {
     setNewItem(null);
@@ -36,21 +32,7 @@ export function ListOfItems({ }: ListOfItemsProps) {
     setNewItem(null);
   }
 
-  const items = useLiveQuery(
-    async () => {
-      // Query Dexie's API
-      const items = await db.items
-        .where('scheduledAt')
-        .between(startUtcMillis, endUtcMillis, true, true)
-        .toArray();
-      // Return result
-      return items;
-    },
-    // specify vars that affect query:
-    [startUtcMillis, endUtcMillis]
-  );
-
-  const itemsLength = items?.length || 0;
+  const itemsLength = items.length || 0;
 
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const selectedIndexNotValid = (selectedIndex !== null && ((selectedIndex < 0) || (selectedIndex >= itemsLength)));
@@ -77,7 +59,7 @@ export function ListOfItems({ }: ListOfItemsProps) {
   });
 
   useActionListener('delete', () => {
-    if (!items || selectedIndex === null || selectedIndexNotValid) {
+    if (selectedIndex === null || selectedIndexNotValid) {
       setSelectedIndex(null);
       return;
     } else {
@@ -88,7 +70,7 @@ export function ListOfItems({ }: ListOfItemsProps) {
   });
 
   useActionListener('toggle_status', () => {
-    if (!items || selectedIndex === null || selectedIndexNotValid) {
+    if (selectedIndex === null || selectedIndexNotValid) {
       setSelectedIndex(null);
       return;
     } else {
@@ -126,7 +108,7 @@ export function ListOfItems({ }: ListOfItemsProps) {
             setNewItem({ ...newItem, type: type });
           }}
         />}
-      {items?.map((item, i) => {
+      {items.map((item, i) => {
         return (
           <div key={item.id} className="w-full">
             <Item key={item.id} item={item} selected={(selectedIndex === i)} />
@@ -150,15 +132,6 @@ export function ListOfItems({ }: ListOfItemsProps) {
           }}
         />}
       {newItem === null && <Button variant="outline" onClick={() => { setNewItem({ position: 'bottom', type: 'todo' }); }}><CirclePlus />New Item</Button>}
-    </div>
-  );
-}
-
-export function ListOfItemsContainer() {
-  return (
-    <div className="flex flex-col max-w-xl w-full gap-4">
-      <h2>Todos/Notes</h2>
-      <ListOfItems />
     </div>
   );
 }
