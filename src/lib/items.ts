@@ -1,6 +1,7 @@
 import { ItemType } from "@/types/types";
 import { db } from "@/lib/db.ts";
 import { getOrCreateDeviceId } from "./db";
+import { CalendarType } from "@/types/calendarLocales";
 
 type NewItemType = Omit<ItemType, 'id'>;
 
@@ -49,13 +50,15 @@ export function createDefaultNewItem(): NewItemType {
   return newItem;
 }
 
-export async function addNewItem(title: string, type: 'todo' | 'note') {
+export async function addNewItem(title: string, type: 'todo' | 'note', calendar: CalendarType, scheduledAt: number) {
   try {
     let defaultNewItem = createDefaultNewItem();
     const id = await db.items.add({
       ...defaultNewItem,
       title: title,
       type: type,
+      calendar: calendar,
+      scheduledAt: scheduledAt,
     });
     const msg = `Item successfully added. Got id ${id}`;
     console.log(msg);

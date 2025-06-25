@@ -7,28 +7,34 @@ import { Button } from "./ui/button";
 import { CirclePlus } from "lucide-react";
 import { addNewItem, updateItem } from "@/lib/items";
 import { db } from "@/lib/db";
+import { useCalendarState } from "@/store/calendarStore";
+import { useWeekState } from "@/store/weekStore";
+import { getUtcRangeForLocalWeekByRefMillis } from "@/lib/week";
 
 // let mycount: number = 0;
 
 interface ListOfItemsProps {
-  startUtcMillis: number;
-  endUtcMillis: number;
 }
+
 interface NewItemType {
   position: number | 'top' | 'bottom';
   type: 'todo' | 'note';
 }
 
-export function ListOfItems({ startUtcMillis, endUtcMillis }: ListOfItemsProps) {
+export function ListOfItems({ }: ListOfItemsProps) {
 
   const [newItem, setNewItem] = useState<NewItemType | null>(null);
+  const mainCal = useCalendarState((state) => state.mainCal);
+  const weekReference = useWeekState((state) => state.weekReference);
+  const [startUtcMillis, endUtcMillis] = getUtcRangeForLocalWeekByRefMillis(mainCal.weekStartsOn, weekReference);
+  console.log(startUtcMillis, endUtcMillis);
 
   async function cancelNewItem() {
     setNewItem(null);
   }
 
   async function handleAddNewItem(title: string, type: 'todo' | 'note') {
-    addNewItem(title, type);
+    addNewItem(title, type, mainCal.calendar, weekReference);
     setNewItem(null);
   }
 
@@ -36,8 +42,8 @@ export function ListOfItems({ startUtcMillis, endUtcMillis }: ListOfItemsProps) 
     async () => {
       // Query Dexie's API
       const items = await db.items
-        // .where('age')
-        // .between(startUtcMillis, endUtcMillis)
+        .where('scheduledAt')
+        .between(startUtcMillis, endUtcMillis, true, true)
         .toArray();
       // Return result
       return items;
@@ -165,7 +171,7 @@ export function ListOfItemsContainer() {
   return (
     <div className="flex flex-col max-w-xl w-full gap-4">
       <h2>Todos/Notes</h2>
-      <ListOfItems startUtcMillis={18} endUtcMillis={65} />
+      <ListOfItems />
     </div>
   );
 }

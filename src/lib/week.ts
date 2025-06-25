@@ -1,4 +1,4 @@
-import { CalendarLocaleType, weekdayMap, WeekdayType } from "@/types/types";
+import { CalendarLocaleType, weekdayMap, WeekdayNumbers, WeekdayType } from "@/types/types";
 import { DateTime } from "luxon";
 
 // todo: change all referenceDate from DateTime to millis timestamp (number)
@@ -13,7 +13,7 @@ import { DateTime } from "luxon";
  * @returns [startUtcMillis, endUtcMillis]
  */
 export function getUtcRangeForLocalWeek(
-  weekStartsOn: number = 0,
+  weekStartsOn: WeekdayNumbers,
   referenceDate: DateTime = DateTime.local()
 ): [number, number] {
   // Luxon: 1 (Mon) to 7 (Sun) -> Convert to JS 0–6 system
@@ -28,9 +28,18 @@ export function getUtcRangeForLocalWeek(
   ];
 }
 
+export function getUtcRangeForLocalWeekByRefMillis(
+  weekStartsOn: WeekdayType,
+  refMillisUTC: number,
+): [number, number] {
+  const weekdayNumber = getWeekdayNumber(weekStartsOn);
+  const dt = DateTime.fromMillis(refMillisUTC);
+  return getUtcRangeForLocalWeek(weekdayNumber, dt);
+}
+
 
 export function getDaysOfWeekLocal(
-  weekStartsOn: number = 0,
+  weekStartsOn: WeekdayNumbers = 0,
   referenceDate: DateTime = DateTime.local()
 ): DateTime[] {
   // Luxon: 1 (Mon) to 7 (Sun) -> Convert to JS 0–6 system
@@ -172,21 +181,13 @@ export function getDateViewInLocaleCalendar(
 }
 
 export function getDateViewsInLocaleCalendarOfWeekLocal(
-  weekStartsOn: WeekdayType = 'mon',
+  weekStartsOn: WeekdayNumbers = 1,
   referenceDate: DateTime = DateTime.local(),
   locale: string = "en-US",
   calendar: string = "gregory",
   direction: "rtl" | "ltr",
 ): DateView[] {
-  let weekStartsOnNumber: number = 0;
-  if (typeof weekStartsOn === 'string') { // value is of type WeekdayString
-    // console.log('Got a string weekday:', weekStartsOn);
-    weekStartsOnNumber = weekdayMap[weekStartsOn];
-  } else { // value is of type WeekdayNumbers
-    // console.log('Got a number weekday:', weekStartsOn);
-    weekStartsOnNumber = weekStartsOn;
-  }
-  const dates = getDaysOfWeekLocal(weekStartsOnNumber, referenceDate);
+  const dates = getDaysOfWeekLocal(weekStartsOn, referenceDate);
   return dates.map((d) => getDateViewInLocaleCalendar(d, locale, calendar, direction));
 }
 
@@ -201,7 +202,7 @@ export interface WeekViewType {
 export function buildFullWeekView(refMillisUTC: number, mainCal: CalendarLocaleType, secondCal: CalendarLocaleType, secondCalEnabled: boolean): WeekViewType {
   const dt = DateTime.fromMillis(refMillisUTC);
   // console.log(dt.toString());
-  const weekStartsOn = mainCal.weekStartsOn; // should be same for both date views
+  const weekStartsOn = getWeekdayNumber(mainCal.weekStartsOn); // should be same for both date views
   const direction = mainCal.locale.direction; // should be same for both date views
   const dates = getDateViewsInLocaleCalendarOfWeekLocal(
     weekStartsOn,
@@ -242,4 +243,16 @@ export function buildFullWeekView(refMillisUTC: number, mainCal: CalendarLocaleT
     dates2: dates2,
   };
   return result;
+}
+
+function getWeekdayNumber(weekStartsOn: WeekdayType): WeekdayNumbers {
+  let weekStartsOnNumber: WeekdayNumbers = 0;
+  if (typeof weekStartsOn === 'string') { // value is of type WeekdayString
+    // console.log('Got a string weekday:', weekStartsOn);
+    weekStartsOnNumber = weekdayMap[weekStartsOn];
+  } else { // value is of type WeekdayNumbers
+    // console.log('Got a number weekday:', weekStartsOn);
+    weekStartsOnNumber = weekStartsOn;
+  }
+  return weekStartsOnNumber;
 }
