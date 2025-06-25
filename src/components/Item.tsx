@@ -2,10 +2,10 @@ import { cn } from "@/lib/utils";
 import { Textarea } from "./ui/textarea";
 import { ItemType } from "@/types/types";
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "@/components/ui/context-menu";
-import { db } from "@/lib/db";
 import { useState } from "react";
 import { Button } from "./ui/button";
 import { CheckIcon, Circle, CircleCheckBig, CircleX, NotebookText } from "lucide-react";
+import { deleteItem, updateItem } from "@/lib/items";
 
 
 export function Item({ className, item, selected, onItemAction, ...props }: { item: ItemType, selected?: boolean, onItemAction?: (action: string, item: ItemType) => void } & React.ComponentProps<"div">) {
@@ -32,8 +32,8 @@ export function Item({ className, item, selected, onItemAction, ...props }: { it
     },
     {
       name: "Delete", variant: "destructive", do: () => {
-        console.log("deleting id:", item.id);
-        db.items.delete(item.id).then(() => { console.log("done") }).catch(() => { console.log("failed") });
+        console.log("deleting item id:", item.id);
+        deleteItem(item);
       }
     },
   ];
@@ -53,9 +53,9 @@ export function Item({ className, item, selected, onItemAction, ...props }: { it
           {item.type === 'todo' &&
             <Button variant="ghost" className="pt-2 text-primary/60"
               onClick={() => {
-                let newItem = item;
-                newItem.status = item.status === 'done' ? 'undone' : 'done';
-                db.items.update(item.id, newItem);
+                const newStatus = item.status === 'done' ? 'undone' : 'done';
+                const completedAt = newStatus === 'done' ? (new Date()).getTime() : null;
+                updateItem({ ...item, status: newStatus, completedAt: completedAt });
               }}>
               {item.status === 'done' ? <CircleCheckBig /> : <Circle />}
             </Button>}
@@ -74,10 +74,7 @@ export function Item({ className, item, selected, onItemAction, ...props }: { it
           {editing && <Button
             className="mt-0.5" size="icon" variant="outline"
             onClick={() => {
-              console.log("ok");
-              let newItem = item;
-              newItem.title = localTitle;
-              db.items.update(item.id, newItem);
+              updateItem({ ...item, title: localTitle });
               setEditing(false);
             }}
 

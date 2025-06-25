@@ -1,12 +1,12 @@
 import { useLiveQuery } from "dexie-react-hooks";
-import { db } from "@/lib/db.ts";
 import { NewItemInput } from "./AddNewItem";
 import { Item } from "@/components/Item"
 import * as keymap from '@/lib/keymaps';
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
-import { ItemType } from "@/types/types";
 import { CirclePlus } from "lucide-react";
+import { addNewItem, updateItem } from "@/lib/items";
+import { db } from "@/lib/db";
 
 // let mycount: number = 0;
 
@@ -27,20 +27,8 @@ export function ListOfItems({ startUtcMillis, endUtcMillis }: ListOfItemsProps) 
     setNewItem(null);
   }
 
-  async function addNewItem(item: ItemType) {
-    try {
-      // Add the new friend!
-      const id = await db.items.add({
-        title: item.title,
-        type: item.type,
-        status: item.status,
-      });
-      const msg = `Item successfully added. Got id ${id}`;
-      console.log(msg);
-    } catch (error) {
-      const msg = `Error adding item. err: ${error}`;
-      console.log(msg);
-    }
+  async function handleAddNewItem(title: string, type: 'todo' | 'note') {
+    addNewItem(title, type);
     setNewItem(null);
   }
 
@@ -108,9 +96,9 @@ export function ListOfItems({ startUtcMillis, endUtcMillis }: ListOfItemsProps) 
         setSelectedIndex(null);
         return;
       } else {
-        let item = items[selectedIndex];
-        item.status = item.status === 'done' ? 'undone' : 'done';
-        db.items.update(item.id, item)
+        const item = items[selectedIndex];
+        const newStatus = item.status === 'done' ? 'undone' : 'done';
+        updateItem({ ...item, status: newStatus });
       }
     }
     if (action === 'create_item') {
@@ -136,7 +124,7 @@ export function ListOfItems({ startUtcMillis, endUtcMillis }: ListOfItemsProps) 
   return (
     <div className="flex flex-col flex-1 w-full max-w-xl items-center gap-2">
       {newItem?.position === 'top' &&
-        <NewItemInput itemType={newItem.type} addNewItem={addNewItem} cancelNewItem={cancelNewItem}
+        <NewItemInput itemType={newItem.type} addNewItem={handleAddNewItem} cancelNewItem={cancelNewItem}
           onChangeItemType={() => {
             if (newItem === null) return;
             const type = (newItem.type === 'todo') ? 'note' : 'todo';
@@ -144,11 +132,12 @@ export function ListOfItems({ startUtcMillis, endUtcMillis }: ListOfItemsProps) 
           }}
         />}
       {items?.map((item, i) => {
+        console.log(item);
         return (
           <div key={item.id} className="w-full">
             <Item key={item.id} item={item} selected={(selectedIndex === i)} />
             {newItem !== null && typeof newItem.position === 'number' && newItem.position === i &&
-              <NewItemInput key={`new-item-${item.id}`} itemType={newItem.type} addNewItem={addNewItem} cancelNewItem={cancelNewItem}
+              <NewItemInput key={`new-item-${item.id}`} itemType={newItem.type} addNewItem={handleAddNewItem} cancelNewItem={cancelNewItem}
                 onChangeItemType={() => {
                   if (newItem === null) return;
                   const type = (newItem.type === 'todo') ? 'note' : 'todo';
@@ -159,7 +148,7 @@ export function ListOfItems({ startUtcMillis, endUtcMillis }: ListOfItemsProps) 
         );
       })}
       {newItem?.position === 'bottom' &&
-        <NewItemInput itemType={newItem.type} addNewItem={addNewItem} cancelNewItem={cancelNewItem}
+        <NewItemInput itemType={newItem.type} addNewItem={handleAddNewItem} cancelNewItem={cancelNewItem}
           onChangeItemType={() => {
             if (newItem === null) return;
             const type = (newItem.type === 'todo') ? 'note' : 'todo';

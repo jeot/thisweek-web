@@ -28,35 +28,54 @@ export interface CalendarLocaleType {
 // export type ItemContextMenuType = Array<{ name: 'Edit' | 'Copy' | 'Delete', action: (iat: ItemActionType) => void }>;
 
 export interface ItemType {
-  id: number;
-  title: string;
-  type: 'todo' | 'note';
-  status: string;
-}
-
-export interface ItemTypeRC {
-  id: number;
-  uuid: string;
+  id: number; // sql local/server id. it can be different on different servers!
+  uuid: string; // the actual unique id of an item to work with!
+  userId: string | null; // future: e.g., 'local', or real user UID when logged in
 
   title: string;
-  type: 'todo' | 'note' | 'event';
+  type: 'todo' | 'note'; // i initially wanted to also have 'event' type, but i think it's an overkill!
   status: 'done' | 'undone' | 'pending' | 'blocked' | 'canceled';
-  kind: 'weekly' | 'yearly' | 'project';
-  project: string;
+  category: 'weekly' | 'yearly' | 'project';
+  projectId: number | null; // future: reference the projects table.
 
   calendar: string; // the calendar system of the item
-  datetimeUtc: number; // the utc time of creation
-  tzOffset: number; // the timezone shift of local time of creation
-  tzCity: string; // the timezone city/country name
-  fixedDate: boolean; // is a fixed date assigned?
-  allDay: boolean; // is it all day due?
-  duration: number; // the duration (only for event type)
+  scheduledAt: number; // the utc time that is assigned to the item
+  completedAt: number | null; // to keep track of when a task is finished, useful for sorting
+  tzOffset: number; // the timezone shift of local time
+  tzIANA: string; // the timezone city/country name (for display only)
+  dueType: 'allday' | 'fixed' | null; // future: a fixed date&time is assigned to the item or not?
+  duration: number; // future: the duration of the item
 
-  parrent: string | null; // ref. to uuid. is item child or not
-  order: number; // order of items
+  parent: string | null; // future: reference to uuid. is this item a child (sub item) of another item?
+  order: Record<string, number>;    // future: per-view order (weekly, project)
+  // future: when and how to send notification? PostgreSQL: Store as JSONB
+  notification: {
+    method: 'popup' | 'email' | 'sound';
+    offset: number; // e.g., 900 = 15 mins before
+  } | null;
+  pinned: boolean; // future
+  tags: string[]; // future
+  meta: Record<string, any> | null; // future: for rare/experimental fields, e.g., colors
+  recurrence: null; // future
 
-  sync: string; // new, modified, deleted, synced
-  syncedAtUtc: number | null;
+  // future: syncing
   createdAt: number;
-  updatedAt: number;
+  modifiedAt: number;
+  deletedAt: number | null; // future: for deleting items with syncing
+  version: number; // future: for syncing, conflict resolution, versioning, colaboration.
+  syncedAt: number | null; // only for debugging
+  modifiedBy: string // device ID
 }
+
+// future: projects table
+/*
+interface ProjectType {
+  id: number;        // primary key
+  uuid: string;      // optional: for syncing if needed
+  title: string;
+  color: string;     // optional, for UI
+  icon: string;      // optional
+  createdAt: number;
+  modifiedAt: number;
+}
+*/

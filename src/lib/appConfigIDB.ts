@@ -10,7 +10,6 @@ const enUSLocale: LocaleType = {
   direction: "ltr"
 };
 
-
 import localesData from '@/types/locales.json'
 import { calendars } from '@/types/calendarLocales'
 const test_cal = 'hebrew';
@@ -31,7 +30,6 @@ export const DEFAULT_SECOND_CAL_LOC: CalendarLocaleType = testCal;
 
 const APP_CONFIG_DB = "app-config-db";
 const CONFIG_STORE = "app-config-store";
-// const ITEMS_STORE = "items";
 const USER_APP_CONFIG_KEY = "user-app-config";
 
 interface AppConfig {
@@ -57,24 +55,11 @@ interface AppConfig {
   };
 }
 
-/* example for the future
-interface ItemType {
-  todo: string;
-  note: string;
-}
-*/
-
 interface AppDB extends DBSchema {
   'app-config-store': {
     key: string
     value: AppConfig;
   };
-  /* example for the future
-  items: {
-    key: string
-    value: ItemType;
-  };
-  */
 }
 
 const DEFAULT_APP_CONFIG: AppConfig = {

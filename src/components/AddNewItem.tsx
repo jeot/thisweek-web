@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
-import { ItemType } from "@/types/types";
 import { Circle, NotebookText } from "lucide-react";
 
 export function NewItemInput({ itemType, addNewItem, cancelNewItem, onChangeItemType }:
-  { itemType: 'todo' | 'note', addNewItem: (newItem: ItemType) => void, cancelNewItem: () => void, onChangeItemType: () => void }) {
+  { itemType: 'todo' | 'note', addNewItem: (title: string, type: 'todo' | 'note') => void, cancelNewItem: () => void, onChangeItemType: () => void }) {
   const [title, setTitle] = useState('');
 
   const handleKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (event: React.KeyboardEvent) => {
@@ -25,12 +24,7 @@ export function NewItemInput({ itemType, addNewItem, cancelNewItem, onChangeItem
       cancelNewItem();
     } else if (enter && !shift) {
       event.preventDefault();
-      addNewItem({
-        id: 0,
-        title: title,
-        type: itemType,
-        status: 'undone',
-      });
+      addNewItem(title, itemType);
     } else if (escape) {
       event.stopPropagation();
       event.preventDefault();
@@ -57,12 +51,7 @@ export function NewItemInput({ itemType, addNewItem, cancelNewItem, onChangeItem
       />
       <Button variant="default"
         onClick={() => {
-          addNewItem({
-            id: 0,
-            title: title,
-            type: itemType,
-            status: 'undone',
-          });
+          addNewItem(title, itemType);
         }}
         size="sm">Add</Button>
       <Button variant="secondary" onClick={() => cancelNewItem()} size="sm">Cancel</Button>
