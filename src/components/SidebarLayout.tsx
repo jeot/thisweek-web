@@ -5,10 +5,10 @@ import { Sheet, SheetTrigger, SheetContent, SheetClose, SheetHeader, SheetTitle,
 import { Menu, CheckCheck, Settings, CalendarHeart } from "lucide-react"
 import { Moon, Sun } from 'lucide-react';
 import HeaderContent from "./HeaderContent";
-import { ViewType } from "@/types/types";
+import { PageViewType } from "@/types/types";
 
 
-export function SidebarLayout({ children, onMenuClick, activeView, title }: { children: React.ReactNode, onMenuClick: (view: ViewType) => void, activeView: ViewType, title: string }) {
+export function SidebarLayout({ children, onMenuClick, activeView, title }: { children: React.ReactNode, onMenuClick: (view: PageViewType) => void, activeView: PageViewType, title: string }) {
 
   activeView; // unused variable
 

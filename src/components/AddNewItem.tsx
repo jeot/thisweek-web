@@ -2,10 +2,11 @@ import { useState } from "react";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
 import { Circle, NotebookText } from "lucide-react";
+import { NewItemType } from "@/lib/items";
 
-export function NewItemInput({ itemType, addNewItem, cancelNewItem, onChangeItemType }:
-  { itemType: 'todo' | 'note', addNewItem: (title: string, type: 'todo' | 'note') => void, cancelNewItem: () => void, onChangeItemType: () => void }) {
-  const [title, setTitle] = useState('');
+export function NewItemInput({ itemInit, addNewItem, cancelNewItem, onChangeItemType }:
+  { itemInit: NewItemType, addNewItem: (item: NewItemType) => void, cancelNewItem: () => void, onChangeItemType: () => void }) {
+  const [item, setItem] = useState(itemInit);
 
   const handleKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (event: React.KeyboardEvent) => {
     // ignore Enter with other mod-keys
@@ -19,12 +20,12 @@ export function NewItemInput({ itemType, addNewItem, cancelNewItem, onChangeItem
     if (event.key === 'Escape') escape = true;
     if (event.key === 'Enter') enter = true;
     if (event.shiftKey) shift = true;
-    if ((enter && !shift) && title.trim() === "") {
+    if ((enter && !shift) && item.title.trim() === "") {
       event.preventDefault();
       cancelNewItem();
     } else if (enter && !shift) {
       event.preventDefault();
-      addNewItem(title, itemType);
+      addNewItem(item);
     } else if (escape) {
       event.stopPropagation();
       event.preventDefault();
@@ -37,21 +38,21 @@ export function NewItemInput({ itemType, addNewItem, cancelNewItem, onChangeItem
   return (
     <div className="flex w-full gap-2 items-center">
       <Button variant="ghost" className="pt-2 text-primary/40">
-        {itemType === 'todo' && <Circle />}
-        {itemType === 'note' && <NotebookText />}
+        {item.type === 'todo' && <Circle />}
+        {item.type === 'note' && <NotebookText />}
       </Button>
       <Textarea
         autoFocus
-        value={title}
+        value={item.title}
         wrap="soft"
         className="resize-none h-auto min-h-1 w-full max-w-xl"
-        onChange={(ev) => setTitle(ev.target.value)}
+        onChange={(ev) => setItem({ ...item, title: ev.target.value })}
         onKeyDown={handleKeyDown}
         placeholder="The most important thing todo..."
       />
       <Button variant="default"
         onClick={() => {
-          addNewItem(title, itemType);
+          addNewItem(item);
         }}
         size="sm">Add</Button>
       <Button variant="secondary" onClick={() => cancelNewItem()} size="sm">Cancel</Button>

@@ -1,17 +1,19 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import './App.css'
 import { SidebarLayout } from '@/components/SidebarLayout'
 import { ThisWeekPage } from '@/components/ThisWeekPage';
 import { Settings as SettingsPage } from '@/components/Settings';
 import { lorem } from '@/assets/lorem'
-import { ViewType } from '@/types/types';
 import { ensureValidAppConfig, getAppConfigFromIDB } from '@/lib/appConfigIDB';
 import { useCalendarState } from "@/store/calendarStore";
+import { useAppState } from "@/store/appStore";
 import * as keymap from '@/lib/keymaps';
 import { useTheme } from 'next-themes';
+import { PageViewType } from './types/types';
 
 function App() {
-  const [view, setView] = useState<ViewType>('This Week');
+  const pageView = useAppState((state) => state.pageView);
+  const setPageView = useAppState((state) => state.setPageView);
   const setMainCal = useCalendarState((state) => state.setMainCal);
   const setSecondCal = useCalendarState((state) => state.setSecondCal);
   const setSecondCalEnabled = useCalendarState((state) => state.setSecondCalEnabled);
@@ -57,22 +59,21 @@ function App() {
   }, [theme]);
 
   const ThisYearPage = () => <div><h1>ThisYearPage</h1><p>{lorem}</p></div>;
-  const handleMenuClick = (key: typeof view) => {
-    setView(key);
-    // fetch or load data based on key
+  const handleChangePageView = (page: PageViewType) => {
+    setPageView(page);
   };
 
 
   return (
     <>
       <SidebarLayout
-        onMenuClick={handleMenuClick}
-        activeView={view}
-        title={view}
+        onMenuClick={handleChangePageView}
+        activeView={pageView}
+        title={pageView}
       >
-        {view === 'This Week' && <ThisWeekPage />}
-        {view === 'This Year' && <ThisYearPage />}
-        {view === 'Settings' && <SettingsPage />}
+        {pageView === 'This Week' && <ThisWeekPage />}
+        {pageView === 'This Year' && <ThisYearPage />}
+        {pageView === 'Settings' && <SettingsPage />}
         {/* and so on */}
       </SidebarLayout>
     </>

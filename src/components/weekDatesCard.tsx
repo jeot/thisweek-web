@@ -7,43 +7,27 @@ import { ChevronRight, ChevronLeft } from 'lucide-react';
 import { buildFullWeekView } from "@/lib/week";
 import { useActionListener } from "@/lib/useActionListener";
 
-const MILLISECONDS_IN_WEEK = 604800000;
-
 function WeekDatesCard() {
   const mainCal = useCalendarState((state) => state.mainCal);
   const secondCal = useCalendarState((state) => state.secondCal);
   const secondCalEnabled = useCalendarState((state) => state.secondCalEnabled);
   const weekReference = useWeekState((state) => state.weekReference);
-  const setWeekReference = useWeekState((state) => state.setWeekReference);
   const resetWeekReference = useWeekState((state) => state.resetWeekReference);
+  const gotoWeekRelative = useWeekState((state) => state.gotoWeekRelative);
 
   const weekView = buildFullWeekView(weekReference, mainCal, secondCal, secondCalEnabled);
   const defaultDirection = (weekView.direction === 'ltr');
 
-  function gotoThisWeek(): void {
-    resetWeekReference();
-  }
-
-  function gotoPreviousWeek(/*event: MouseEvent<HTMLButtonElement, MouseEvent>*/): void {
-    setWeekReference(weekReference - MILLISECONDS_IN_WEEK);
-  }
-
-  function gotoNextWeek(/*event: MouseEvent<HTMLButtonElement, MouseEvent>*/): void {
-    setWeekReference(weekReference + MILLISECONDS_IN_WEEK);
-  }
-
   useActionListener('right', () => {
-    if (defaultDirection) gotoNextWeek();
-    else gotoPreviousWeek();
+    gotoWeekRelative(1);
   });
 
   useActionListener('left', () => {
-    if (defaultDirection) gotoPreviousWeek();
-    else gotoNextWeek();
+    gotoWeekRelative(-1);
   });
 
   useActionListener('today', () => {
-    gotoThisWeek();
+    resetWeekReference();
   });
 
   const NextIcon = defaultDirection ? ChevronRight : ChevronLeft;
@@ -65,11 +49,11 @@ function WeekDatesCard() {
         </CardAction>
       </CardHeader>*/}
       <CardContent className="px-1 flex flex-auto gap-0 place-content-around items-center">
-        <Button variant="ghost_dim" size="sm" onClick={gotoPreviousWeek}
+        <Button variant="ghost_dim" size="sm" onClick={() => gotoWeekRelative(-1)}
           className="w-1/12"
         ><PrevIcon /></Button>
         <WeekDates weekView={weekView} className="w-10/12" />
-        <Button variant="ghost_dim" size="sm" onClick={gotoNextWeek}
+        <Button variant="ghost_dim" size="sm" onClick={() => gotoWeekRelative(1)}
           className="w-1/12"
         ><NextIcon /></Button>
       </CardContent>

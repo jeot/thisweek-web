@@ -1,10 +1,11 @@
 import { WeekDatesCard } from '@/components/weekDatesCard';
 import { ListOfItems } from '@/components/ListOfItems';
-import { db } from '@/lib/db';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useCalendarState } from "@/store/calendarStore";
 import { useWeekState } from "@/store/weekStore";
 import { getUtcRangeForLocalWeekByRefMillis } from "@/lib/week";
+import { checkAndFixOrdering, getItemsInWeeklyRange } from '@/lib/items';
+import { useEffect } from 'react';
 
 export function ThisWeekPage() {
   const mainCal = useCalendarState((state) => state.mainCal);
@@ -13,18 +14,16 @@ export function ThisWeekPage() {
 
   const items = useLiveQuery(
     async () => {
-      // Query Dexie's API
-      const items = await db.items
-        .where('scheduledAt')
-        .between(startUtcMillis, endUtcMillis, true, true)
-        .and((x) => x.deletedAt === null)
-        .toArray();
-      // Return result
-      return items;
+      return getItemsInWeeklyRange(startUtcMillis, endUtcMillis);
     },
     // specify vars that affect query:
     [startUtcMillis, endUtcMillis]
   ) || [];
+
+  useEffect(() => {
+    checkAndFixOrdering(items);
+  }, [items]);
+
 
   return (
     <div className="p-4">

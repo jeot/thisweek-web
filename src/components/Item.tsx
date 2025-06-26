@@ -44,7 +44,7 @@ export function Item({ className, item, selected, onItemAction, ...props }: { it
       <ContextMenuTrigger asChild>
         <div
           className={cn(
-            "rounded-md flex flex-row items-streach w-full gap-2",
+            "relative rounded-md flex flex-row items-streach w-full gap-2",
             `${selected ? "ring-1 ring-indigo-500" : ""}`,
             className
           )}
@@ -71,6 +71,7 @@ export function Item({ className, item, selected, onItemAction, ...props }: { it
             readOnly={!editing}
             onChange={(ev) => setLocalTitle(ev.target.value)}
           />
+          <span className="absolute right-0 top-0 text-xs rounded-md p-1 border-1 border-red-600">{item.order.weekly}</span>
           {editing && <Button
             className="mt-0.5" size="icon" variant="outline"
             onClick={() => {

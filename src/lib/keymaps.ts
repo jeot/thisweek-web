@@ -6,7 +6,7 @@ export function listenToActions(cb: (action: string) => void) {
   if (!listeners.includes(cb)) { // avoid multiple same callback register
     listeners.push(cb);
   }
-  console.log("registering new callback listener keymap. count:", listeners.length);
+  // console.log("registering new callback listener keymap. count:", listeners.length);
   // the unlisten function
   return () => {
     console.log("deregistering the listener callback.");
@@ -23,7 +23,7 @@ export const init = () => {
   console.log("binding hotkeys...");
   hotkeys.setScope('KEY_SCOPE_FIRST');
 
-  // movement
+  // navigation
   hotkeys('k,j,j+k,k+j', 'KEY_SCOPE_FIRST', function(event, handler) {
     event.preventDefault()
     const key = handler.key
@@ -40,6 +40,20 @@ export const init = () => {
     event.preventDefault()
     const key = handler.key
     if (key === 't') broadcastAction("today");
+  });
+
+  // moving items
+  hotkeys('ctrl+k,ctrl+j,ctrl+j+k,ctrl+k+j', 'KEY_SCOPE_FIRST', function(event, handler) {
+    event.preventDefault()
+    const key = handler.key
+    if (key === 'ctrl+k' || key === 'ctrl+j+k') broadcastAction("move-up");
+    if (key === 'ctrl+j' || key === 'ctrl+k+j') broadcastAction("move-down");
+  });
+  hotkeys('ctrl+h,ctrl+l,ctrl+h+l,ctrl+l+h', 'KEY_SCOPE_FIRST', function(event, handler) {
+    event.preventDefault()
+    const key = handler.key
+    if (key === 'ctrl+h' || key === 'ctrl+l+h') broadcastAction("move-left");
+    if (key === 'ctrl+l' || key === 'ctrl+h+l') broadcastAction("move-right");
   });
 
   // scopes (for key sequence)

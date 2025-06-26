@@ -1,6 +1,6 @@
 import { CalendarType } from "./calendarLocales";
 
-export type ViewType = 'This Week' | 'This Year' | 'Settings';
+export type PageViewType = 'This Week' | 'This Year' | 'Settings';
 
 export type WeekdayString = 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat';
 export type WeekdayNumbers = 0 | 1 | 2 | 3 | 4 | 5 | 6;
