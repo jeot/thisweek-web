@@ -71,6 +71,7 @@ export interface DateView {
   gregoryDisplay: string;
   localeDisplay: string;
   direction: string;
+  today: boolean;
   parts: {
     day: string;
     month: string;
@@ -171,11 +172,13 @@ export function getDateViewInLocaleCalendar(
   const date = referenceDate.setLocale(locale); // eg. "fa-IR"
   const parts = getParts(date, locale, calendar);
   const localeDisplay = getLocaleString(date, locale, calendar);
+  const today = referenceDate.toISODate() === DateTime.local().toISODate();
   return {
     originalDateTime: date,
     gregoryDisplay: date.toString(),
     localeDisplay: localeDisplay,
     direction: direction,
+    today: today,
     parts: parts,
   }
 }

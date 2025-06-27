@@ -71,7 +71,7 @@ export function Item({ className, item, selected, onItemAction, ...props }: { it
             readOnly={!editing}
             onChange={(ev) => setLocalTitle(ev.target.value)}
           />
-          <span className="absolute right-0 top-0 text-xs rounded-md p-1 border-1 border-red-600">{item.order.weekly}</span>
+          {/* <span className="absolute right-0 top-0 text-xs rounded-md p-1 border-1 border-red-600">{item.order.weekly}</span> */}
           {editing && <Button
             className="mt-0.5" size="icon" variant="outline"
             onClick={() => {

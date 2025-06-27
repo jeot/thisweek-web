@@ -137,12 +137,6 @@ export function ListOfItems({ items }: ListOfItemsProps) {
     gotoSectionRelative(-1);
   });
 
-  const changeNewItemType = () => {
-    if (newItemInputBox === null) return;
-    const type = (newItemInputBox.type === 'todo') ? 'note' : 'todo';
-    setNewItemInputBox({ ...newItemInputBox, type: type });
-  }
-
   return (
     <div className="flex flex-col flex-1 w-full max-w-xl items-center gap-2">
       {itemsWithInputBox.map((item) => {
@@ -152,14 +146,14 @@ export function ListOfItems({ items }: ListOfItemsProps) {
           );
         else
           return (
-            <NewItemInput key={`new-item`} itemInit={item} addNewItem={handleAddNewItem} cancelNewItem={cancelNewItem} onChangeItemType={changeNewItemType} />
+            <NewItemInput key={`new-item`} itemInit={item} addNewItem={handleAddNewItem} cancelNewItem={cancelNewItem} />
           );
       })}
       {newItemInputBox === null &&
         <Button variant="outline"
           onClick={() => {
             const newItemPosition = getNewOrderingNumber(items, itemsLength, itemsLength + 1, "weekly");
-            console.log("newItemPosition:", newItemPosition);
+            // console.log("newItemPosition:", newItemPosition);
             let newItem = createDefaultNewItem();
             newItem.order.weekly = newItemPosition;
             setNewItemInputBox(newItem);

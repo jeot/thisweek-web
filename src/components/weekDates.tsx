@@ -18,15 +18,17 @@ function WeekDates({ weekView, className, ...props }: WeekDatesProps) {
       {weekView.dates.map((dv, i) => {
         return (
           <div key={i} className="min-w-full gap-0">
-            <div className="text-xs text-center uppercase text-primary/40">
+            <div className="mb-1 text-xs text-center uppercase text-primary/40">
               {dv.parts.weekdayShort}
             </div>
             <Button
               variant="ghost"
               // variant="outline"
-              className="px-2 py-6 justify-center w-full"
+              className={cn("px-1 py-6 justify-center w-full rounded-2xl",
+                dv.today ? "bg-indigo-200 dark:bg-indigo-900" : ""
+              )}
             >
-              <div>
+              <div className="">
                 <div className="text-base font-semibold">
                   {dv.parts.day}
                 </div>
@@ -42,7 +44,7 @@ function WeekDates({ weekView, className, ...props }: WeekDatesProps) {
           </div>
         );
       })}
-    </div>
+    </div >
   );
 }
 

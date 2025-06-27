@@ -4,8 +4,8 @@ import { Textarea } from "./ui/textarea";
 import { Circle, NotebookText } from "lucide-react";
 import { NewItemType } from "@/lib/items";
 
-export function NewItemInput({ itemInit, addNewItem, cancelNewItem, onChangeItemType }:
-  { itemInit: NewItemType, addNewItem: (item: NewItemType) => void, cancelNewItem: () => void, onChangeItemType: () => void }) {
+export function NewItemInput({ itemInit, addNewItem, cancelNewItem }:
+  { itemInit: NewItemType, addNewItem: (item: NewItemType) => void, cancelNewItem: () => void }) {
   const [item, setItem] = useState(itemInit);
 
   const handleKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (event: React.KeyboardEvent) => {
@@ -31,7 +31,8 @@ export function NewItemInput({ itemInit, addNewItem, cancelNewItem, onChangeItem
       event.preventDefault();
       cancelNewItem();
     } else if (event.key === 'x' && event.ctrlKey) {
-      onChangeItemType();
+      const type = (item.type === 'todo') ? 'note' : 'todo';
+      setItem({ ...item, type: type });
     } else { }
   }
 
