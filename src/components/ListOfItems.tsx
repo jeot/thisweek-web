@@ -82,8 +82,10 @@ export function ListOfItems({ items }: ListOfItemsProps) {
   });
 
   useActionListener('create_item', () => {
-    const newItemPosition = getNewOrderingNumber(items, itemsLength, itemsLength + 1, "weekly");
-    // console.log("newItemPosition:", newItemPosition);
+    const newItemPosition = selectedIndexNotValid ?
+      getNewOrderingNumber(items, itemsLength, itemsLength + 1, "weekly") :
+      getNewOrderingNumber(items, selectedIndex, selectedIndex + 1, "weekly");
+    console.log("newItemPosition:", newItemPosition);
     let newItem = createDefaultNewItem();
     newItem.order.weekly = newItemPosition;
     setNewItemInputBox(newItem);
