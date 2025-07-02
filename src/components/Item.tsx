@@ -132,8 +132,8 @@ export function Item({ className, item, editing, selected, onItemActionCallback,
             onKeyDown={handleKeyDown}
           />
           {/*
-          */}
           <span className="absolute right-0 top-0 text-xs rounded-md p-1 border-1 border-red-600">{item.order.weekly}</span>
+          */}
           {editing && <Button
             className="m-0.5" size="icon" variant="outline"
             onClick={() => { onItemActionCallback('Apply', { ...item, title: title }); }}
