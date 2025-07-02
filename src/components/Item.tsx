@@ -97,7 +97,7 @@ export function Item({ className, item, editing, selected, onItemActionCallback,
     <ContextMenu>
       <ContextMenuTrigger asChild>
         <div
-          dir={getSmartTextDirection(item.title)}
+          dir={getSmartTextDirection(title)}
           className={cn(
             "relative rounded-md flex flex-row items-streach w-full gap-0",
             `${selected && !editing ? "ring-1 ring-indigo-500" : ""}`,
@@ -122,8 +122,8 @@ export function Item({ className, item, editing, selected, onItemActionCallback,
             // autoFocus
             ref={textareaRef}
             wrap="soft"
-            dir={getSmartTextDirection(item.title)}
-            value={editing && title || item.title}
+            dir={getSmartTextDirection(title)}
+            value={title}
             className={cn("resize-none h-auto min-h-1 w-full  border-none me-1",
               "shadow-none dark:shadow-none bg-transparent dark:bg-transparent hover:shadow-xs hover:bg-input/50 hover:dark:bg-input/30 transition-all duration-200",
               `${editing ? "ring-ring/30 ring-3 focus-visible:ring-ring/50" : "focus-visible:ring-0 ring-0"}`)}
