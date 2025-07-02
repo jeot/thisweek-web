@@ -1,26 +1,34 @@
-import { NewItemInput } from "./AddNewItem";
 import { Item } from "@/components/Item"
 import { useState } from "react";
 import { Button } from "./ui/button";
 import { CirclePlus } from "lucide-react";
-import { addNewItem, createDefaultNewItem, deleteItem, getNewOrderingNumber, moveItemToSectionRelative, updateItem } from "@/lib/items";
+import { applyEditingItem, cancelEditingItem, createExistingEditingItem, createNewEditingItem, deleteItem, getNewOrderingNumber, moveItemToSectionRelative, updateItem } from "@/lib/items";
 import { useActionListener } from "@/lib/useActionListener";
 import { ItemType } from "@/types/types";
 import { useAppState } from "@/store/appStore";
-import { NewItemType } from "@/lib/items";
 
 interface ListOfItemsProps {
   items: ItemType[];
+  newEdit?: ItemType | null;
+  existingEdit?: ItemType | null;
 }
 
-export function ListOfItems({ items }: ListOfItemsProps) {
-  const [newItemInputBox, setNewItemInputBox] = useState<NewItemType | null>(null);
+export function ListOfItems({ items, newEdit, existingEdit }: ListOfItemsProps) {
   const gotoSectionRelative = useAppState((state) => state.gotoSectionRelative);
 
-  const itemsWithInputBox: Array<NewItemType | ItemType> = [];
-  itemsWithInputBox.push(...items);
-  if (newItemInputBox) itemsWithInputBox.push(newItemInputBox);
-  itemsWithInputBox.sort((a, b) => a?.order.weekly - b?.order.weekly);
+  let allItems: Array<ItemType> = [];
+  allItems.push(...items);
+  if (newEdit) {
+    console.log("newEdit:", newEdit);
+    allItems.push(newEdit);
+  }
+  if (existingEdit) {
+    console.log("existingEdit:", existingEdit);
+    allItems = allItems.map(item =>
+      item.id === existingEdit?.id ? existingEdit : item
+    );
+  }
+  allItems.sort((a, b) => a?.order.weekly - b?.order.weekly);
 
   const itemsLength = items.length || 0;
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -35,19 +43,7 @@ export function ListOfItems({ items }: ListOfItemsProps) {
     }
   }
 
-  async function cancelNewItem() {
-    setNewItemInputBox(null);
-  }
-
-  async function handleAddNewItem(item: NewItemType) {
-    addNewItem(item).then((id) => {
-      console.log("added new item: id", id);
-      setSelectedId(id);
-    }).catch((err) => {
-      console.log("error adding item:", err);
-    });
-    setNewItemInputBox(null);
-  }
+  // const [editing, setEditing] = useState<{ id: number, position: 'caret_start' | 'caret_end' | 'select_all' } | null>(null);
 
   useActionListener('up', () => {
     if (selectedIndexNotValid) setSelectedIndex(itemsLength - 1);
@@ -59,15 +55,6 @@ export function ListOfItems({ items }: ListOfItemsProps) {
     if (selectedIndexNotValid) setSelectedIndex(0);
     else if (selectedIndex === itemsLength - 1) return;
     else setSelectedIndex(selectedIndex + 1);
-  });
-
-  useActionListener('cancel', () => {
-    if (newItemInputBox) {
-      setNewItemInputBox(null);
-    } else if (selectedIndex !== null) {
-      setSelectedId(null);
-    } else {
-    }
   });
 
   useActionListener('delete', () => {
@@ -86,23 +73,56 @@ export function ListOfItems({ items }: ListOfItemsProps) {
       getNewOrderingNumber(items, itemsLength, itemsLength + 1, "weekly") :
       getNewOrderingNumber(items, selectedIndex, selectedIndex + 1, "weekly");
     console.log("newItemPosition:", newItemPosition);
-    let newItem = createDefaultNewItem();
-    newItem.order.weekly = newItemPosition;
-    setNewItemInputBox(newItem);
+    createNewEditingItem(newItemPosition);
+    // setEditing({ id: newItem.id, position: "caret_start" });
   });
 
   useActionListener('create_item_above', () => {
     const newItemPosition = getNewOrderingNumber(items, selectedIndex, selectedIndex - 1, "weekly");
-    // console.log("newItemPosition:", newItemPosition);
-    let newItem = createDefaultNewItem();
-    newItem.order.weekly = newItemPosition;
-    setNewItemInputBox(newItem);
+    console.log("newItemPosition:", newItemPosition);
+    createNewEditingItem(newItemPosition);
+    // setEditing({ id: newItem.id, position: "caret_start" });
   });
 
   useActionListener('toggle_item_type', () => {
     if (selectedItem) {
       const type = (selectedItem.type === 'todo') ? 'note' : 'todo';
       updateItem({ ...selectedItem, type: type });
+    }
+  });
+
+  useActionListener('insert', () => {
+    if (!selectedItem) return;
+    console.log("editing id:", selectedId);
+    createExistingEditingItem(selectedItem);
+  });
+
+  useActionListener('append', () => {
+    if (!selectedItem) return;
+    console.log("editing id:", selectedId);
+    createExistingEditingItem(selectedItem);
+  });
+
+  useActionListener('change', () => {
+    if (!selectedItem) return;
+    console.log("editing id:", selectedId);
+    createExistingEditingItem(selectedItem);
+  });
+
+  useActionListener('insert_at_begining', () => {
+    if (!selectedItem) return;
+    console.log("editing id:", selectedId);
+    createExistingEditingItem(selectedItem);
+  });
+
+  useActionListener('cancel', () => {
+    if (existingEdit) {
+      cancelEditingItem(existingEdit);
+    } else if (newEdit) {
+      cancelEditingItem(newEdit);
+    } else if (selectedIndex !== null) {
+      setSelectedId(null);
+    } else {
     }
   });
 
@@ -137,26 +157,38 @@ export function ListOfItems({ items }: ListOfItemsProps) {
     gotoSectionRelative(-1);
   });
 
+  async function handleOnItemActionCallback(action: string, item: ItemType) {
+    console.log("handleOnItemActionCallback:", action, item);
+    if (action === "Edit") { if (existingEdit === null) createExistingEditingItem(item); }
+    if (action === "Copy") { /* todo: copy */ }
+    if (action === "Paste") {/* todo: paste */ }
+    if (action === "Delete") { deleteItem(item).then(() => console.log("Delete done.")).catch((e) => console.log("Delete error,", e)); }
+    if (action === "Update") { updateItem(item).then(() => console.log("Update done.")).catch((e) => console.log("Update error,", e)); }
+    if (action === "Apply") { applyEditingItem(item).then((id) => { setSelectedId(id) }) }
+    if (action === "Cancel") { cancelEditingItem(item); }
+  }
+
   return (
     <div className="flex flex-col flex-1 w-full max-w-xl items-center gap-2">
-      {itemsWithInputBox.map((item) => {
-        if ('id' in item)
-          return (
-            <Item key={item.id} item={item} selected={(newItemInputBox === null) && (selectedId === item.id)} />
-          );
-        else
-          return (
-            <NewItemInput key={`new-item`} itemInit={item} addNewItem={handleAddNewItem} cancelNewItem={cancelNewItem} />
-          );
+      {allItems.map((item) => {
+        const editing = (newEdit?.id === item.id) || (existingEdit?.id === item.id);
+        const selected = (!newEdit && !existingEdit && (selectedId === item.id));
+        return (
+          <Item
+            key={('id' in item) ? item.id : "new-item"}
+            item={item}
+            editing={editing}
+            selected={selected}
+            onItemActionCallback={handleOnItemActionCallback}
+          />
+        );
       })}
-      {newItemInputBox === null &&
+      {newEdit === null && existingEdit === null &&
         <Button variant="outline"
           onClick={() => {
             const newItemPosition = getNewOrderingNumber(items, itemsLength, itemsLength + 1, "weekly");
-            // console.log("newItemPosition:", newItemPosition);
-            let newItem = createDefaultNewItem();
-            newItem.order.weekly = newItemPosition;
-            setNewItemInputBox(newItem);
+            console.log("newItemPosition:", newItemPosition);
+            createNewEditingItem(newItemPosition);
           }}
         >
           <CirclePlus />New Item

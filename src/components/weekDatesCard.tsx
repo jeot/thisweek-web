@@ -34,7 +34,7 @@ function WeekDatesCard() {
   const PrevIcon = defaultDirection ? ChevronLeft : ChevronRight;
 
   return (
-    <Card dir={weekView.direction} className="w-full max-w-md min-w-64 pt-3 pb-2 gap-2">
+    <Card dir={weekView.direction} className="w-full max-w-md min-w-64 pt-3 pb-2 gap-2 rounded-3xl">
       <CardHeader className="gap-0">
         <CardTitle className="text-sm">{weekView.weekTitle}</CardTitle>
         <CardDescription className="text-xs">{weekView.weekDescription}</CardDescription>

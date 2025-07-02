@@ -33,7 +33,7 @@ export interface ItemType {
   userId: string | null; // future: e.g., 'local', or real user UID when logged in
 
   title: string;
-  type: 'todo' | 'note'; // i initially wanted to also have 'event' type, but i think it's an overkill!
+  type: 'todo' | 'note'; // initially wanted to have 'event' type, but i think it's overkill!
   status: 'done' | 'undone' | 'pending' | 'blocked' | 'canceled';
   category: 'weekly' | 'yearly' | 'project';
   projectId: number | null; // future: reference the projects table.
