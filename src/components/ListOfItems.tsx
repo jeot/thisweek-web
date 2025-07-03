@@ -2,10 +2,11 @@ import { Item } from "@/components/Item"
 import { useState } from "react";
 import { Button } from "./ui/button";
 import { CirclePlus } from "lucide-react";
-import { applyEditingItem, cancelEditingItem, createExistingEditingItem, createNewEditingItem, deleteItem, getNewOrderingNumber, moveItemToSectionRelative, updateItem } from "@/lib/items";
+import { saveAsNewItem, applyEditingItem, cancelEditingItem, createExistingEditingItem, createNewEditingItem, createNewItem, deleteItem, getNewOrderingNumber, moveItemToSectionRelative, updateItem } from "@/lib/items";
 import { useActionListener } from "@/lib/useActionListener";
 import { ItemType } from "@/types/types";
 import { useAppState } from "@/store/appStore";
+import { useWeekState } from "@/store/weekStore";
 
 interface ListOfItemsProps {
   items: ItemType[];
@@ -15,6 +16,9 @@ interface ListOfItemsProps {
 
 export function ListOfItems({ items, newEdit, existingEdit }: ListOfItemsProps) {
   const gotoSectionRelative = useAppState((state) => state.gotoSectionRelative);
+  const internalCopiedItem = useAppState((state) => state.internalCopiedItem);
+  const setInternalCopiedItem = useAppState((state) => state.setInternalCopiedItem);
+  const weekReference = useWeekState((state) => state.weekReference);
 
   let allItems: Array<ItemType> = [];
   allItems.push(...items);
@@ -42,8 +46,59 @@ export function ListOfItems({ items, newEdit, existingEdit }: ListOfItemsProps) 
       setSelectedId(items[i].id);
     }
   }
-
   // const [editing, setEditing] = useState<{ id: number, position: 'caret_start' | 'caret_end' | 'select_all' } | null>(null);
+
+  async function handlePasteAtIndex(index: number) {
+    try {
+      console.log("trying to get the text from clipboard...");
+      const result = await navigator.permissions.query({ name: 'clipboard-read' as PermissionName });
+      console.log("permission: ", result.state); // 'granted', 'denied', or 'prompt'
+
+      let text = await navigator.clipboard.readText();
+      console.log("pasting text: ", text);
+      if (text.trim().length == 0) {
+        console.log("no text value for paste available. ignored");
+        return
+      }
+
+      /*
+       * the test for debugging the issue with copy/paste!
+       * windows replaces the \n with \r\n
+       * that's why we use the normalize function bellow
+       */
+      // console.log("text from os clipboard:", text);
+      // console.log("text from internal ref:", smartClipboardItemRef.current?.text);
+      // console.log("text from os clipboard:", JSON.stringify(text));
+      // console.log("text from internal ref:", JSON.stringify(smartClipboardItemRef.current?.text));
+      // console.log("length text from os clipboard:", text.length);
+      // console.log("length text from internal ref:", smartClipboardItemRef.current?.text.length);
+      // console.log("os clipboard split by line:", text.split(''));
+      // console.log("internal ref split by line:", smartClipboardItemRef.current.text.split(''));
+      // const hash = s => Array.from(s).reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 0);
+      // console.log("Clipboard hash:", hash(text));
+      // console.log("Internal hash:", hash(smartClipboardItemRef.current.text));
+
+      const normalize = (str: string) => str.replace(/\r\n/g, '\n');
+      const internalCopy = (internalCopiedItem && (normalize(text) === normalize(internalCopiedItem.title))) || false;
+
+      const newItemPosition = getNewOrderingNumber(items, index, index + 1, "weekly")
+      if (internalCopy && internalCopiedItem) {
+        let newItem = internalCopiedItem;
+        newItem.order["weekly"] = newItemPosition;
+        newItem.scheduledAt = weekReference;
+        newItem.deletedAt = null;
+        saveAsNewItem(newItem).then((id) => { setSelectedId(id) })
+      } else if (!internalCopy) {
+        let newItem = createNewItem(newItemPosition);
+        newItem.title = text;
+        saveAsNewItem(newItem).then((id) => { setSelectedId(id) })
+      } else {
+      }
+    } catch (err) {
+      const log = `Error: trying to paste: ${err}`;
+      console.log(log);
+    }
+  }
 
   useActionListener('up', () => {
     if (selectedIndexNotValid) setSelectedIndex(itemsLength - 1);
@@ -60,6 +115,20 @@ export function ListOfItems({ items, newEdit, existingEdit }: ListOfItemsProps) 
   useActionListener('delete', () => {
     if (!selectedItem) return
     deleteItem(selectedItem);
+  });
+
+  useActionListener('copy', () => {
+    if (!selectedItem) return
+    setInternalCopiedItem(selectedItem);
+  });
+
+  useActionListener('paste', () => {
+    if (selectedIndex >= 0) handlePasteAtIndex(selectedIndex);
+    else handlePasteAtIndex(itemsLength);
+  });
+
+  useActionListener('paste_above', () => {
+    handlePasteAtIndex(selectedIndex - 1);
   });
 
   useActionListener('toggle_status', () => {
@@ -160,7 +229,7 @@ export function ListOfItems({ items, newEdit, existingEdit }: ListOfItemsProps) 
   async function handleOnItemActionCallback(action: string, item: ItemType) {
     console.log("handleOnItemActionCallback:", action, item);
     if (action === "Edit") { if (existingEdit === null) createExistingEditingItem(item); }
-    if (action === "Copy") { /* todo: copy */ }
+    if (action === "Copy") { if (existingEdit === null && newEdit === null) setInternalCopiedItem(item); }
     if (action === "Paste") {/* todo: paste */ }
     if (action === "Delete") { deleteItem(item).then(() => console.log("Delete done.")).catch((e) => console.log("Delete error,", e)); }
     if (action === "Update") { updateItem(item).then(() => console.log("Update done.")).catch((e) => console.log("Update error,", e)); }

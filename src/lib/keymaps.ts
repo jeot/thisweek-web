@@ -106,8 +106,13 @@ export const init = () => {
   hotkeys('y,y+y,*', 'KEY_SCOPE_Y', (event, handler) => {
     event.preventDefault()
     const key = handler.key
-    if (key === 'y' || key === 'y+y') broadcastAction("yank");
+    if (key === 'y' || key === 'y+y') broadcastAction("copy");
     hotkeys.setScope('KEY_SCOPE_FIRST');
+  });
+  hotkeys('ctrl+c', 'KEY_SCOPE_FIRST', function(event, handler) {
+    event.preventDefault()
+    const key = handler.key
+    if (key === 'ctrl+c') broadcastAction("copy");
   });
 
   // space: leader key
@@ -139,6 +144,11 @@ export const init = () => {
     handler.key;
     event.preventDefault()
     broadcastAction("paste_above");
+  });
+  hotkeys('ctrl+v', 'KEY_SCOPE_FIRST', function(event, handler) {
+    event.preventDefault()
+    const key = handler.key
+    if (key === 'ctrl+v') broadcastAction("paste");
   });
 
   // append

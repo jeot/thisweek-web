@@ -35,6 +35,15 @@ export async function createExistingEditingItem(item: ItemType): Promise<void> {
 }
 
 export async function createNewEditingItem(orderingNumber?: number): Promise<void> {
+  const newItem = createNewItem(orderingNumber);
+  try {
+    saveEditingItem(newItem, 'editing_new');
+  } catch (error) {
+    console.log("Error creating new item. err:", error);
+  }
+}
+
+export function createNewItem(orderingNumber?: number): ItemType {
   const category = useAppState.getState().pageView === 'This Week' ? 'weekly' : 'project'
   const weekTime = useWeekState.getState().weekReference;
   const calendar = useCalendarState.getState().mainCal.calendar;
@@ -81,12 +90,7 @@ export async function createNewEditingItem(orderingNumber?: number): Promise<voi
     syncedAt: null,
     modifiedBy: modifiedBy,
   };
-
-  try {
-    saveEditingItem(newItem, 'editing_new');
-  } catch (error) {
-    console.log("Error creating new item. err:", error);
-  }
+  return newItem;
 }
 
 export async function getItemsInWeeklyRange(startUtcMillis: number, endUtcMillis: number) {
@@ -137,6 +141,17 @@ export async function checkAndFixOrdering(items: ItemType[]) {
   } catch (err) {
     console.log("error while ordering items:", err);
   }
+}
+
+export async function saveAsNewItem(item: ItemType) {
+  item.modifiedAt = (new Date()).getTime();
+  item.modifiedBy = getOrCreateDeviceId();
+  console.log("trying to add new item...");
+  const { id, ...newItem } = item; // this actually removes the id
+  console.log("newItem:", newItem);
+  const insertedId = await db.items.add(newItem);
+  console.log("add successful. new id: ", insertedId);
+  return insertedId;
 }
 
 export async function applyEditingItem(item: ItemType) {
