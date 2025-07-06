@@ -1,10 +1,10 @@
 import { cn, getSmartTextDirection } from "@/lib/utils";
-import { TextareaWithRef } from "@/components/ui/textarea";
 import { ItemType } from "@/types/types";
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "@/components/ui/context-menu";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "./ui/button";
 import { CheckIcon, Circle, CircleCheckBig, NotebookText, XIcon } from "lucide-react";
+import TextareaAutosize from 'react-textarea-autosize';
 
 
 export function Item({ className, item, editing, selected, onItemActionCallback, ...props }: { item: ItemType, editing: boolean, selected?: boolean, onItemActionCallback: (action: string, item: ItemType) => void } & React.ComponentProps<"div">) {
@@ -33,7 +33,6 @@ export function Item({ className, item, editing, selected, onItemActionCallback,
   ];
 
   const [title, setTitle] = useState<string>(item.title);
-  const rows: number = title.split("\n").length;
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -119,20 +118,23 @@ export function Item({ className, item, editing, selected, onItemActionCallback,
             <Button variant="ghost" size="shk" className="text-primary/40" >
               <NotebookText />
             </Button>}
-          <TextareaWithRef
+
+          <TextareaAutosize
             // autoFocus
             ref={textareaRef}
             wrap="soft"
             dir={getSmartTextDirection(title)}
             value={title}
-            rows={rows}
-            className={cn("resize-none h-auto min-h-1 flex-1 border-none me-1",
+            className={cn(
+              "border-input placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 flex field-sizing-content min-h-16 w-full rounded-md border bg-transparent px-3 py-2 text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50",
+              "leading-relaxed resize-none h-auto min-h-1 flex-1 border-none me-1 overflow-hidden",
               "shadow-none dark:shadow-none bg-transparent dark:bg-transparent hover:shadow-xs hover:bg-input/50 hover:dark:bg-input/30 transition-all duration-200",
               `${editing ? "ring-ring/30 ring-3 focus-visible:ring-ring/50" : "focus-visible:ring-0 ring-0"}`)}
             readOnly={!editing}
             onChange={(ev) => setTitle(ev.target.value)}
             onKeyDown={handleKeyDown}
           />
+
           {/*
           <span className="absolute right-0 top-0 text-xs rounded-md p-1 border-1 border-red-600">{item.order.weekly}</span>
           */}
