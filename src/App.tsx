@@ -84,11 +84,9 @@ function App() {
   */
   useEffect(() => {
     // console.log(mainCal.locale.locale.slice(0, 2), secondCalendar.locale.locale.slice(0, 2));
+    console.log('loading Open Sans font.');
+    loadRemoteCSS('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
 
-    if (true) {
-      console.log('loading Open Sans font.');
-      loadRemoteCSS('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
-    }
     if (mainCal.locale.locale.slice(0, 2) === 'en' || secondCalendar.locale.locale.slice(0, 2) === 'en') {
       // console.log('loading english font');
       // loadRemoteCSS('./src/fonts/roboto.css');
@@ -97,7 +95,7 @@ function App() {
     if (mainCal.locale.locale.slice(0, 2) === 'fa' || secondCalendar.locale.locale.slice(0, 2) === 'fa') {
       console.log('loading farsi font');
       preloadFont('/fonts/Shabnam.woff');
-      loadRemoteCSS('./src/fonts/shabnam.css');
+      loadRemoteCSS('/fonts/shabnam.css');
       // document.documentElement.classList.add('font-global');
     }
     if (mainCal.locale.locale.slice(0, 2) === 'zh' || secondCalendar.locale.locale.slice(0, 2) === 'zh') {
