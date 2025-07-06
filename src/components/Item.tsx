@@ -99,14 +99,14 @@ export function Item({ className, item, editing, selected, onItemActionCallback,
         <div
           dir={getSmartTextDirection(title)}
           className={cn(
-            "relative rounded-md flex flex-row items-streach w-full gap-0",
+            "relative rounded-md flex flex-row items-start w-full gap-0",
             `${selected && !editing ? "ring-1 ring-indigo-500" : ""}`,
             className
           )}
           {...props}
         >
           {item.type === 'todo' &&
-            <Button variant="ghost" size="shk" className="text-primary/60"
+            <Button variant="ghost" className="mt-[0.2rem] text-primary/60"
               onClick={() => {
                 const newStatus = item.status === 'done' ? 'undone' : 'done';
                 const completedAt = newStatus === 'done' ? (new Date()).getTime() : null;
@@ -115,7 +115,7 @@ export function Item({ className, item, editing, selected, onItemActionCallback,
               {item.status === 'done' ? <CircleCheckBig /> : <Circle />}
             </Button>}
           {item.type === 'note' &&
-            <Button variant="ghost" size="shk" className="text-primary/40" >
+            <Button variant="ghost" className="mt-[0.2rem] text-primary/40" >
               <NotebookText />
             </Button>}
 
