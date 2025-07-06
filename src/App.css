@@ -1,6 +1,17 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+@theme {
+  --font-global:
+    "Open Sans",
+    "Shabnam",
+    "Noto Sans",
+    'Noto Sans SC',
+    'Noto Sans JP',
+    'Noto Sans KR',
+    'sans-serif';
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {

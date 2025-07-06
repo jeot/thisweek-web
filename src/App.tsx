@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import './App.css'
+import '@/App.css'
 import { SidebarLayout } from '@/components/SidebarLayout'
 import { ThisWeekPage } from '@/components/ThisWeekPage';
 import { Settings as SettingsPage } from '@/components/Settings';
@@ -11,9 +11,31 @@ import * as keymap from '@/lib/keymaps';
 import { useTheme } from 'next-themes';
 import { PageViewType } from './types/types';
 
+function loadRemoteCSS(href: string) {
+  const existing = document.querySelector(`link[href="${href}"]`);
+  if (!existing) {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = href;
+    document.head.appendChild(link);
+  }
+}
+
+function preloadFont(href: string) {
+  const link = document.createElement('link');
+  link.rel = 'preload';
+  link.as = 'font';
+  link.href = href;
+  link.type = 'font/woff';
+  link.crossOrigin = 'anonymous';
+  document.head.appendChild(link);
+}
+
 function App() {
   const pageView = useAppState((state) => state.pageView);
   const setPageView = useAppState((state) => state.setPageView);
+  const mainCal = useCalendarState((state) => state.mainCal);
+  const secondCalendar = useCalendarState((state) => state.secondCal);
   const setMainCal = useCalendarState((state) => state.setMainCal);
   const setSecondCal = useCalendarState((state) => state.setSecondCal);
   const setSecondCalEnabled = useCalendarState((state) => state.setSecondCalEnabled);
@@ -47,6 +69,64 @@ function App() {
     }
   }, []);
 
+  /*Suggested Font Mapping
+  Locale	Font Suggestion
+  en	Inter, Roboto, etc.
+  fa	Shabnam, Vazirmatn
+  ar	Cairo, Amiri
+  he	Rubik, Assistant
+  hi	Noto Sans Devanagari
+  zh	Noto Sans SC (Simplified)
+  ja	Noto Sans JP
+  ko	Noto Sans KR
+  ru	Noto Sans, PT Sans
+  et	Abyssinica SIL
+  */
+  useEffect(() => {
+    // console.log(mainCal.locale.locale.slice(0, 2), secondCalendar.locale.locale.slice(0, 2));
+
+    if (true) {
+      console.log('loading Open Sans font.');
+      loadRemoteCSS('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+    }
+    if (mainCal.locale.locale.slice(0, 2) === 'en' || secondCalendar.locale.locale.slice(0, 2) === 'en') {
+      // console.log('loading english font');
+      // loadRemoteCSS('./src/fonts/roboto.css');
+      // document.documentElement.classList.add('font-roboto');
+    }
+    if (mainCal.locale.locale.slice(0, 2) === 'fa' || secondCalendar.locale.locale.slice(0, 2) === 'fa') {
+      console.log('loading farsi font');
+      preloadFont('/fonts/Shabnam.woff');
+      loadRemoteCSS('./src/fonts/shabnam.css');
+      // document.documentElement.classList.add('font-global');
+    }
+    if (mainCal.locale.locale.slice(0, 2) === 'zh' || secondCalendar.locale.locale.slice(0, 2) === 'zh') {
+      console.log('loading chinese font');
+      loadRemoteCSS('https://fonts.googleapis.com/css2?family=Noto+Sans+SC&display=swap');
+      // document.documentElement.classList.add('font-global');
+    }
+    if (mainCal.locale.locale.slice(0, 2) === 'ja' || secondCalendar.locale.locale.slice(0, 2) === 'ja') {
+      console.log('loading japanese font');
+      loadRemoteCSS('https://fonts.googleapis.com/css2?family=Noto+Sans+JP&display=swap');
+      // document.documentElement.classList.add('font-global');
+    }
+    if (mainCal.locale.locale.slice(0, 2) === 'ko' || secondCalendar.locale.locale.slice(0, 2) === 'ko') {
+      console.log('loading korean font');
+      loadRemoteCSS('https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap');
+      // document.documentElement.classList.add('font-global');
+    }
+    /* hebrew is already included in Open Sans
+     if (mainCal.locale.locale.slice(0, 2) === 'he' || secondCalendar.locale.locale.slice(0, 2) === 'he') {
+      console.log('loading hebrew font');
+      loadRemoteCSS("https://fonts.googleapis.com/css2?family=Noto+Sans+Hebrew&display=swap");
+      // document.documentElement.classList.add('font-global');
+    }
+    */
+    // document.documentElement.classList.add('font-global');
+  }, [mainCal, secondCalendar]);
+
+
+
   function handleKeymapCallback(action: string): void {
     if (action === 'toggle_theme') setTheme(theme === 'light' ? 'dark' : 'light');
   }
@@ -65,7 +145,7 @@ function App() {
 
 
   return (
-    <>
+    <div className="font-global">
       <SidebarLayout
         onMenuClick={handleChangePageView}
         activeView={pageView}
@@ -76,7 +156,7 @@ function App() {
         {pageView === 'Settings' && <SettingsPage />}
         {/* and so on */}
       </SidebarLayout>
-    </>
+    </div>
   )
 }
 

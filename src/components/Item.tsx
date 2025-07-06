@@ -33,6 +33,7 @@ export function Item({ className, item, editing, selected, onItemActionCallback,
   ];
 
   const [title, setTitle] = useState<string>(item.title);
+  const rows: number = title.split("\n").length;
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -124,6 +125,7 @@ export function Item({ className, item, editing, selected, onItemActionCallback,
             wrap="soft"
             dir={getSmartTextDirection(title)}
             value={title}
+            rows={rows}
             className={cn("resize-none h-auto min-h-1 w-full  border-none me-1",
               "shadow-none dark:shadow-none bg-transparent dark:bg-transparent hover:shadow-xs hover:bg-input/50 hover:dark:bg-input/30 transition-all duration-200",
               `${editing ? "ring-ring/30 ring-3 focus-visible:ring-ring/50" : "focus-visible:ring-0 ring-0"}`)}
@@ -132,8 +134,8 @@ export function Item({ className, item, editing, selected, onItemActionCallback,
             onKeyDown={handleKeyDown}
           />
           {/*
-          */}
           <span className="absolute right-0 top-0 text-xs rounded-md p-1 border-1 border-red-600">{item.order.weekly}</span>
+          */}
           {editing && <Button
             className="m-0.5" size="icon" variant="outline"
             onClick={() => { onItemActionCallback('Apply', { ...item, title: title }); }}

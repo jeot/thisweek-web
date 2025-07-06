@@ -1,0 +1,48 @@
+@font-face {
+  font-family: 'Shabnam';
+  src: url('/fonts/Shabnam-Thin.woff') format('woff');
+  font-display: swap;
+  font-weight: 100; /*thin;*/
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Shabnam';
+  src: url('/fonts/Shabnam-Light.woff') format('woff');
+  font-display: swap;
+  font-weight: 300; /*light;*/
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Shabnam';
+  src: url('/fonts/Shabnam.woff') format('woff');
+  font-display: swap;
+  font-weight: 400; /*normal;*/
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Shabnam';
+  src: url('/fonts/Shabnam-Medium.woff') format('woff');
+  font-display: swap;
+  font-weight: 500; /*medium;*/
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Shabnam';
+  src: url('/fonts/Shabnam-Bold.woff') format('woff');
+  font-display: swap;
+  font-weight: 700; /*bold;*/
+  font-style: normal;
+}
+
+/**/
+/* @font-face { */
+/*   font-family: 'OpenMoji'; */
+/*   src: url(${OpenMoji}) format('woff2'); */
+/*   font-display: swap; */
+/*   font-style: normal; */
+/*   font-weight: 400; */
+/* } */

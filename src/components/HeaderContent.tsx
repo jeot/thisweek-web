@@ -15,8 +15,13 @@ export default function HeaderContent({ title }: { title?: string }) {
     <div className="h-full flex items-center justify-between px-2 py-1">
       <h1 className="flex-none">{title}</h1>
       <div className="h-full flex flex-wrap items-center justify-end">
-        <Badge variant="secondary" className="mx-1 font-normal" dir={today.direction}>{today.localeDisplay}</Badge>
-        {secondCalEnabled && <Badge variant="secondary" className="mx-1 font-light text-primary/75 bg-primary/10" dir={today2.direction}>{today2.localeDisplay}</Badge>}
+        <Badge variant="secondary" className="mx-1 font-normal"
+          dir={today.direction}>{today.localeDisplay}
+        </Badge>
+        {secondCalEnabled &&
+          <Badge variant="secondary" className="mx-1 font-normal text-primary/75 bg-primary/10"
+            dir={today2.direction}>{today2.localeDisplay}
+          </Badge>}
       </div>
     </div >
   );

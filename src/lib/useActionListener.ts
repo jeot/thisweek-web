@@ -10,7 +10,7 @@ export function useActionListener(
 
   useEffect(() => {
     const matcher = Array.isArray(match) ? match : [match];
-    console.log('useEffect run for', matcher);
+    // console.log('useEffect run for', matcher);
     const unlisten = listenToActions((action) => {
       if (matcher.includes(action)) {
         handlerRef.current(); // always fresh!
