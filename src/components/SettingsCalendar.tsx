@@ -64,7 +64,7 @@ export function SettingsCalendar() {
   const CalendarSelector = ({ disabled, selected, onChange, ...props }: { disabled?: boolean, selected: CalendarType, onChange: (cal: CalendarType) => void }) => {
     return (
       <Select disabled={disabled} value={selected} onValueChange={onChange} {...props}>
-        <SelectTrigger className="w-[220px] text-base">
+        <SelectTrigger className="w-[280px] text-base">
           <SelectValue placeholder="Select Calendar" />
         </SelectTrigger>
         <SelectContent>
@@ -83,7 +83,7 @@ export function SettingsCalendar() {
   const LocaleSelector = ({ disabled, selected, calendarMeta, onChange, ...props }: { disabled?: boolean, selected: string, calendarMeta: CalendarMeta | undefined, onChange: (loc: string) => void }) => {
     return (
       <Select disabled={disabled} value={selected} onValueChange={onChange} {...props}>
-        <SelectTrigger className="w-[310px] text-base">
+        <SelectTrigger className="w-[360px] min-w-max text-base">
           <SelectValue placeholder="Select Language/Region" />
         </SelectTrigger>
         <SelectContent>
@@ -91,7 +91,7 @@ export function SettingsCalendar() {
             const flag = locales.find((v) => v.locale === calLocMeta.locale)?.flag;
             return (
               <SelectItem key={index} className="justify-items-start" value={calLocMeta.locale}>
-                <div className="w-[260px] flex items-center">
+                <div className="w-[320px] min-w-max flex items-center">
                   <div className="flex-1 text-left">{calLocMeta.displayName}</div>
                   <Badge className="flex-none text-xs ml-auto font-mono" variant="secondary">{calLocMeta.locale}&nbsp;{flag}</Badge>
                 </div>
