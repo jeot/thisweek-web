@@ -107,7 +107,7 @@ export function Item({ className, item, editing, selected, onItemActionCallback,
           {...props}
         >
           {item.type === 'todo' &&
-            <Button variant="ghost" className="pt-2 text-primary/60"
+            <Button variant="ghost" size="shk" className="text-primary/60"
               onClick={() => {
                 const newStatus = item.status === 'done' ? 'undone' : 'done';
                 const completedAt = newStatus === 'done' ? (new Date()).getTime() : null;
@@ -116,7 +116,7 @@ export function Item({ className, item, editing, selected, onItemActionCallback,
               {item.status === 'done' ? <CircleCheckBig /> : <Circle />}
             </Button>}
           {item.type === 'note' &&
-            <Button variant="ghost" className="pt-2 text-primary/40" >
+            <Button variant="ghost" size="shk" className="text-primary/40" >
               <NotebookText />
             </Button>}
           <TextareaWithRef
@@ -126,7 +126,7 @@ export function Item({ className, item, editing, selected, onItemActionCallback,
             dir={getSmartTextDirection(title)}
             value={title}
             rows={rows}
-            className={cn("resize-none h-auto min-h-1 w-full  border-none me-1",
+            className={cn("resize-none h-auto min-h-1 flex-1 border-none me-1",
               "shadow-none dark:shadow-none bg-transparent dark:bg-transparent hover:shadow-xs hover:bg-input/50 hover:dark:bg-input/30 transition-all duration-200",
               `${editing ? "ring-ring/30 ring-3 focus-visible:ring-ring/50" : "focus-visible:ring-0 ring-0"}`)}
             readOnly={!editing}
@@ -137,11 +137,11 @@ export function Item({ className, item, editing, selected, onItemActionCallback,
           <span className="absolute right-0 top-0 text-xs rounded-md p-1 border-1 border-red-600">{item.order.weekly}</span>
           */}
           {editing && <Button
-            className="m-0.5" size="icon" variant="outline"
+            className="m-0.5" size="shk" variant="outline"
             onClick={() => { onItemActionCallback('Apply', { ...item, title: title }); }}
           ><CheckIcon /></Button>}
           {editing && <Button
-            className="m-0.5" size="icon" variant="outline"
+            className="m-0.5" size="shk" variant="outline"
             onClick={() => {
               onItemActionCallback('Cancel', item);
             }}

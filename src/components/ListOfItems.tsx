@@ -238,7 +238,7 @@ export function ListOfItems({ items, newEdit, existingEdit }: ListOfItemsProps) 
   }
 
   return (
-    <div className="flex flex-col flex-1 w-full max-w-xl items-center gap-2">
+    <div className="flex flex-col flex-1 w-full items-center gap-2">
       {allItems.map((item) => {
         const editing = (newEdit?.id === item.id) || (existingEdit?.id === item.id);
         const selected = (!newEdit && !existingEdit && (selectedId === item.id));

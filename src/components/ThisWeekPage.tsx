@@ -45,16 +45,14 @@ export function ThisWeekPage() {
   }, [newEdit, existingEdit]);
 
   return (
-    <div className="p-4">
-      <div className="flex justify-center">
+    <div className="flex flex-col w-full flex-1 p-4 gap-4 items-center">
+      <div className="flex w-full justify-center mb-2">
         <WeekDatesCard />
       </div>
-      <p>&nbsp;</p>
-      <div className="flex flex-col justify-center items-center">
-        <div className="flex flex-col max-w-xl w-full gap-4">
-          <h2>Todos/Notes</h2>
-          <ListOfItems items={items} newEdit={newEdit} existingEdit={existingEdit} />
-        </div>
+      {/* container for lsit of items */}
+      <div className="flex flex-col min-w-64 w-full md:w-xl items-center gap-4">
+        <h2>Todos &amp; Notes</h2>
+        <ListOfItems items={items} newEdit={newEdit} existingEdit={existingEdit} />
       </div>
     </div>
   );

@@ -27,7 +27,7 @@ export function SidebarLayout({ children, onMenuClick, activeView, title }: { ch
   ]
 
   return (
-    <div className="flex flex-row h-screen">
+    <div className="flex flex-row h-screen w-screen">
 
       {/* Sidebar - Wide view only (desktop or horizental mobile) */}
       <div
@@ -63,7 +63,7 @@ export function SidebarLayout({ children, onMenuClick, activeView, title }: { ch
       </div>
 
       {/* Header + Content */}
-      <div className="flex flex-col w-full">
+      <div className="flex flex-col flex-1 w-1">
 
         {/* Full Header */}
         <header className="flex h-13 items-center justify-left border-b box-content">
@@ -126,7 +126,7 @@ export function SidebarLayout({ children, onMenuClick, activeView, title }: { ch
         </header>
 
         {/* Main Content */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 w-full overflow-y-auto">
           {children}
         </div>
 

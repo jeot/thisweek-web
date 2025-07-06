@@ -10,6 +10,15 @@
     'Noto Sans JP',
     'Noto Sans KR',
     'sans-serif';
+
+}
+
+.pink {
+  border: 1px solid pink;
+}
+
+.red {
+  border: 1px solid red;
 }
 
 @custom-variant dark (&:is(.dark *));
