@@ -11,7 +11,11 @@ import * as keymap from '@/lib/keymaps';
 import { useTheme } from 'next-themes';
 import { PageViewType } from './types/types';
 
+const loadedCSS = new Set<string>();
+const loadedFonts = new Set<string>();
+
 function loadRemoteCSS(href: string) {
+  if (loadedCSS.has(href)) return;
   const existing = document.querySelector(`link[href="${href}"]`);
   if (!existing) {
     const link = document.createElement('link');
@@ -19,16 +23,19 @@ function loadRemoteCSS(href: string) {
     link.href = href;
     document.head.appendChild(link);
   }
+  loadedCSS.add(href);
 }
 
-function preloadFont(href: string) {
+function preloadFont(href: string, type = 'font/woff2') {
+  if (loadedFonts.has(href)) return;
   const link = document.createElement('link');
   link.rel = 'preload';
   link.as = 'font';
   link.href = href;
-  link.type = 'font/woff';
+  link.type = type;
   link.crossOrigin = 'anonymous';
   document.head.appendChild(link);
+  loadedFonts.add(href);
 }
 
 function App() {
@@ -94,7 +101,7 @@ function App() {
     }
     if (mainCal.locale.locale.slice(0, 2) === 'fa' || secondCalendar.locale.locale.slice(0, 2) === 'fa') {
       console.log('loading farsi font');
-      preloadFont('/fonts/Shabnam.woff');
+      preloadFont('/fonts/Shabnam.woff', 'font/woff');
       loadRemoteCSS('/fonts/shabnam.css');
       // document.documentElement.classList.add('font-global');
     }

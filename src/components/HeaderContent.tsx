@@ -21,7 +21,8 @@ export default function HeaderContent({ title }: { title?: string }) {
         {secondCalEnabled &&
           <Badge variant="secondary" className="mx-1 font-normal text-primary/75 bg-primary/10"
             dir={today2.direction}>{today2.localeDisplay}
-          </Badge>}
+          </Badge>
+        }
       </div>
     </div >
   );
