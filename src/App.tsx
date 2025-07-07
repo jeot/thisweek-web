@@ -102,6 +102,7 @@ function App() {
     if (mainCal.locale.locale.slice(0, 2) === 'fa' || secondCalendar.locale.locale.slice(0, 2) === 'fa') {
       console.log('loading farsi font');
       preloadFont('/fonts/Shabnam.woff', 'font/woff');
+      preloadFont('/fonts/Shabnam-Bold.woff', 'font/woff');
       loadRemoteCSS('/fonts/shabnam.css');
       // document.documentElement.classList.add('font-global');
     }
