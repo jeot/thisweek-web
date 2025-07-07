@@ -1,21 +1,5 @@
 @font-face {
   font-family: 'Shabnam';
-  src: url('/fonts/Shabnam-Thin.woff') format('woff');
-  font-display: swap;
-  font-weight: 100; /*thin;*/
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Shabnam';
-  src: url('/fonts/Shabnam-Light.woff') format('woff');
-  font-display: swap;
-  font-weight: 300; /*light;*/
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Shabnam';
   src: url('/fonts/Shabnam.woff') format('woff');
   font-display: swap;
   font-weight: 400; /*normal;*/
@@ -30,13 +14,29 @@
   font-style: normal;
 }
 
+/*
+@font-face {
+  font-family: 'Shabnam';
+  src: url('/fonts/Shabnam-Thin.woff') format('woff');
+  font-display: swap;
+  font-weight: 100; //thin;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Shabnam';
+  src: url('/fonts/Shabnam-Light.woff') format('woff');
+  font-display: swap;
+  font-weight: 300; //light;
+  font-style: normal;
+}
 @font-face {
   font-family: 'Shabnam';
   src: url('/fonts/Shabnam-Bold.woff') format('woff');
   font-display: swap;
-  font-weight: 700; /*bold;*/
+  font-weight: 700; //bold;
   font-style: normal;
 }
+*/
 
 /**/
 /* @font-face { */
