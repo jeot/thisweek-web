@@ -98,11 +98,34 @@ function App() {
       // console.log('loading english font');
       // loadRemoteCSS('./src/fonts/roboto.css');
       // document.documentElement.classList.add('font-roboto');
+      // just for testing performance
+      /*
+      preloadFont('https://fonts.gstatic.com/s/opensans/v43/memtYaGs126MiZpBA-UFUIcVXSCEkx2cmqvXlWqWtE6F15M.woff2', 'font/woff2');
+      preloadFont('https://fonts.gstatic.com/s/opensans/v43/memtYaGs126MiZpBA-UFUIcVXSCEkx2cmqvXlWqWvU6F15M.woff2', 'font/woff2');
+      preloadFont('https://fonts.gstatic.com/s/opensans/v43/memtYaGs126MiZpBA-UFUIcVXSCEkx2cmqvXlWqWtU6F15M.woff2', 'font/woff2');
+      preloadFont('https://fonts.gstatic.com/s/opensans/v43/memtYaGs126MiZpBA-UFUIcVXSCEkx2cmqvXlWqWuk6F15M.woff2', 'font/woff2');
+      preloadFont('https://fonts.gstatic.com/s/opensans/v43/memtYaGs126MiZpBA-UFUIcVXSCEkx2cmqvXlWqWu06F15M.woff2', 'font/woff2');
+      preloadFont('https://fonts.gstatic.com/s/opensans/v43/memtYaGs126MiZpBA-UFUIcVXSCEkx2cmqvXlWqWxU6F15M.woff2', 'font/woff2');
+      preloadFont('https://fonts.gstatic.com/s/opensans/v43/memtYaGs126MiZpBA-UFUIcVXSCEkx2cmqvXlWqW106F15M.woff2', 'font/woff2');
+      preloadFont('https://fonts.gstatic.com/s/opensans/v43/memtYaGs126MiZpBA-UFUIcVXSCEkx2cmqvXlWqWtk6F15M.woff2', 'font/woff2');
+      preloadFont('https://fonts.gstatic.com/s/opensans/v43/memtYaGs126MiZpBA-UFUIcVXSCEkx2cmqvXlWqWt06F15M.woff2', 'font/woff2');
+      preloadFont('https://fonts.gstatic.com/s/opensans/v43/memtYaGs126MiZpBA-UFUIcVXSCEkx2cmqvXlWqWuU6F.woff2', 'font/woff2');
+      preloadFont('https://fonts.gstatic.com/s/opensans/v43/memvYaGs126MiZpBA-UvWbX2vVnXBbObj2OVTSKmu1aB.woff2', 'font/woff2');
+      preloadFont('https://fonts.gstatic.com/s/opensans/v43/memvYaGs126MiZpBA-UvWbX2vVnXBbObj2OVTSumu1aB.woff2', 'font/woff2');
+      preloadFont('https://fonts.gstatic.com/s/opensans/v43/memvYaGs126MiZpBA-UvWbX2vVnXBbObj2OVTSOmu1aB.woff2', 'font/woff2');
+      preloadFont('https://fonts.gstatic.com/s/opensans/v43/memvYaGs126MiZpBA-UvWbX2vVnXBbObj2OVTSymu1aB.woff2', 'font/woff2');
+      preloadFont('https://fonts.gstatic.com/s/opensans/v43/memvYaGs126MiZpBA-UvWbX2vVnXBbObj2OVTS2mu1aB.woff2', 'font/woff2');
+      preloadFont('https://fonts.gstatic.com/s/opensans/v43/memvYaGs126MiZpBA-UvWbX2vVnXBbObj2OVTVOmu1aB.woff2', 'font/woff2');
+      preloadFont('https://fonts.gstatic.com/s/opensans/v43/memvYaGs126MiZpBA-UvWbX2vVnXBbObj2OVTUGmu1aB.woff2', 'font/woff2');
+      preloadFont('https://fonts.gstatic.com/s/opensans/v43/memvYaGs126MiZpBA-UvWbX2vVnXBbObj2OVTSCmu1aB.woff2', 'font/woff2');
+      preloadFont('https://fonts.gstatic.com/s/opensans/v43/memvYaGs126MiZpBA-UvWbX2vVnXBbObj2OVTSGmu1aB.woff2', 'font/woff2');
+      preloadFont('https://fonts.gstatic.com/s/opensans/v43/memvYaGs126MiZpBA-UvWbX2vVnXBbObj2OVTS-muw.woff2', 'font/woff2');
+      */
     }
     if (mainCal.locale.locale.slice(0, 2) === 'fa' || secondCalendar.locale.locale.slice(0, 2) === 'fa') {
       console.log('loading farsi font');
       preloadFont('/fonts/Shabnam.woff', 'font/woff');
-      preloadFont('/fonts/Shabnam-Bold.woff', 'font/woff');
+      preloadFont('/fonts/Shabnam-Medium.woff', 'font/woff');
       loadRemoteCSS('/fonts/shabnam.css');
       // document.documentElement.classList.add('font-global');
     }
