@@ -167,6 +167,7 @@ export async function applyEditingItem(item: ItemType) {
       if (count) console.log(`update successful`);
       else console.log(`update error: Item not found!`);
       returnId = item.id;
+      await clearExistingEdit();
     } catch (error) {
       console.log("Error updating item. err:", error);
     }
@@ -179,13 +180,12 @@ export async function applyEditingItem(item: ItemType) {
       const insertedId = await db.items.add(newItem);
       console.log("add successful. new id: ", insertedId);
       returnId = insertedId;
+      await clearNewEdit();
     } catch (error) {
       console.log("Error updating item. err:", error);
     }
   } else {
   }
-  clearExistingEdit();
-  clearNewEdit();
   return returnId;
 }
 

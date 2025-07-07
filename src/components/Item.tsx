@@ -33,6 +33,7 @@ export function Item({ className, item, editing, selected, onItemActionCallback,
   ];
 
   const [title, setTitle] = useState<string>(item.title);
+  const displayTitle = editing ? title : item.title;
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -48,7 +49,7 @@ export function Item({ className, item, editing, selected, onItemActionCallback,
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    setTitle(item.title);
+    if (editing) setTitle(item.title);
     if (editing && textareaRef.current) {
       const el = textareaRef.current;
       requestAnimationFrame(() => {
@@ -97,7 +98,7 @@ export function Item({ className, item, editing, selected, onItemActionCallback,
     <ContextMenu>
       <ContextMenuTrigger asChild>
         <div
-          dir={getSmartTextDirection(title)}
+          dir={getSmartTextDirection(displayTitle)}
           className={cn(
             "relative rounded-md flex flex-row items-start w-full gap-0",
             `${selected && !editing ? "ring-1 ring-indigo-500" : ""}`,
@@ -110,7 +111,7 @@ export function Item({ className, item, editing, selected, onItemActionCallback,
               onClick={() => {
                 const newStatus = item.status === 'done' ? 'undone' : 'done';
                 const completedAt = newStatus === 'done' ? (new Date()).getTime() : null;
-                onItemActionCallback('Update', { ...item, title: title, status: newStatus, completedAt: completedAt });
+                onItemActionCallback('Update', { ...item, title: displayTitle, status: newStatus, completedAt: completedAt });
               }}>
               {item.status === 'done' ? <CircleCheckBig /> : <Circle />}
             </Button>}
@@ -123,8 +124,8 @@ export function Item({ className, item, editing, selected, onItemActionCallback,
             // autoFocus
             ref={textareaRef}
             wrap="soft"
-            dir={getSmartTextDirection(title)}
-            value={title}
+            dir={getSmartTextDirection(displayTitle)}
+            value={displayTitle}
             className={cn(
               "border-input placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 flex field-sizing-content min-h-16 w-full rounded-md border bg-transparent px-3 py-2 text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50",
               "leading-relaxed resize-none h-auto min-h-1 flex-1 border-none me-1 overflow-hidden",
@@ -140,7 +141,7 @@ export function Item({ className, item, editing, selected, onItemActionCallback,
           */}
           {editing && <Button
             className="m-0.5" size="shk" variant="outline"
-            onClick={() => { onItemActionCallback('Apply', { ...item, title: title }); }}
+            onClick={() => { onItemActionCallback('Apply', { ...item, title: displayTitle }); }}
           ><CheckIcon /></Button>}
           {editing && <Button
             className="m-0.5" size="shk" variant="outline"
