@@ -7,7 +7,7 @@ import { CheckIcon, Circle, CircleCheckBig, NotebookText, XIcon } from "lucide-r
 import TextareaAutosize from 'react-textarea-autosize';
 
 
-export function Item({ className, item, editing, selected, onItemActionCallback, ...props }: { item: ItemType, editing: boolean, selected?: boolean, onItemActionCallback: (action: string, item: ItemType) => void } & React.ComponentProps<"div">) {
+export function Item({ className, item, editing, selected, disableContextMenu, onItemActionCallback, ...props }: { item: ItemType, editing: boolean, selected?: boolean, disableContextMenu?: boolean, onItemActionCallback: (action: string, item: ItemType) => void } & React.ComponentProps<"div">) {
 
   const menus: Array<any> = [
     {
@@ -96,7 +96,10 @@ export function Item({ className, item, editing, selected, onItemActionCallback,
 
   return (
     <ContextMenu>
-      <ContextMenuTrigger asChild>
+      <ContextMenuTrigger
+        disabled={disableContextMenu}
+        asChild onContextMenu={() => onItemActionCallback('ContextMenuOpen', item)}
+      >
         <div
           dir={getSmartTextDirection(displayTitle)}
           className={cn(
@@ -108,7 +111,8 @@ export function Item({ className, item, editing, selected, onItemActionCallback,
         >
           {item.type === 'todo' &&
             <Button variant="ghost" className="mt-[0.2rem] text-primary/60"
-              onClick={() => {
+              onClick={(event) => {
+                event.stopPropagation();
                 const newStatus = item.status === 'done' ? 'undone' : 'done';
                 const completedAt = newStatus === 'done' ? (new Date()).getTime() : null;
                 onItemActionCallback('Update', { ...item, title: displayTitle, status: newStatus, completedAt: completedAt });
@@ -141,11 +145,15 @@ export function Item({ className, item, editing, selected, onItemActionCallback,
           */}
           {editing && <Button
             className="m-0.5" size="shk" variant="outline"
-            onClick={() => { onItemActionCallback('Apply', { ...item, title: displayTitle }); }}
+            onClick={(event) => {
+              event.stopPropagation()
+              onItemActionCallback('Apply', { ...item, title: displayTitle });
+            }}
           ><CheckIcon /></Button>}
           {editing && <Button
             className="m-0.5" size="shk" variant="outline"
-            onClick={() => {
+            onClick={(event) => {
+              event.stopPropagation()
               onItemActionCallback('Cancel', item);
             }}
           ><XIcon /></Button>}

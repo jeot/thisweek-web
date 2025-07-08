@@ -9,11 +9,10 @@ import { useAppState } from "@/store/appStore";
 import { useWeekState } from "@/store/weekStore";
 
 function scrollIntoViewIfNeeded(target: HTMLElement, parentID: string): void {
-  console.log("scroll into view... ", target, parentID);
+  // console.log("scroll into view... ", target, parentID);
   const itemTop = target.getBoundingClientRect().top;
   const itemBot = target.getBoundingClientRect().bottom;
-  console.log("top", itemTop);
-  console.log("bot", itemBot);
+  // console.log("top/bot:", itemTop, itemBot);
   // console.log("window inner height", window.innerHeight);
   // console.log("window inner width", window.innerWidth);
   // console.log("doc height", document.documentElement.clientHeight);
@@ -21,7 +20,7 @@ function scrollIntoViewIfNeeded(target: HTMLElement, parentID: string): void {
   // Target is outside the viewport from the bottom
   const itemsBoxTop = document.getElementById(parentID)?.getBoundingClientRect().top ?? 0;
   const itemsBoxBot = document.getElementById(parentID)?.getBoundingClientRect().bottom ?? 0;
-  console.log(itemsBoxTop, itemsBoxBot);
+  // console.log(itemsBoxTop, itemsBoxBot);
   if (itemBot > itemsBoxBot) {
     //  The bottom of the target will be aligned to the bottom of the visible area of the scrollable ancestor.
     // target.scrollIntoView(false);
@@ -162,6 +161,11 @@ export function ListOfItems({ items, newEdit, existingEdit }: ListOfItemsProps) 
     setInternalCopiedItem(selectedItem);
   });
 
+  useActionListener('copy_all_items_text', () => {
+    // todo: copy all the items in the list as a single text to clipboard
+    console.log("todo! not implemented yet!");
+  });
+
   useActionListener('paste', () => {
     if (selectedIndex >= 0) handlePasteAtIndex(selectedIndex);
     else handlePasteAtIndex(itemsLength);
@@ -262,7 +266,7 @@ export function ListOfItems({ items, newEdit, existingEdit }: ListOfItemsProps) 
   });
 
   async function handleOnItemActionCallback(action: string, item: ItemType) {
-    console.log("handleOnItemActionCallback:", action, item);
+    // console.log("handleOnItemActionCallback:", action, item);
     if (action === "Edit") { if (existingEdit === null) createExistingEditingItem(item); }
     if (action === "Copy") { if (existingEdit === null && newEdit === null) setInternalCopiedItem(item); }
     if (action === "Paste") {/* todo: paste */ }
@@ -270,6 +274,17 @@ export function ListOfItems({ items, newEdit, existingEdit }: ListOfItemsProps) 
     if (action === "Update") { updateItem(item).then(() => console.log("Update done.")).catch((e) => console.log("Update error,", e)); }
     if (action === "Apply") { applyEditingItem(item).then((id) => { setSelectedId(id) }) }
     if (action === "Cancel") { cancelEditingItem(item); }
+    if (action === "ContextMenuOpen") { if (existingEdit === null && newEdit === null) setSelectedId(item.id); }
+  }
+
+  function handleOnItemClick(item: ItemType): void {
+    if (!newEdit && !existingEdit) {
+      if (selectedId === item.id) {
+        setSelectedId(null);
+      } else {
+        setSelectedId(item.id);
+      }
+    }
   }
 
   return (
@@ -284,7 +299,9 @@ export function ListOfItems({ items, newEdit, existingEdit }: ListOfItemsProps) 
             item={item}
             editing={editing}
             selected={selected}
+            disableContextMenu={editing}
             onItemActionCallback={handleOnItemActionCallback}
+            onClick={(event) => { event.stopPropagation(); handleOnItemClick(item); }}
           />
         );
       })}
