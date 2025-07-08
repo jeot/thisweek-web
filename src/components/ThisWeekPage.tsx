@@ -5,8 +5,10 @@ import { useCalendarState } from "@/store/calendarStore";
 import { useWeekState } from "@/store/weekStore";
 import { getUtcRangeForLocalWeekByRefMillis } from "@/lib/week";
 import { checkAndFixOrdering, checkEditingIntegrity, getItemsInWeeklyRange } from '@/lib/items';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { db } from '@/lib/db';
+import { useSwipe } from '@/lib/useSwipe';
+
 
 export function ThisWeekPage() {
   const mainCal = useCalendarState((state) => state.mainCal);
@@ -44,8 +46,17 @@ export function ThisWeekPage() {
     }
   }, [newEdit, existingEdit]);
 
+  const boxRef = useRef<HTMLDivElement>(null);
+
+  useSwipe(boxRef, {
+    onSwipe: (dir) => {
+      console.log(`Swiped ${dir}`);
+      // your logic for left/right swipe here
+    },
+  });
+
   return (
-    <div className="flex flex-col w-full flex-1 p-4 gap-4 items-center">
+    <div ref={boxRef} className="flex flex-col w-full flex-1 p-4 gap-4 items-center">
       <div className="flex w-full justify-center mb-2">
         <WeekDatesCard />
       </div>
