@@ -32,7 +32,7 @@ export const KEYMAPS: Array<KeyMap> = [
   { group: "COMMON", key: ["ctrl+e"], fastTyping: [], action: 'edit_end', desc: "Edit Selected Item" },
   { group: "COMMON", key: ["ctrl+c"], fastTyping: [], action: 'copy', desc: "Copy Selected Item" },
   { group: "COMMON", key: ["ctrl+v"], fastTyping: [], action: 'paste', desc: "Paste Copied Item or Text from Clipboard" },
-  { group: "COMMON", key: ["ctrl+n"], fastTyping: [], action: 'create', desc: "Create New Goal" },
+  { group: "COMMON", key: ["ctrl+n"], fastTyping: [], action: 'create', desc: "Create New Item (ToDo/Note)" },
   { group: "COMMON", key: ["ctrl+t"], fastTyping: [], action: 'toggle_type', desc: "Toggle Item Type (ToDo/Note)" },
   { group: "COMMON", key: "t", fastTyping: [], action: 'today', desc: "Go to Today" },
 
@@ -47,6 +47,8 @@ export const KEYMAPS: Array<KeyMap> = [
   { group: "VIMMODE", key: ["a", "i", "A"], fastTyping: [], action: 'edit_end', desc: "Edit Selected Item (caret at end)" },
   { group: "VIMMODE", key: "shift+i", fastTyping: [], action: 'edit_start', desc: "Edit Selected Item (caret at start)" },
   { group: "VIMMODE", key: "p", fastTyping: [], action: 'paste', desc: "Paste Copied Item or Text from Clipboard" },
+  { group: "COMMON", key: "o", fastTyping: [], action: 'create', desc: "Create New Item (bellow selected item)" },
+  { group: "COMMON", key: "shift+o", fastTyping: [], action: 'create_above', desc: "Create New Item (above selected item)" },
   { group: "VIMMODE", sequence: ["space", "t"], fastTyping: ["", "space+t"], action: 'toggle_theme', desc: "Toggle Theme (Dark/Light)" },
   { group: "VIMMODE", sequence: ["space", "space"], fastTyping: [], action: 'toggle_status', desc: "Toggle Item Complete Status" },
   { group: "VIMMODE", sequence: ["d", "d"], fastTyping: [], action: 'delete', desc: "Delete Selected Item" },
