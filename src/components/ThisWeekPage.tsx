@@ -14,6 +14,7 @@ export function ThisWeekPage() {
   const mainCal = useCalendarState((state) => state.mainCal);
   const weekReference = useWeekState((state) => state.weekReference);
   const setWeekReference = useWeekState((state) => state.setWeekReference);
+  const gotoWeekRelative = useWeekState((state) => state.gotoWeekRelative);
   const [startUtcMillis, endUtcMillis] = getUtcRangeForLocalWeekByRefMillis(mainCal.weekStartsOn, weekReference);
 
   const items = useLiveQuery(
@@ -52,6 +53,10 @@ export function ThisWeekPage() {
     onSwipe: (dir) => {
       console.log(`Swiped ${dir}`);
       // your logic for left/right swipe here
+      if (!existingEdit && !newEdit) {
+        if (dir === 'left') gotoWeekRelative(1);
+        if (dir === 'right') gotoWeekRelative(-1);
+      }
     },
   });
 
