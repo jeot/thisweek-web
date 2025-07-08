@@ -52,16 +52,17 @@ export function ThisWeekPage() {
   useSwipe(boxRef, {
     onSwipe: (dir) => {
       console.log(`Swiped ${dir}`);
-      // your logic for left/right swipe here
       if (!existingEdit && !newEdit) {
-        if (dir === 'left') gotoWeekRelative(1);
-        if (dir === 'right') gotoWeekRelative(-1);
+        if (dir === 'left' && mainCal.locale.direction === 'ltr') gotoWeekRelative(1);
+        if (dir === 'right' && mainCal.locale.direction === 'ltr') gotoWeekRelative(-1);
+        if (dir === 'left' && mainCal.locale.direction === 'rtl') gotoWeekRelative(-1);
+        if (dir === 'right' && mainCal.locale.direction === 'rtl') gotoWeekRelative(1);
       }
     },
   });
 
   return (
-    <div ref={boxRef} className="flex flex-col w-full flex-1 p-4 gap-4 items-center">
+    <div ref={boxRef} className="flex flex-col w-full min-h-full flex-1 p-4 gap-4 items-center">
       <div className="flex w-full justify-center mb-2">
         <WeekDatesCard />
       </div>
