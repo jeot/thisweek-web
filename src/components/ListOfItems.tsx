@@ -269,7 +269,10 @@ export function ListOfItems({ items, newEdit, existingEdit }: ListOfItemsProps) 
     // console.log("handleOnItemActionCallback:", action, item);
     if (action === "Edit") { if (existingEdit === null) createExistingEditingItem(item); }
     if (action === "Copy") { if (existingEdit === null && newEdit === null) setInternalCopiedItem(item); }
-    if (action === "Paste") {/* todo: paste */ }
+    if (action === "Paste") {
+      if (selectedIndex >= 0) handlePasteAtIndex(selectedIndex);
+      else handlePasteAtIndex(itemsLength);
+    }
     if (action === "Delete") { deleteItem(item).then(() => console.log("Delete done.")).catch((e) => console.log("Delete error,", e)); }
     if (action === "Update") { updateItem(item).then(() => console.log("Update done.")).catch((e) => console.log("Update error,", e)); }
     if (action === "Apply") { applyEditingItem(item).then((id) => { setSelectedId(id) }) }
