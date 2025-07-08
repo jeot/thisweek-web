@@ -1,8 +1,9 @@
 import { useEffect, useRef } from 'react';
 import { listenToActions } from '@/lib/keymaps';
+import { Action } from '@/lib/keymaps';
 
 export function useActionListener(
-  match: string | string[],
+  match: Action | Action[],
   handler: () => void
 ) {
   const handlerRef = useRef(handler);

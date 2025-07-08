@@ -1,8 +1,62 @@
 import hotkeys from 'hotkeys-js';
 
-let listeners: Array<(action: string) => void> = [];
+// N: Normal mode
+// I: Insert mode (while typing in a textbox)
+// mod: Alt, Shift, Ctrl (or combination of them seperated with comma(,))
+// keys: A~Z, Enter, Delete, Space, Escape, ArrowUp, ArrowLeft, ArrowRight, ArrowDown
+// keys: sequence of keys (seperated with space)
 
-export function listenToActions(cb: (action: string) => void) {
+export type Action = 'today' | 'up' | 'down' | 'left' | 'right' | 'move-up' | 'move-down' | 'move-left' | 'move-right' | 'delete' | 'edit_start' | 'edit_end' | 'edit_all' | 'copy' | 'paste' | 'toggle_theme' | 'toggle_status' | 'toggle_type' | 'paste' | 'paste_above' | 'cancel' | 'create' | 'create_above' | 'todo';
+
+type KeyMap = {
+  mode?: "N" | "NI";
+  group: "GENERAL" | "COMMON" | "VIMMODE";
+  key?: string | string[];
+  sequence?: string[];
+  fastTyping?: string[];
+  action: Action;
+  desc: string;
+};
+
+export const KEYMAPS: Array<KeyMap> = [
+  { group: "GENERAL", key: "escape", action: 'cancel', desc: "Cancel Editing/Selection" },
+
+  { group: "COMMON", key: "up", fastTyping: ["down+up"], action: 'up', desc: "Select Previous Item" },
+  { group: "COMMON", key: "down", fastTyping: ["up+down"], action: 'down', desc: "Select Next Item" },
+  { group: "COMMON", key: "left", fastTyping: ["right+left"], action: 'left', desc: "Go to Previous Week/Year/Section" },
+  { group: "COMMON", key: "right", fastTyping: ["left+right"], action: 'right', desc: "Go to Next Week/Year/Section" },
+  { group: "COMMON", key: "ctrl+up", fastTyping: ["ctrl+down+up"], action: 'move-up', desc: "Move Selected Item Up" },
+  { group: "COMMON", key: "ctrl+down", fastTyping: ["ctrl+up+down"], action: 'move-down', desc: "Move Selected Item Down" },
+  { group: "COMMON", key: "ctrl+left", fastTyping: ["ctrl+right+left"], action: 'move-left', desc: "Move Selected Item to Previous Week/Year/Section" },
+  { group: "COMMON", key: "ctrl+right", fastTyping: ["ctrl+left+right"], action: 'move-right', desc: "Move Selected Item to Next Week/Year/Section" },
+  { group: "COMMON", key: ["ctrl+e"], fastTyping: [], action: 'edit_end', desc: "Edit Selected Item" },
+  { group: "COMMON", key: ["ctrl+c"], fastTyping: [], action: 'copy', desc: "Copy Selected Item" },
+  { group: "COMMON", key: ["ctrl+v"], fastTyping: [], action: 'paste', desc: "Paste Copied Item or Text from Clipboard" },
+  { group: "COMMON", key: ["ctrl+n"], fastTyping: [], action: 'create', desc: "Create New Goal" },
+  { group: "COMMON", key: ["ctrl+t"], fastTyping: [], action: 'toggle_type', desc: "Toggle Item Type (ToDo/Note)" },
+  { group: "COMMON", key: "t", fastTyping: [], action: 'today', desc: "Go to Today" },
+
+  { group: "VIMMODE", key: "k", fastTyping: ["j+k"], action: 'up', desc: "Select Previous Item" },
+  { group: "VIMMODE", key: "j", fastTyping: ["k+j"], action: 'down', desc: "Select Next Item" },
+  { group: "VIMMODE", key: "h", fastTyping: ["l+h"], action: 'left', desc: "Go to Previous Week/Year/Section" },
+  { group: "VIMMODE", key: "l", fastTyping: ["h+l"], action: 'right', desc: "Go to Next Week/Year/Section" },
+  { group: "VIMMODE", key: "ctrl+k", fastTyping: ["ctrl+j+k"], action: 'move-up', desc: "Move Selected Item Up" },
+  { group: "VIMMODE", key: "ctrl+j", fastTyping: ["ctrl+k+j"], action: 'move-down', desc: "Move Selected Item Down" },
+  { group: "VIMMODE", key: "ctrl+h", fastTyping: ["ctrl+l+h"], action: 'move-left', desc: "Move Selected Item to Previous Week/Year/Section" },
+  { group: "VIMMODE", key: "ctrl+l", fastTyping: ["ctrl+h+l"], action: 'move-right', desc: "Move Selected Item to Next Week/Year/Section" },
+  { group: "VIMMODE", key: ["a", "i", "A"], fastTyping: [], action: 'edit_end', desc: "Edit Selected Item (caret at end)" },
+  { group: "VIMMODE", key: "shift+i", fastTyping: [], action: 'edit_start', desc: "Edit Selected Item (caret at start)" },
+  { group: "VIMMODE", key: "p", fastTyping: [], action: 'paste', desc: "Paste Copied Item or Text from Clipboard" },
+  { group: "VIMMODE", sequence: ["space", "t"], fastTyping: ["", "space+t"], action: 'toggle_theme', desc: "Toggle Theme (Dark/Light)" },
+  { group: "VIMMODE", sequence: ["space", "space"], fastTyping: [], action: 'toggle_status', desc: "Toggle Item Complete Status" },
+  { group: "VIMMODE", sequence: ["d", "d"], fastTyping: [], action: 'delete', desc: "Delete Selected Item" },
+  { group: "VIMMODE", sequence: ["y", "y"], fastTyping: [], action: 'copy', desc: "Copy Selected Item" },
+  { group: "VIMMODE", sequence: ["y", "a", "p"], fastTyping: ["", "y+a", "a+p,y+a+p"], action: 'todo', desc: "Copy All Items Text" }, // fix:
+]
+
+let listeners: Array<(action: Action) => void> = [];
+
+export function listenToActions(cb: (action: Action) => void) {
   if (!listeners.includes(cb)) { // avoid multiple same callback register
     listeners.push(cb);
   }
@@ -14,187 +68,77 @@ export function listenToActions(cb: (action: string) => void) {
   };
 }
 
-function broadcastAction(action: string) {
+function broadcastAction(action: Action) {
   console.log("broadcasting action:", action);
   listeners.forEach((c) => c(action));
 }
 
+const INITKEYSCOPE = "INITKEYSCOPE";
+
 export const init = () => {
   console.log("binding hotkeys...");
-  hotkeys.setScope('KEY_SCOPE_FIRST');
-
-  // navigation
-  hotkeys('k,j,j+k,k+j', 'KEY_SCOPE_FIRST', function(event, handler) {
-    event.preventDefault()
-    const key = handler.key
-    if (key === 'k' || key === 'j+k') broadcastAction("up");
-    if (key === 'j' || key === 'k+j') broadcastAction("down");
-  });
-  hotkeys('h,l,h+l,l+h', 'KEY_SCOPE_FIRST', function(event, handler) {
-    event.preventDefault()
-    const key = handler.key
-    if (key === 'h' || key === 'l+h') broadcastAction("left");
-    if (key === 'l' || key === 'h+l') broadcastAction("right");
-  });
-  hotkeys('t', 'KEY_SCOPE_FIRST', function(event, handler) {
-    event.preventDefault()
-    const key = handler.key
-    if (key === 't') broadcastAction("today");
-  });
-
-  // moving items
-  hotkeys('ctrl+k,ctrl+j,ctrl+j+k,ctrl+k+j', 'KEY_SCOPE_FIRST', function(event, handler) {
-    event.preventDefault()
-    const key = handler.key
-    if (key === 'ctrl+k' || key === 'ctrl+j+k') broadcastAction("move-up");
-    if (key === 'ctrl+j' || key === 'ctrl+k+j') broadcastAction("move-down");
-  });
-  hotkeys('ctrl+h,ctrl+l,ctrl+h+l,ctrl+l+h', 'KEY_SCOPE_FIRST', function(event, handler) {
-    event.preventDefault()
-    const key = handler.key
-    if (key === 'ctrl+h' || key === 'ctrl+l+h') broadcastAction("move-left");
-    if (key === 'ctrl+l' || key === 'ctrl+h+l') broadcastAction("move-right");
-  });
-
-  // scopes (for key sequence)
-  // g: goto (then 'i' for example)
-  hotkeys('g', 'KEY_SCOPE_FIRST', function(event, handler) {
+  hotkeys.setScope(INITKEYSCOPE);
+  hotkeys('escape', 'all', function(event, handler) {
     handler.key;
     event.preventDefault()
-    hotkeys.setScope('KEY_SCOPE_G');
-  });
-  hotkeys('i,o,g+i,g+o,*', 'KEY_SCOPE_G', (event, handler) => {
-    event.preventDefault()
-    const key = handler.key
-    if (key === 'i' || key === 'g+i') broadcastAction("goto_item");
-    if (key === 'o' || key === 'g+o') broadcastAction("goto_objectives");
-    hotkeys.setScope('KEY_SCOPE_FIRST');
+    if (hotkeys.getScope() !== INITKEYSCOPE)
+      hotkeys.setScope(INITKEYSCOPE);
+    console.log("cancelling sequence!");
   });
 
-  // d: delete
-  hotkeys('d', 'KEY_SCOPE_FIRST', function(event, handler) {
-    handler.key;
-    event.preventDefault()
-    hotkeys.setScope('KEY_SCOPE_D');
-  });
-  hotkeys('d,d+d,*', 'KEY_SCOPE_D', (event, handler) => {
-    event.preventDefault()
-    const key = handler.key
-    if (key === 'd' || key === 'd+d') broadcastAction("delete");
-    hotkeys.setScope('KEY_SCOPE_FIRST');
-  });
-
-  // c: change/edit
-  hotkeys('c', 'KEY_SCOPE_FIRST', function(event, handler) {
-    handler.key;
-    event.preventDefault()
-    hotkeys.setScope('KEY_SCOPE_C');
-  });
-  hotkeys('c,c+c,*', 'KEY_SCOPE_C', (event, handler) => {
-    event.preventDefault()
-    const key = handler.key
-    if (key === 'c' || key === 'c+c') broadcastAction("change");
-    hotkeys.setScope('KEY_SCOPE_FIRST');
-  });
-
-  // y: yank/copy
-  hotkeys('y', 'KEY_SCOPE_FIRST', function(event, handler) {
-    handler.key;
-    event.preventDefault()
-    hotkeys.setScope('KEY_SCOPE_Y');
-  });
-  hotkeys('y,y+y,*', 'KEY_SCOPE_Y', (event, handler) => {
-    event.preventDefault()
-    const key = handler.key
-    if (key === 'y' || key === 'y+y') broadcastAction("copy");
-    hotkeys.setScope('KEY_SCOPE_FIRST');
-  });
-  hotkeys('ctrl+c', 'KEY_SCOPE_FIRST', function(event, handler) {
-    event.preventDefault()
-    const key = handler.key
-    if (key === 'ctrl+c') broadcastAction("copy");
-  });
-
-  // space: leader key
-  hotkeys('space', 'KEY_SCOPE_FIRST', function(event, handler) {
-    handler.key;
-    event.preventDefault()
-    hotkeys.setScope('KEY_SCOPE_SPACE');
-  });
-  hotkeys('t,space+t,*', 'KEY_SCOPE_SPACE', (event, handler) => {
-    const key = handler.key
-    event.preventDefault()
-    if (key === 't' || key === 'space+t') broadcastAction("toggle_theme");
-    hotkeys.setScope('KEY_SCOPE_FIRST');
-  });
-  hotkeys('space,space+space,*', 'KEY_SCOPE_SPACE', (event, handler) => {
-    const key = handler.key
-    event.preventDefault()
-    if (key === 'space' || key === 'space+space') broadcastAction("toggle_status");
-    hotkeys.setScope('KEY_SCOPE_FIRST');
-  });
-
-  // paste
-  hotkeys('p', 'KEY_SCOPE_FIRST', function(event, handler) {
-    handler.key;
-    event.preventDefault()
-    broadcastAction("paste");
-  });
-  hotkeys('shift+p', 'KEY_SCOPE_FIRST', function(event, handler) {
-    handler.key;
-    event.preventDefault()
-    broadcastAction("paste_above");
-  });
-  hotkeys('ctrl+v', 'KEY_SCOPE_FIRST', function(event, handler) {
-    event.preventDefault()
-    const key = handler.key
-    if (key === 'ctrl+v') broadcastAction("paste");
-  });
-
-  // append
-  hotkeys('a', 'KEY_SCOPE_FIRST', function(event, handler) {
-    handler.key;
-    event.preventDefault()
-    broadcastAction("append");
-  });
-  hotkeys('shift+a', 'KEY_SCOPE_FIRST', function(event, handler) {
-    handler.key;
-    event.preventDefault()
-    broadcastAction("append");
-  });
-
-  // insert
-  hotkeys('i', 'KEY_SCOPE_FIRST', function(event, handler) {
-    handler.key;
-    event.preventDefault()
-    broadcastAction("insert");
-  });
-  hotkeys('shift+i', 'KEY_SCOPE_FIRST', function(event, handler) {
-    handler.key;
-    event.preventDefault()
-    broadcastAction("insert_at_begining");
-  });
-
-  // escape (cancel)
-  hotkeys('escape', 'KEY_SCOPE_FIRST', function(event, handler) {
-    handler.key;
-    event.preventDefault()
-    broadcastAction("cancel");
-  });
-
-  // create tasks
-  hotkeys('o,shift+o', 'KEY_SCOPE_FIRST', function(event, handler) {
-    const key = handler.key;
-    event.preventDefault()
-    if (key === 'o') broadcastAction("create_item");
-    if (key === 'shift+o') broadcastAction("create_item_above");
-  });
-
-  // toggle task type
-  hotkeys('ctrl+x', 'KEY_SCOPE_FIRST', function(event, handler) {
-    const key = handler.key;
-    event.preventDefault()
-    if (key === 'ctrl+x') broadcastAction("toggle_item_type");
+  KEYMAPS.forEach(({ key, sequence, fastTyping = [], action }) => {
+    if (key) {
+      const keyArray = Array.isArray(key) ? key : [key];
+      let keys = []
+      keys.push(...keyArray);
+      keys.push(...fastTyping);
+      const allKeys = keys.join(',');
+      // console.log('keys:', keys, action, desc)
+      hotkeys(allKeys, INITKEYSCOPE, function(event, handler) {
+        handler.key;
+        event.preventDefault()
+        broadcastAction(action);
+      });
+    }
+    if (sequence) {
+      // console.log('sequence:', sequence, action, desc);
+      const sequenceLength = sequence.length;
+      let scope: string = INITKEYSCOPE;
+      sequence.forEach((mainKey, i) => {
+        const nextScope = i === (sequenceLength - 1) ? INITKEYSCOPE : scope + "_" + mainKey;
+        const fastTypingKeys = fastTyping[i] ? "," + fastTyping[i] : "";
+        const keys = i === 0 ? mainKey : mainKey + fastTypingKeys + ",*";
+        const keysArray = keys.split(",");
+        // console.log("keys:", keys, "keysArray:", keysArray);
+        // console.log("setting scopes/next_scope:", scope, nextScope);
+        hotkeys(keys, scope, function(event, handler) {
+          const key = handler.key;
+          // console.log("key received:", key);
+          // console.log("handler:", handler);
+          const keysCode = handler.keys;
+          // console.log("keysCode:", keysCode);
+          if (key === "*") {
+            if (keysCode.length === 0) { /* console.log("ignored"); */ }
+            else if (keysCode.length === 1 && keysCode.includes(0)) { /* console.log("ignored"); */ }
+            else if (keysCode.length === 1 && keysCode.includes(16)) { /* console.log("ignored"); */ }
+            else if (keysCode.length === 1 && keysCode.includes(17)) { /* console.log("ignored"); */ }
+            else if (keysCode.length === 1 && keysCode.includes(18)) { /* console.log("ignored"); */ }
+            else {
+              hotkeys.setScope(INITKEYSCOPE);
+              // console.log(`changing scope to: ${INITKEYSCOPE}`);
+            }
+          } else if (keysArray.includes(key)) {
+            event.preventDefault();
+            hotkeys.setScope(nextScope);
+            // console.log(`changing scope to: ${nextScope}`);
+            if (nextScope === INITKEYSCOPE) {
+              broadcastAction(action);
+            }
+          } else { }
+        });
+        scope = nextScope;
+      })
+    }
   });
 }
 

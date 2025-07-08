@@ -126,7 +126,7 @@ export function SidebarLayout({ children, onMenuClick, activeView, title }: { ch
         </header>
 
         {/* Main Content */}
-        <div className="flex-1 w-full overflow-y-auto">
+        <div id="main-content-window" className="flex-1 w-full overflow-y-auto">
           {children}
         </div>
 

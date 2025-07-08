@@ -1,5 +1,5 @@
 import { Item } from "@/components/Item"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { CirclePlus } from "lucide-react";
 import { saveAsNewItem, applyEditingItem, cancelEditingItem, createExistingEditingItem, createNewEditingItem, createNewItem, deleteItem, getNewOrderingNumber, moveItemToSectionRelative, updateItem } from "@/lib/items";
@@ -7,6 +7,36 @@ import { useActionListener } from "@/lib/useActionListener";
 import { ItemType } from "@/types/types";
 import { useAppState } from "@/store/appStore";
 import { useWeekState } from "@/store/weekStore";
+
+function scrollIntoViewIfNeeded(target: HTMLElement, parentID: string): void {
+  console.log("scroll into view... ", target, parentID);
+  const itemTop = target.getBoundingClientRect().top;
+  const itemBot = target.getBoundingClientRect().bottom;
+  console.log("top", itemTop);
+  console.log("bot", itemBot);
+  // console.log("window inner height", window.innerHeight);
+  // console.log("window inner width", window.innerWidth);
+  // console.log("doc height", document.documentElement.clientHeight);
+  // console.log("doc width", document.documentElement.clientWidth);
+  // Target is outside the viewport from the bottom
+  const itemsBoxTop = document.getElementById(parentID)?.getBoundingClientRect().top ?? 0;
+  const itemsBoxBot = document.getElementById(parentID)?.getBoundingClientRect().bottom ?? 0;
+  console.log(itemsBoxTop, itemsBoxBot);
+  if (itemBot > itemsBoxBot) {
+    //  The bottom of the target will be aligned to the bottom of the visible area of the scrollable ancestor.
+    // target.scrollIntoView(false);
+    // console.log("scrollIntoView bottom");
+    target.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
+  }
+
+  // Target is outside the view from the top
+  if (itemTop < itemsBoxTop) {
+    // The top of the target will be aligned to the top of the visible area of the scrollable ancestor
+    // target.scrollIntoView();
+    // console.log("scrollIntoView top");
+    target.scrollIntoView({ behavior: "smooth", block: "start", inline: "nearest" });
+  }
+};
 
 interface ListOfItemsProps {
   items: ItemType[];
@@ -46,6 +76,16 @@ export function ListOfItems({ items, newEdit, existingEdit }: ListOfItemsProps) 
       setSelectedId(items[i].id);
     }
   }
+  useEffect(() => {
+    if (selectedIndex !== null && selectedIndex < (itemsLength - 1)) {
+      const itemRef = document.getElementById(`item-id-${selectedId}`);
+      if (itemRef) scrollIntoViewIfNeeded(itemRef, "main-content-window");
+    }
+    if (selectedIndex !== null && selectedIndex == itemsLength - 1) {
+      const itemRef = document.getElementById(`new-item-btn-id`);
+      if (itemRef) scrollIntoViewIfNeeded(itemRef, "main-content-window");
+    }
+  }, [selectedId]);
   // const [editing, setEditing] = useState<{ id: number, position: 'caret_start' | 'caret_end' | 'select_all' } | null>(null);
 
   async function handlePasteAtIndex(index: number) {
@@ -137,7 +177,7 @@ export function ListOfItems({ items, newEdit, existingEdit }: ListOfItemsProps) 
     updateItem({ ...selectedItem, status: newStatus });
   });
 
-  useActionListener('create_item', () => {
+  useActionListener('create', () => {
     const newItemPosition = selectedIndexNotValid ?
       getNewOrderingNumber(items, itemsLength, itemsLength + 1, "weekly") :
       getNewOrderingNumber(items, selectedIndex, selectedIndex + 1, "weekly");
@@ -146,39 +186,34 @@ export function ListOfItems({ items, newEdit, existingEdit }: ListOfItemsProps) 
     // setEditing({ id: newItem.id, position: "caret_start" });
   });
 
-  useActionListener('create_item_above', () => {
+  useActionListener('create_above', () => {
     const newItemPosition = getNewOrderingNumber(items, selectedIndex, selectedIndex - 1, "weekly");
     console.log("newItemPosition:", newItemPosition);
     createNewEditingItem(newItemPosition);
     // setEditing({ id: newItem.id, position: "caret_start" });
   });
 
-  useActionListener('toggle_item_type', () => {
+  useActionListener('toggle_type', () => {
     if (selectedItem) {
       const type = (selectedItem.type === 'todo') ? 'note' : 'todo';
       updateItem({ ...selectedItem, type: type });
     }
   });
 
-  useActionListener('insert', () => {
+  // todo: fix the editing location
+  useActionListener('edit_start', () => {
     if (!selectedItem) return;
     console.log("editing id:", selectedId);
     createExistingEditingItem(selectedItem);
   });
 
-  useActionListener('append', () => {
+  useActionListener('edit_end', () => {
     if (!selectedItem) return;
     console.log("editing id:", selectedId);
     createExistingEditingItem(selectedItem);
   });
 
-  useActionListener('change', () => {
-    if (!selectedItem) return;
-    console.log("editing id:", selectedId);
-    createExistingEditingItem(selectedItem);
-  });
-
-  useActionListener('insert_at_begining', () => {
+  useActionListener('edit_all', () => {
     if (!selectedItem) return;
     console.log("editing id:", selectedId);
     createExistingEditingItem(selectedItem);
@@ -244,7 +279,8 @@ export function ListOfItems({ items, newEdit, existingEdit }: ListOfItemsProps) 
         const selected = (!newEdit && !existingEdit && (selectedId === item.id));
         return (
           <Item
-            key={('id' in item) ? item.id : "new-item"}
+            key={item.id}
+            id={`item-id-${item.id}`}
             item={item}
             editing={editing}
             selected={selected}
@@ -254,6 +290,7 @@ export function ListOfItems({ items, newEdit, existingEdit }: ListOfItemsProps) 
       })}
       {newEdit === null && existingEdit === null &&
         <Button variant="outline"
+          id="new-item-btn-id"
           onClick={() => {
             const newItemPosition = getNewOrderingNumber(items, itemsLength, itemsLength + 1, "weekly");
             console.log("newItemPosition:", newItemPosition);
