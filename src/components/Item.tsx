@@ -96,9 +96,11 @@ export function Item({ className, item, editing, selected, disableContextMenu, o
 
   return (
     <ContextMenu>
-      <ContextMenuTrigger
-        disabled={disableContextMenu}
-        asChild onContextMenu={() => onItemActionCallback('ContextMenuOpen', item)}
+      <ContextMenuTrigger asChild disabled={disableContextMenu}
+        onContextMenu={(event) => {
+          event.stopPropagation();
+          onItemActionCallback('ContextMenuOpen', item);
+        }}
       >
         <div
           dir={getSmartTextDirection(displayTitle)}
