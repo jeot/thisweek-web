@@ -6,6 +6,7 @@ import { WeekDates } from "./weekDates";
 import { ChevronRight, ChevronLeft } from 'lucide-react';
 import { buildFullWeekView } from "@/lib/week";
 import { useActionListener } from "@/lib/useActionListener";
+import { cn } from "@/lib/utils";
 
 function WeekDatesCard() {
   const mainCal = useCalendarState((state) => state.mainCal);
@@ -33,8 +34,20 @@ function WeekDatesCard() {
   const NextIcon = defaultDirection ? ChevronRight : ChevronLeft;
   const PrevIcon = defaultDirection ? ChevronLeft : ChevronRight;
 
+  /*
+        className={cn("w-full sm:max-w-md min-w-64 pt-3 pb-2 gap-2",
+          "transition-all duration-1000 rounded-none sm:rounded-3xl border-0 border-b-1 sm:border shadow-none sm:shadow-sm")}
+      */
   return (
-    <Card dir={weekView.direction} className="w-full max-w-md min-w-64 pt-3 pb-2 gap-2 rounded-3xl"
+    <Card dir={weekView.direction}
+      className={cn(
+        "w-full min-w-64 gap-2 transition-all duration-300 ease-in-out",
+        "max-w-full sm:max-w-md", // animatable width
+        "rounded-none sm:rounded-3xl", // smooth rounding already works
+        "px-2 sm:px-3 pt-2 pb-2", // smooth padding
+        "mt-0 sm:mt-6", // smooth margin
+        "border-0 border-b border-border sm:border shadow-none sm:shadow-sm"
+      )}
       onContextMenu={(event) => {
         event.stopPropagation();
         console.log("week card onContextMenu");
