@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { DEFAULT_SECOND_CAL_LOC, DEFAULT_MAIN_CAL_LOC, saveAppConfigToIDBPartial } from '@/lib/appConfigIDB';
+import { DEFAULT_SECOND_CAL_LOC, DEFAULT_MAIN_CAL_LOC, saveAppConfigToIDBPartial } from '@/lib/appConfigDb';
 import { CalendarLocaleType, LocaleType } from '@/types/types';
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/DateTimeFormat

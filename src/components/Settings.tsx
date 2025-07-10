@@ -1,12 +1,13 @@
 import { lorem } from "@/assets/lorem";
 import { Button } from "./ui/button";
-import { useSettingsState, SettingPageType } from "@/store/settingsStore";
 import { SettingsCalendar } from "@/components/SettingsCalendar"
+import { SettingsKeymap } from "@/components/SettingsKeymap"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { SettingPageType, useAppState } from "@/store/appStore";
 
 export function Settings() {
-  const settingPage = useSettingsState((state) => state.settingPage);
-  const setSettingPage = useSettingsState((state) => state.setSettingPage);
+  const settingPage = useAppState((state) => state.settingPage);
+  const setSettingPage = useAppState((state) => state.setSettingPage);
 
   function handleTabChange(x: string) {
     console.log(x)
@@ -14,12 +15,11 @@ export function Settings() {
   }
 
   const SettingsGeneral = () => <div><h1>General!</h1><p>{lorem}</p></div>;
-  const SettingsKeymap = () => <div><h1>Keymaps!</h1><p>{lorem}</p></div>;
 
   const settings: Array<{ name: SettingPageType, child: () => JSX.Element }> = [
     { name: "General", child: SettingsGeneral },
     { name: "Calendars", child: SettingsCalendar },
-    { name: "Keybinds", child: SettingsKeymap },
+    { name: "Keymaps", child: SettingsKeymap },
   ];
   const SettingContent = settings.find((v) => { return (v.name === settingPage) })?.child!;
 

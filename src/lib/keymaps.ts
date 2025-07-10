@@ -8,7 +8,7 @@ import hotkeys from 'hotkeys-js';
 
 export type Action = 'today' | 'up' | 'down' | 'left' | 'right' | 'move-up' | 'move-down' | 'move-left' | 'move-right' | 'delete' | 'edit_start' | 'edit_end' | 'edit_all' | 'copy' | 'paste' | 'copy_all_items_text' | 'toggle_theme' | 'toggle_status' | 'toggle_type' | 'paste' | 'paste_above' | 'cancel' | 'create' | 'create_above' | 'todo';
 
-type KeyMap = {
+export type KeyMap = {
   mode?: "N" | "NI";
   group: "GENERAL" | "COMMON" | "VIMMODE";
   key?: string | string[];
@@ -19,22 +19,21 @@ type KeyMap = {
 };
 
 export const KEYMAPS: Array<KeyMap> = [
+  { group: "GENERAL", key: "up", fastTyping: ["down+up"], action: 'up', desc: "Select Previous Item" },
+  { group: "GENERAL", key: "down", fastTyping: ["up+down"], action: 'down', desc: "Select Next Item" },
+  { group: "GENERAL", key: "left", fastTyping: ["right+left"], action: 'left', desc: "Go to Previous Week/Year/Section" },
+  { group: "GENERAL", key: "right", fastTyping: ["left+right"], action: 'right', desc: "Go to Next Week/Year/Section" },
   { group: "GENERAL", key: "escape", action: 'cancel', desc: "Cancel Editing/Selection" },
-
-  { group: "COMMON", key: "up", fastTyping: ["down+up"], action: 'up', desc: "Select Previous Item" },
-  { group: "COMMON", key: "down", fastTyping: ["up+down"], action: 'down', desc: "Select Next Item" },
-  { group: "COMMON", key: "left", fastTyping: ["right+left"], action: 'left', desc: "Go to Previous Week/Year/Section" },
-  { group: "COMMON", key: "right", fastTyping: ["left+right"], action: 'right', desc: "Go to Next Week/Year/Section" },
-  { group: "COMMON", key: "ctrl+up", fastTyping: ["ctrl+down+up"], action: 'move-up', desc: "Move Selected Item Up" },
-  { group: "COMMON", key: "ctrl+down", fastTyping: ["ctrl+up+down"], action: 'move-down', desc: "Move Selected Item Down" },
-  { group: "COMMON", key: "ctrl+left", fastTyping: ["ctrl+right+left"], action: 'move-left', desc: "Move Selected Item to Previous Week/Year/Section" },
-  { group: "COMMON", key: "ctrl+right", fastTyping: ["ctrl+left+right"], action: 'move-right', desc: "Move Selected Item to Next Week/Year/Section" },
-  { group: "COMMON", key: ["ctrl+e"], fastTyping: [], action: 'edit_end', desc: "Edit Selected Item" },
-  { group: "COMMON", key: ["ctrl+c"], fastTyping: [], action: 'copy', desc: "Copy Selected Item" },
-  { group: "COMMON", key: ["ctrl+v"], fastTyping: [], action: 'paste', desc: "Paste Copied Item or Text from Clipboard" },
-  { group: "COMMON", key: ["ctrl+n"], fastTyping: [], action: 'create', desc: "Create New Item (ToDo/Note)" },
-  { group: "COMMON", key: ["ctrl+t"], fastTyping: [], action: 'toggle_type', desc: "Toggle Item Type (ToDo/Note)" },
-  { group: "COMMON", key: "t", fastTyping: [], action: 'today', desc: "Go to Today" },
+  { group: "GENERAL", key: "ctrl+up", fastTyping: ["ctrl+down+up"], action: 'move-up', desc: "Move Selected Item Up" },
+  { group: "GENERAL", key: "ctrl+down", fastTyping: ["ctrl+up+down"], action: 'move-down', desc: "Move Selected Item Down" },
+  { group: "GENERAL", key: "ctrl+left", fastTyping: ["ctrl+right+left"], action: 'move-left', desc: "Move Selected Item to Previous Week/Year/Section" },
+  { group: "GENERAL", key: "ctrl+right", fastTyping: ["ctrl+left+right"], action: 'move-right', desc: "Move Selected Item to Next Week/Year/Section" },
+  { group: "GENERAL", key: ["ctrl+e"], fastTyping: [], action: 'edit_end', desc: "Edit Selected Item" },
+  { group: "GENERAL", key: ["ctrl+c"], fastTyping: [], action: 'copy', desc: "Copy Selected Item" },
+  { group: "GENERAL", key: ["ctrl+v"], fastTyping: [], action: 'paste', desc: "Paste Copied Item or Text from Clipboard" },
+  { group: "GENERAL", key: ["ctrl+n"], fastTyping: [], action: 'create', desc: "Create New Item (ToDo/Note)" },
+  { group: "GENERAL", key: ["ctrl+t"], fastTyping: [], action: 'toggle_type', desc: "Toggle Item Type (ToDo/Note)" },
+  { group: "GENERAL", key: "t", fastTyping: [], action: 'today', desc: "Go to Today" },
 
   { group: "VIMMODE", key: "k", fastTyping: ["j+k"], action: 'up', desc: "Select Previous Item" },
   { group: "VIMMODE", key: "j", fastTyping: ["k+j"], action: 'down', desc: "Select Next Item" },
@@ -44,7 +43,7 @@ export const KEYMAPS: Array<KeyMap> = [
   { group: "VIMMODE", key: "ctrl+j", fastTyping: ["ctrl+k+j"], action: 'move-down', desc: "Move Selected Item Down" },
   { group: "VIMMODE", key: "ctrl+h", fastTyping: ["ctrl+l+h"], action: 'move-left', desc: "Move Selected Item to Previous Week/Year/Section" },
   { group: "VIMMODE", key: "ctrl+l", fastTyping: ["ctrl+h+l"], action: 'move-right', desc: "Move Selected Item to Next Week/Year/Section" },
-  { group: "VIMMODE", key: ["a", "i", "A"], fastTyping: [], action: 'edit_end', desc: "Edit Selected Item (caret at end)" },
+  { group: "VIMMODE", key: ["i", "a", "A"], fastTyping: [], action: 'edit_end', desc: "Edit Selected Item (caret at end)" },
   { group: "VIMMODE", key: "shift+i", fastTyping: [], action: 'edit_start', desc: "Edit Selected Item (caret at start)" },
   { group: "VIMMODE", key: "p", fastTyping: [], action: 'paste', desc: "Paste Copied Item or Text from Clipboard" },
   { group: "COMMON", key: "o", fastTyping: [], action: 'create', desc: "Create New Item (bellow selected item)" },

@@ -45,7 +45,8 @@ interface AppConfig {
   secondCalendar: CalendarLocaleType;
   secondCalendarEnabled: boolean;
   keymap: {
-    enabled: boolean;
+    generalShortcutsEnabled: boolean;
+    vimModeShortcutsEnabled: boolean;
     mappings?: Record<string, string>;
   };
   holidays: {
@@ -71,7 +72,8 @@ const DEFAULT_APP_CONFIG: AppConfig = {
   secondCalendar: DEFAULT_SECOND_CAL_LOC,
   secondCalendarEnabled: false,
   keymap: {
-    enabled: false,
+    generalShortcutsEnabled: true,
+    vimModeShortcutsEnabled: false,
     mappings: undefined
   },
   holidays: {

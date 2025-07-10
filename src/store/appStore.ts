@@ -2,6 +2,8 @@ import { ItemType, PageViewType } from '@/types/types';
 import { create } from 'zustand';
 import { useWeekState } from './weekStore';
 
+export type SettingPageType = 'General' | 'Calendars' | 'Keymaps';
+
 type AppState = {
 	pageView: PageViewType;
 	setPageView: (page: PageViewType) => void;
@@ -9,6 +11,9 @@ type AppState = {
 
 	internalCopiedItem: ItemType | null;
 	setInternalCopiedItem: (item: ItemType) => void;
+
+	settingPage: SettingPageType;
+	setSettingPage: (p: SettingPageType) => void;
 };
 
 export const useAppState = create<AppState>((set, get) => ({
@@ -26,6 +31,9 @@ export const useAppState = create<AppState>((set, get) => ({
 		set({ internalCopiedItem: item });
 		console.log("smart copy done.");
 	},
+
+	settingPage: 'Calendars',
+	setSettingPage: (p) => set({ settingPage: p }),
 }));
 
 

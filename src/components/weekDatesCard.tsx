@@ -34,10 +34,6 @@ function WeekDatesCard() {
   const NextIcon = defaultDirection ? ChevronRight : ChevronLeft;
   const PrevIcon = defaultDirection ? ChevronLeft : ChevronRight;
 
-  /*
-        className={cn("w-full sm:max-w-md min-w-64 pt-3 pb-2 gap-2",
-          "transition-all duration-1000 rounded-none sm:rounded-3xl border-0 border-b-1 sm:border shadow-none sm:shadow-sm")}
-      */
   return (
     <Card dir={weekView.direction}
       className={cn(
