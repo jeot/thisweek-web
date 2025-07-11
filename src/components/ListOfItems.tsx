@@ -1,4 +1,4 @@
-import { Item } from "@/components/Item"
+import { Item, ItemActionType } from "@/components/Item"
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { CirclePlus } from "lucide-react";
@@ -7,6 +7,7 @@ import { useActionListener } from "@/lib/useActionListener";
 import { ItemType } from "@/types/types";
 import { useAppState } from "@/store/appStore";
 import { useWeekState } from "@/store/weekStore";
+import { cn } from "@/lib/utils";
 
 function scrollIntoViewIfNeeded(target: HTMLElement, parentID: string): void {
   // console.log("scroll into view... ", target, parentID);
@@ -38,12 +39,14 @@ function scrollIntoViewIfNeeded(target: HTMLElement, parentID: string): void {
 };
 
 interface ListOfItemsProps {
+  className?: string;
   items: ItemType[];
   newEdit?: ItemType | null;
   existingEdit?: ItemType | null;
+  modifiable?: boolean;
 }
 
-export function ListOfItems({ items, newEdit, existingEdit }: ListOfItemsProps) {
+export function ListOfItems({ className, items, newEdit, existingEdit, modifiable }: ListOfItemsProps) {
   const gotoSectionRelative = useAppState((state) => state.gotoSectionRelative);
   const internalCopiedItem = useAppState((state) => state.internalCopiedItem);
   const setInternalCopiedItem = useAppState((state) => state.setInternalCopiedItem);
@@ -76,11 +79,11 @@ export function ListOfItems({ items, newEdit, existingEdit }: ListOfItemsProps) 
     }
   }
   useEffect(() => {
-    if (selectedIndex !== null && selectedIndex < (itemsLength - 1)) {
+    if (selectedIndex >= 0 && selectedIndex < (itemsLength - 1)) {
       const itemRef = document.getElementById(`item-id-${selectedId}`);
       if (itemRef) scrollIntoViewIfNeeded(itemRef, "main-content-window");
     }
-    if (selectedIndex !== null && selectedIndex == itemsLength - 1) {
+    if (selectedIndex >= 0 && selectedIndex == itemsLength - 1) {
       const itemRef = document.getElementById(`new-item-btn-id`);
       if (itemRef) scrollIntoViewIfNeeded(itemRef, "main-content-window");
     }
@@ -88,6 +91,7 @@ export function ListOfItems({ items, newEdit, existingEdit }: ListOfItemsProps) 
   // const [editing, setEditing] = useState<{ id: number, position: 'caret_start' | 'caret_end' | 'select_all' } | null>(null);
 
   async function handlePasteAtIndex(index: number) {
+    if (!modifiable) return;
     try {
       console.log("trying to get the text from clipboard...");
       const result = await navigator.permissions.query({ name: 'clipboard-read' as PermissionName });
@@ -152,7 +156,7 @@ export function ListOfItems({ items, newEdit, existingEdit }: ListOfItemsProps) 
   });
 
   useActionListener('delete', () => {
-    if (!selectedItem) return
+    if (!modifiable || !selectedItem) return
     deleteItem(selectedItem);
   });
 
@@ -167,6 +171,7 @@ export function ListOfItems({ items, newEdit, existingEdit }: ListOfItemsProps) 
   });
 
   useActionListener('paste', () => {
+    if (!modifiable) return;
     if (selectedIndex >= 0) handlePasteAtIndex(selectedIndex);
     else handlePasteAtIndex(itemsLength);
   });
@@ -176,12 +181,13 @@ export function ListOfItems({ items, newEdit, existingEdit }: ListOfItemsProps) 
   });
 
   useActionListener('toggle_status', () => {
-    if (!selectedItem) return
+    if (!modifiable || !selectedItem) return;
     const newStatus = selectedItem.status === 'done' ? 'undone' : 'done';
     updateItem({ ...selectedItem, status: newStatus });
   });
 
   useActionListener('create', () => {
+    if (!modifiable) return;
     const newItemPosition = selectedIndexNotValid ?
       getNewOrderingNumber(items, itemsLength, itemsLength + 1, "weekly") :
       getNewOrderingNumber(items, selectedIndex, selectedIndex + 1, "weekly");
@@ -191,6 +197,7 @@ export function ListOfItems({ items, newEdit, existingEdit }: ListOfItemsProps) 
   });
 
   useActionListener('create_above', () => {
+    if (!modifiable) return;
     const newItemPosition = getNewOrderingNumber(items, selectedIndex, selectedIndex - 1, "weekly");
     console.log("newItemPosition:", newItemPosition);
     createNewEditingItem(newItemPosition);
@@ -198,27 +205,26 @@ export function ListOfItems({ items, newEdit, existingEdit }: ListOfItemsProps) 
   });
 
   useActionListener('toggle_type', () => {
-    if (selectedItem) {
-      const type = (selectedItem.type === 'todo') ? 'note' : 'todo';
-      updateItem({ ...selectedItem, type: type });
-    }
+    if (!modifiable || !selectedItem) return;
+    const type = (selectedItem.type === 'todo') ? 'note' : 'todo';
+    updateItem({ ...selectedItem, type: type });
   });
 
   // todo: fix the editing location
   useActionListener('edit_start', () => {
-    if (!selectedItem) return;
+    if (!modifiable || !selectedItem) return;
     console.log("editing id:", selectedId);
     createExistingEditingItem(selectedItem);
   });
 
   useActionListener('edit_end', () => {
-    if (!selectedItem) return;
+    if (!modifiable || !selectedItem) return;
     console.log("editing id:", selectedId);
     createExistingEditingItem(selectedItem);
   });
 
   useActionListener('edit_all', () => {
-    if (!selectedItem) return;
+    if (!modifiable || !selectedItem) return;
     console.log("editing id:", selectedId);
     createExistingEditingItem(selectedItem);
   });
@@ -235,7 +241,7 @@ export function ListOfItems({ items, newEdit, existingEdit }: ListOfItemsProps) 
   });
 
   useActionListener('move-up', () => {
-    if (!selectedItem) return;
+    if (!modifiable || !selectedItem) return;
     const newOrder = getNewOrderingNumber(items, selectedIndex - 1, selectedIndex - 2, "weekly")
     updateItem({
       ...selectedItem,
@@ -243,7 +249,7 @@ export function ListOfItems({ items, newEdit, existingEdit }: ListOfItemsProps) 
     });
   });
   useActionListener('move-down', () => {
-    if (!selectedItem) return;
+    if (!modifiable || !selectedItem) return;
     const newOrder = getNewOrderingNumber(items, selectedIndex + 1, selectedIndex + 2, "weekly")
     updateItem({
       ...selectedItem,
@@ -253,22 +259,23 @@ export function ListOfItems({ items, newEdit, existingEdit }: ListOfItemsProps) 
 
   // move selected item to next section
   useActionListener('move-right', () => {
-    if (!selectedItem) return;
+    if (!modifiable || !selectedItem) return;
     moveItemToSectionRelative(selectedItem, 1);
     gotoSectionRelative(1);
   });
 
   // move selected item to previous section
   useActionListener('move-left', () => {
-    if (!selectedItem) return;
+    if (!modifiable || !selectedItem) return;
     moveItemToSectionRelative(selectedItem, -1);
     gotoSectionRelative(-1);
   });
 
-  async function handleOnItemActionCallback(action: string, item: ItemType) {
+  async function handleOnItemActionCallback(action: ItemActionType, item: ItemType) {
+    if (!modifiable && (action === "Edit" || action === "Paste" || action === "Delete" || action === "Update" || action === "Apply")) return;
     // console.log("handleOnItemActionCallback:", action, item);
-    if (action === "Edit") { if (existingEdit === null) createExistingEditingItem(item); }
-    if (action === "Copy") { if (existingEdit === null && newEdit === null) setInternalCopiedItem(item); }
+    if (action === "Edit") { if (!existingEdit) createExistingEditingItem(item); }
+    if (action === "Copy") { if (!existingEdit && !newEdit) setInternalCopiedItem(item); }
     if (action === "Paste") {
       if (selectedIndex >= 0) handlePasteAtIndex(selectedIndex);
       else handlePasteAtIndex(itemsLength);
@@ -277,7 +284,7 @@ export function ListOfItems({ items, newEdit, existingEdit }: ListOfItemsProps) 
     if (action === "Update") { updateItem(item).then(() => console.log("Update done.")).catch((e) => console.log("Update error,", e)); }
     if (action === "Apply") { applyEditingItem(item).then((id) => { setSelectedId(id) }) }
     if (action === "Cancel") { cancelEditingItem(item); }
-    if (action === "ContextMenuOpen") { if (existingEdit === null && newEdit === null) setSelectedId(item.id); }
+    if (action === "ContextMenuOpened") { if (!existingEdit && !newEdit) setSelectedId(item.id); }
   }
 
   function handleOnItemClick(item: ItemType): void {
@@ -291,9 +298,9 @@ export function ListOfItems({ items, newEdit, existingEdit }: ListOfItemsProps) 
   }
 
   return (
-    <div className="flex flex-col flex-1 w-full items-center gap-2">
+    <div className={cn("flex flex-col flex-1 w-full items-center gap-0", className)}>
       {allItems.map((item) => {
-        const editing = (newEdit?.id === item.id) || (existingEdit?.id === item.id);
+        const editing = modifiable ? ((newEdit?.id === item.id) || (existingEdit?.id === item.id)) : false;
         const selected = (!newEdit && !existingEdit && (selectedId === item.id));
         return (
           <Item
@@ -308,8 +315,9 @@ export function ListOfItems({ items, newEdit, existingEdit }: ListOfItemsProps) 
           />
         );
       })}
-      {newEdit === null && existingEdit === null &&
+      {modifiable && !newEdit && !existingEdit &&
         <Button variant="outline"
+          className="mt-2"
           id="new-item-btn-id"
           onClick={() => {
             const newItemPosition = getNewOrderingNumber(items, itemsLength, itemsLength + 1, "weekly");
@@ -323,3 +331,13 @@ export function ListOfItems({ items, newEdit, existingEdit }: ListOfItemsProps) 
     </div>
   );
 }
+
+export function ListOfItemsContainer({ className, items, newEdit, existingEdit, modifiable, header }: { header?: string } & ListOfItemsProps) {
+  return (
+    <div className={cn("flex flex-col min-w-64 w-full md:w-xl items-center p-2 gap-2", className)}>
+      {header && <h3 className="text-primary/30">{header}</h3>}
+      <ListOfItems items={items} newEdit={newEdit} existingEdit={existingEdit} modifiable={modifiable} />
+    </ div>
+  );
+}
+

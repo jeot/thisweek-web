@@ -192,7 +192,7 @@ export async function applyEditingItem(item: ItemType) {
 export async function updateItem(item: ItemType) {
   item.modifiedAt = (new Date()).getTime();
   item.modifiedBy = getOrCreateDeviceId();
-  if ((await getExistingEdit())?.id === item.id) {
+  if ((await getExistingEdit())?.id === item.id && (await getExistingEdit())?.uuid === item.uuid) {
     try {
       console.log("updating existingEdit...");
       await saveEditingItem({ ...item }, 'editing_existing');
@@ -200,7 +200,7 @@ export async function updateItem(item: ItemType) {
     } catch (error) {
       console.log("Error updating. err:", error);
     }
-  } else if ((await getNewEdit())?.id === item.id) {
+  } else if ((await getNewEdit())?.id === item.id && (await getNewEdit())?.uuid === item.uuid) {
     try {
       console.log("updating newEdit...");
       await saveEditingItem({ ...item }, 'editing_new');
@@ -210,11 +210,14 @@ export async function updateItem(item: ItemType) {
     }
   } else { // it's a different item (like clicking a checkbox on todo item)
     try {
-      item.version++;
-      console.log("updating existing item...");
-      const count = await db.items.update(item.id, { ...item });
-      if (count) console.log(`update successful`);
-      else console.log(`update error: Item not found!`);
+      const existingItem = await db.items.get(item.id);
+      if (existingItem?.id === item.id && existingItem?.uuid === item.uuid) {
+        item.version++;
+        console.log("updating existing item...");
+        const count = await db.items.update(item.id, { ...item });
+        if (count) console.log(`update successful`);
+        else console.log(`update error: Item not found!`);
+      } else console.log(`update error: invalid item uuid!`);
     } catch (error) {
       console.log("Error updating item. err:", error);
     }

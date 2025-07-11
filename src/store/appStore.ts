@@ -2,7 +2,7 @@ import { ItemType, PageViewType } from '@/types/types';
 import { create } from 'zustand';
 import { useWeekState } from './weekStore';
 
-export type SettingPageType = 'General' | 'Calendars' | 'Keymaps';
+export type SettingPageType = 'General' | 'Calendars' | 'Keymaps' | 'About';
 
 type AppState = {
 	pageView: PageViewType;

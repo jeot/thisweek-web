@@ -6,8 +6,10 @@ import { Button } from "./ui/button";
 import { CheckIcon, Circle, CircleCheckBig, NotebookText, XIcon } from "lucide-react";
 import TextareaAutosize from 'react-textarea-autosize';
 
+export type ItemActionType = "Edit" | "Copy" | "Paste" | "Delete" | "Update" | "Apply" | "Cancel" | "ContextMenuOpened";
 
-export function Item({ className, item, editing, selected, disableContextMenu, onItemActionCallback, ...props }: { item: ItemType, editing: boolean, selected?: boolean, disableContextMenu?: boolean, onItemActionCallback: (action: string, item: ItemType) => void } & React.ComponentProps<"div">) {
+export function Item({ className, item, editing, selected, disableContextMenu, onItemActionCallback, ...props }:
+  { item: ItemType, editing: boolean, selected?: boolean, disableContextMenu?: boolean, onItemActionCallback: (action: ItemActionType, item: ItemType) => void } & React.ComponentProps<"div">) {
 
   const menus: Array<any> = [
     {
@@ -99,7 +101,7 @@ export function Item({ className, item, editing, selected, disableContextMenu, o
       <ContextMenuTrigger asChild disabled={disableContextMenu}
         onContextMenu={(event) => {
           event.stopPropagation();
-          onItemActionCallback('ContextMenuOpen', item);
+          onItemActionCallback('ContextMenuOpened', item);
         }}
       >
         <div

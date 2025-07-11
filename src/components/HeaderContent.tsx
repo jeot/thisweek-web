@@ -13,7 +13,9 @@ export default function HeaderContent({ title }: { title?: string }) {
 
   return (
     <div className="h-full flex items-center justify-between px-2 py-1">
-      <h1 className="flex-none">{title}</h1>
+      {title === "This Week"
+        && <h1>This<span className="font-normal">Week</span></h1>
+        || <h1 className="flex-none">{title}</h1>}
       <div className="h-full flex flex-wrap items-center justify-end">
         <Badge variant="secondary" className="mx-1 font-normal"
           dir={today.direction}>{today.localeDisplay}

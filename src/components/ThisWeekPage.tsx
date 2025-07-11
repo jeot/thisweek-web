@@ -1,5 +1,5 @@
 import { WeekDatesCard } from '@/components/weekDatesCard';
-import { ListOfItems } from '@/components/ListOfItems';
+import { ListOfItemsContainer } from '@/components/ListOfItems';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useCalendarState } from "@/store/calendarStore";
 import { useWeekState } from "@/store/weekStore";
@@ -70,10 +70,7 @@ export function ThisWeekPage() {
         <WeekDatesCard />
       </div>
       {/* container for list of items */}
-      <div className="flex flex-col min-w-64 w-full md:w-xl items-center p-4 gap-4">
-        <h2>Todos &amp; Notes</h2>
-        <ListOfItems items={items} newEdit={newEdit} existingEdit={existingEdit} />
-      </div>
+      <ListOfItemsContainer items={items} newEdit={newEdit} existingEdit={existingEdit} modifiable header={"Todos & Notes"} />
     </div>
   );
 }

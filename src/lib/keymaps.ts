@@ -24,6 +24,7 @@ export const KEYMAPS: Array<KeyMap> = [
   { group: "GENERAL", key: "left", fastTyping: ["right+left"], action: 'left', desc: "Go to Previous Week/Year/Section" },
   { group: "GENERAL", key: "right", fastTyping: ["left+right"], action: 'right', desc: "Go to Next Week/Year/Section" },
   { group: "GENERAL", key: "escape", action: 'cancel', desc: "Cancel Editing/Selection" },
+  { group: "GENERAL", key: "enter", action: 'edit_end', desc: "Edit Selected Item" },
   { group: "GENERAL", key: "ctrl+up", fastTyping: ["ctrl+down+up"], action: 'move-up', desc: "Move Selected Item Up" },
   { group: "GENERAL", key: "ctrl+down", fastTyping: ["ctrl+up+down"], action: 'move-down', desc: "Move Selected Item Down" },
   { group: "GENERAL", key: "ctrl+left", fastTyping: ["ctrl+right+left"], action: 'move-left', desc: "Move Selected Item to Previous Week/Year/Section" },
@@ -31,8 +32,8 @@ export const KEYMAPS: Array<KeyMap> = [
   { group: "GENERAL", key: ["ctrl+e"], fastTyping: [], action: 'edit_end', desc: "Edit Selected Item" },
   { group: "GENERAL", key: ["ctrl+c"], fastTyping: [], action: 'copy', desc: "Copy Selected Item" },
   { group: "GENERAL", key: ["ctrl+v"], fastTyping: [], action: 'paste', desc: "Paste Copied Item or Text from Clipboard" },
-  { group: "GENERAL", key: ["ctrl+n"], fastTyping: [], action: 'create', desc: "Create New Item (ToDo/Note)" },
-  { group: "GENERAL", key: ["ctrl+t"], fastTyping: [], action: 'toggle_type', desc: "Toggle Item Type (ToDo/Note)" },
+  { group: "GENERAL", key: ["ctrl+g"], fastTyping: [], action: 'create', desc: "Create New Item (ToDo/Note)" },
+  { group: "GENERAL", key: ["ctrl+x"], fastTyping: [], action: 'toggle_type', desc: "Toggle Item Type (ToDo/Note)" },
   { group: "GENERAL", key: "t", fastTyping: [], action: 'today', desc: "Go to Today" },
 
   { group: "VIMMODE", key: "k", fastTyping: ["j+k"], action: 'up', desc: "Select Previous Item" },
@@ -50,6 +51,7 @@ export const KEYMAPS: Array<KeyMap> = [
   { group: "VIMMODE", key: "o", fastTyping: [], action: 'create', desc: "Create New Item (bellow selected item)" },
   { group: "VIMMODE", key: "shift+o", fastTyping: [], action: 'create_above', desc: "Create New Item (above selected item)" },
   { group: "VIMMODE", sequence: ["space", "t"], fastTyping: ["", "space+t"], action: 'toggle_theme', desc: "Toggle Theme (Dark/Light)" },
+  { group: "VIMMODE", sequence: ["space", "x"], fastTyping: ["", "space+x"], action: 'toggle_type', desc: "Toggle Item Type (ToDo/Note)" },
   { group: "VIMMODE", sequence: ["space", "space"], fastTyping: [], action: 'toggle_status', desc: "Toggle Item Complete Status" },
   { group: "VIMMODE", sequence: ["d", "d"], fastTyping: [], action: 'delete', desc: "Delete Selected Item" },
   { group: "VIMMODE", sequence: ["y", "y"], fastTyping: [], action: 'copy', desc: "Copy Selected Item" },
@@ -96,7 +98,7 @@ export const init = (initGroup: string) => {
       keys.push(...keyArray);
       keys.push(...fastTyping);
       const allKeys = keys.join(',');
-      // console.log('keys:', keys, action, desc)
+      // console.log('keys:', keys, action)
       hotkeys(allKeys, INITKEYSCOPE, function(event, handler) {
         handler.key;
         event.preventDefault()
