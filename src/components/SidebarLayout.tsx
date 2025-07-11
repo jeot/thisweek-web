@@ -6,6 +6,7 @@ import { Menu, CheckCheck, Settings, CalendarHeart } from "lucide-react"
 import { Moon, Sun } from 'lucide-react';
 import HeaderContent from "./HeaderContent";
 import { PageViewType } from "@/types/types";
+import { cn } from "@/lib/utils";
 
 
 export function SidebarLayout({ children, onMenuClick, activeView, title }: { children: React.ReactNode, onMenuClick: (view: PageViewType) => void, activeView: PageViewType, title: string }) {
@@ -31,7 +32,8 @@ export function SidebarLayout({ children, onMenuClick, activeView, title }: { ch
 
       {/* Sidebar - Wide view only (desktop or horizental mobile) */}
       <div
-        className={`hidden sm:flex flex-col flex-none transition-all duration-300 border-r box-content ${collapsed ? "w-16" : "w-48"}`}
+        className={cn("hidden sm:flex flex-col flex-none transition-all duration-300 border-r box-content",
+          `${collapsed ? "w-16" : "w-48"}`)}
       >
         <Button
           variant="ghost"
@@ -72,6 +74,7 @@ export function SidebarLayout({ children, onMenuClick, activeView, title }: { ch
             <Sheet open={open} onOpenChange={setOpen}>
               <SheetTrigger>
                 <Button
+                  asChild
                   variant="ghost" size="icon"
                   className="p-2 m-2 w-12 justify-center"
                   onClick={() => setOpen(true)}

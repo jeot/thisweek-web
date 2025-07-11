@@ -7,7 +7,7 @@ import { lorem } from '@/assets/lorem'
 import { ensureValidAppConfig, getAppConfigFromIDB } from '@/lib/appConfigDb';
 import { useCalendarState } from "@/store/calendarStore";
 import { useAppState } from "@/store/appStore";
-import * as keymap from '@/lib/keymaps';
+import * as keymaps from '@/lib/keymaps';
 import { useTheme } from 'next-themes';
 import { PageViewType } from './types/types';
 import { useKeymapsState } from "@/store/keymapStore";
@@ -76,11 +76,17 @@ function App() {
       }
     })();
 
-    keymap.init();
-    return () => {
-      keymap.deinit();
-    }
+    return () => { }
   }, []);
+
+  const keymap = useKeymapsState((state) => state.keymap);
+  useEffect(() => {
+    if (keymap.generalShortcutsEnabled) keymaps.init("GENERAL");
+    if (keymap.vimModeShortcutsEnabled) keymaps.init("VIMMODE");
+    return () => {
+      keymaps.deinit();
+    }
+  }, [keymap]);
 
   /*Suggested Font Mapping
   Locale	Font Suggestion
@@ -142,7 +148,7 @@ function App() {
   }
 
   useEffect(() => {
-    const unliten = keymap.listenToActions(handleKeymapCallback);
+    const unliten = keymaps.listenToActions(handleKeymapCallback);
     return () => {
       unliten();
     }
