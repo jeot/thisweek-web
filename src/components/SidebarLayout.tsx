@@ -34,14 +34,21 @@ export function SidebarLayout({ children, onMenuClick, activeView, title }: { ch
 
       {/* Sidebar - Wide view only (desktop or horizental mobile) */}
       <div
-        className={cn("hidden sm:flex flex-col flex-none transition-all duration-300 border-r box-content",
+        className={cn("hidden sm:flex flex-col flex-none transition-all duration-200 border-r box-content",
           `${collapsed ? "w-16" : "w-48"}`)}
       >
         <Button
           variant="ghost"
           size="icon"
           className="w-auto m-2 p-2 justify-center"
-          onClick={() => setCollapsed(!collapsed)}
+          onClick={() => {
+            setCollapsed(!collapsed)
+            // hack: the TextareaAutosize used in <Item> only listens to resize event
+            // Delay to let the layout settle (especially if animated)
+            setTimeout(() => {
+              window.dispatchEvent(new Event('resize'));
+            }, 400); // adjust this if needed
+          }}
         >
           <Menu />
         </Button>

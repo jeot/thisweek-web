@@ -66,7 +66,7 @@ export function Item({ className, item, editing, selected, disableContextMenu, o
 
   const { theme } = useTheme();
   const checkedColor = theme === 'dark' ? "#00aa00" : "#20aa20";
-  const plainColor = theme === 'dark' ? "#333333" : "#999999";
+  const plainColor = theme === 'dark' ? "#333333" : "#bbbbbb";
 
   useEffect(() => {
     if (editing) setTitle(item.title);
