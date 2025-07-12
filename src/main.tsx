@@ -10,7 +10,7 @@ if (import.meta.env.PROD && import.meta.env.VITE_GA_ID) {
   console.log("loading GA...");
   loadGA(import.meta.env.VITE_GA_ID);
 } else {
-  console.log("not in production or invalid GA id");
+  console.log("not in production or invalid GA id!");
 }
 
 createRoot(document.getElementById('root')!).render(
