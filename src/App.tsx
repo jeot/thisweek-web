@@ -4,7 +4,6 @@ import { SidebarLayout } from '@/components/SidebarLayout'
 import { ThisWeekPage } from '@/components/ThisWeekPage';
 import { Settings as SettingsPage } from '@/components/Settings';
 import { lorem } from '@/assets/lorem'
-import { ensureValidAppConfig, getAppConfigFromIDB } from '@/lib/appConfigDb';
 import { useCalendarState } from "@/store/calendarStore";
 import { useAppState } from "@/store/appStore";
 import * as keymaps from '@/lib/keymaps';
@@ -47,37 +46,7 @@ function App() {
   const setPageView = useAppState((state) => state.setPageView);
   const mainCal = useCalendarState((state) => state.mainCal);
   const secondCalendar = useCalendarState((state) => state.secondCal);
-  const setMainCal = useCalendarState((state) => state.setMainCal);
-  const setSecondCal = useCalendarState((state) => state.setSecondCal);
-  const setSecondCalEnabled = useCalendarState((state) => state.setSecondCalEnabled);
   const { setTheme, theme } = useTheme();
-  const setKeymap = useKeymapsState((state) => state.setKeymap);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        await ensureValidAppConfig();
-        const saved = await getAppConfigFromIDB();
-        console.log("saved config: ", saved);
-        if (saved) {
-          setMainCal(saved.mainCalendar, false);
-          setSecondCal(saved.secondCalendar, false);
-          setSecondCalEnabled(saved.secondCalendarEnabled, false);
-          setKeymap(saved.keymap, false);
-          // if (saved?.theme) {
-          //   setTheme(saved.theme); // from useThemeStore
-          // }
-          // ... repeat for other configs
-        } else {
-          console.log("no config found!");
-        }
-      } catch (err) {
-        console.log("app startup error:", err);
-      }
-    })();
-
-    return () => { }
-  }, []);
 
   const keymap = useKeymapsState((state) => state.keymap);
   useEffect(() => {

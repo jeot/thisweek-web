@@ -144,7 +144,7 @@
     @apply text-xl font-bold tracking-tight sm:text-2xl lg:text-3xl scroll-m-20;
   }
   h3 {
-    @apply text-xl font-bold tracking-tight sm:text-xl lg:text-2xl scroll-m-20;
+    @apply text-lg font-semibold tracking-tight sm:text-lg lg:text-xl scroll-m-20;
   }
 }
 

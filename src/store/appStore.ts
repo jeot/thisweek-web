@@ -1,6 +1,7 @@
 import { ItemType, PageViewType } from '@/types/types';
 import { create } from 'zustand';
 import { useWeekState } from './weekStore';
+import { saveAppConfigToIDBPartial } from '@/lib/appConfigDb';
 
 export type SettingPageType = 'General' | 'Calendars' | 'Keymaps' | 'About';
 
@@ -14,6 +15,9 @@ type AppState = {
 
 	settingPage: SettingPageType;
 	setSettingPage: (p: SettingPageType) => void;
+
+	sidebarCollapsed: boolean;
+	setSidebarCollapsed: (v: boolean, save?: boolean) => void;
 };
 
 export const useAppState = create<AppState>((set, get) => ({
@@ -34,6 +38,12 @@ export const useAppState = create<AppState>((set, get) => ({
 
 	settingPage: 'Calendars',
 	setSettingPage: (p) => set({ settingPage: p }),
+
+	sidebarCollapsed: true,
+	setSidebarCollapsed: (v, save = true) => {
+		set({ sidebarCollapsed: v });
+		if (save) saveAppConfigToIDBPartial({ sidebarCollapsed: v });
+	}
 }));
 
 

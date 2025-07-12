@@ -7,6 +7,7 @@ import { Moon, Sun } from 'lucide-react';
 import HeaderContent from "./HeaderContent";
 import { PageViewType } from "@/types/types";
 import { cn } from "@/lib/utils";
+import { useAppState } from "@/store/appStore";
 
 
 export function SidebarLayout({ children, onMenuClick, activeView, title }: { children: React.ReactNode, onMenuClick: (view: PageViewType) => void, activeView: PageViewType, title: string }) {
@@ -14,7 +15,8 @@ export function SidebarLayout({ children, onMenuClick, activeView, title }: { ch
   activeView; // unused variable
 
   const [open, setOpen] = useState(false); // only for sheet on mobile
-  const [collapsed, setCollapsed] = useState(true); // only for drawer on desktop
+  const collapsed = useAppState((state) => state.sidebarCollapsed);
+  const setCollapsed = useAppState((state) => state.setSidebarCollapsed);
   const { setTheme, theme } = useTheme();
   if (!theme) return;
   const ThemeIcon = (theme === 'light') ? Moon : Sun;

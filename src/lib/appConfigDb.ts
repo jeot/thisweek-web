@@ -54,6 +54,7 @@ interface AppConfig {
     customDays: WeekdayType[];
     autoFetchEnabled: boolean;
   };
+  sidebarCollapsed: boolean;
 }
 
 interface AppDB extends DBSchema {
@@ -80,7 +81,8 @@ const DEFAULT_APP_CONFIG: AppConfig = {
     weekend: false,
     customDays: [],
     autoFetchEnabled: false
-  }
+  },
+  sidebarCollapsed: true,
 };
 
 const db = openDB<AppDB>(APP_CONFIG_DB, 1, {
