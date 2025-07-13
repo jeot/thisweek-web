@@ -204,10 +204,13 @@ export function ListOfItems({ className, items, newEdit, existingEdit, modifiabl
     // setEditing({ id: newItem.id, position: "caret_start" });
   });
 
+  function toggleItemType(item: ItemType | null) {
+    if (!modifiable || !item) return;
+    const type = (item.type === 'todo') ? 'note' : 'todo';
+    updateItem({ ...item, type: type });
+  }
   useActionListener('toggle_type', () => {
-    if (!modifiable || !selectedItem) return;
-    const type = (selectedItem.type === 'todo') ? 'note' : 'todo';
-    updateItem({ ...selectedItem, type: type });
+    toggleItemType(selectedItem);
   });
 
   // todo: fix the editing location
@@ -240,40 +243,44 @@ export function ListOfItems({ className, items, newEdit, existingEdit, modifiabl
     }
   });
 
-  useActionListener('move-up', () => {
+  function move(direction: 'updown' | 'leftright', offset: number) {
     if (!modifiable || !selectedItem) return;
-    const newOrder = getNewOrderingNumber(items, selectedIndex - 1, selectedIndex - 2, "weekly")
-    updateItem({
-      ...selectedItem,
-      order: { ...selectedItem.order, weekly: newOrder }
-    });
+    console.log("moving...", direction, offset, selectedItem);
+    if (direction === 'updown') {
+      console.log("updown...");
+      const nextOffset = offset >= 0 ? offset + 1 : offset - 1;
+      const newOrder = getNewOrderingNumber(items, selectedIndex + offset, selectedIndex + nextOffset, "weekly")
+      updateItem({
+        ...selectedItem,
+        order: { ...selectedItem.order, weekly: newOrder }
+      });
+    }
+    if (direction === 'leftright') {
+      console.log("leftright...");
+      moveItemToSectionRelative(selectedItem, offset);
+      gotoSectionRelative(offset);
+    }
+  }
+
+  // move selected item (or right-clicked)
+  useActionListener('move-up', () => {
+    move('updown', -1);
   });
   useActionListener('move-down', () => {
-    if (!modifiable || !selectedItem) return;
-    const newOrder = getNewOrderingNumber(items, selectedIndex + 1, selectedIndex + 2, "weekly")
-    updateItem({
-      ...selectedItem,
-      order: { ...selectedItem.order, weekly: newOrder }
-    });
+    move('updown', 1);
   });
-
-  // move selected item to next section
   useActionListener('move-right', () => {
-    if (!modifiable || !selectedItem) return;
-    moveItemToSectionRelative(selectedItem, 1);
-    gotoSectionRelative(1);
+    move('leftright', 1);
   });
-
-  // move selected item to previous section
   useActionListener('move-left', () => {
-    if (!modifiable || !selectedItem) return;
-    moveItemToSectionRelative(selectedItem, -1);
-    gotoSectionRelative(-1);
+    move('leftright', -1);
   });
 
   async function handleOnItemActionCallback(action: ItemActionType, item: ItemType) {
-    if (!modifiable && (action === "Edit" || action === "Paste" || action === "Delete" || action === "Update" || action === "Apply")) return;
+    const modifyingActions: Array<ItemActionType> = ["Edit", "Paste", "Delete", "Update", "Apply", "Move Up", "Move Down", "Move Next", "Move Previous"];
+    if (!modifiable && (modifyingActions.indexOf(action) >= 0)) return;
     // console.log("handleOnItemActionCallback:", action, item);
+    if (action === "None") { /* have a tea. */ }
     if (action === "Edit") { if (!existingEdit) createExistingEditingItem(item); }
     if (action === "Copy") { if (!existingEdit && !newEdit) setInternalCopiedItem(item); }
     if (action === "Paste") {
@@ -282,9 +289,16 @@ export function ListOfItems({ className, items, newEdit, existingEdit, modifiabl
     }
     if (action === "Delete") { deleteItem(item).then(() => console.log("Delete done.")).catch((e) => console.log("Delete error,", e)); }
     if (action === "Update") { updateItem(item).then(() => console.log("Update done.")).catch((e) => console.log("Update error,", e)); }
-    if (action === "Apply") { applyEditingItem(item).then((id) => { setSelectedId(id) }) }
+    if (action === "Apply") { applyEditingItem(item).then((id) => { setSelectedId(id) }).catch((e) => console.log("Apply error,", e)); }
     if (action === "Cancel") { cancelEditingItem(item); }
     if (action === "ContextMenuOpened") { if (!existingEdit && !newEdit) setSelectedId(item.id); }
+    if (action === "Move Up") { move('updown', -1); }
+    if (action === "Move Down") { move('updown', 1); }
+    if (action === "Move Next") { move('leftright', 1); }
+    if (action === "Move Previous") { move('leftright', -1); }
+    if (action === "Toggle Type") {
+      toggleItemType(item);
+    }
   }
 
   function handleOnItemClick(item: ItemType): void {
