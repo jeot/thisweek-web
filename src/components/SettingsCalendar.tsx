@@ -64,7 +64,7 @@ export function SettingsCalendar() {
   const CalendarSelector = ({ disabled, selected, onChange, ...props }: { disabled?: boolean, selected: CalendarType, onChange: (cal: CalendarType) => void }) => {
     return (
       <Select disabled={disabled} value={selected} onValueChange={onChange} {...props}>
-        <SelectTrigger className="w-[280px] text-base">
+        <SelectTrigger className="w-full max-w-sm">
           <SelectValue placeholder="Select Calendar" />
         </SelectTrigger>
         <SelectContent>
@@ -83,18 +83,16 @@ export function SettingsCalendar() {
   const LocaleSelector = ({ disabled, selected, calendarMeta, onChange, ...props }: { disabled?: boolean, selected: string, calendarMeta: CalendarMeta | undefined, onChange: (loc: string) => void }) => {
     return (
       <Select disabled={disabled} value={selected} onValueChange={onChange} {...props}>
-        <SelectTrigger className="w-[360px] min-w-max text-base">
+        <SelectTrigger className="w-full max-w-sm">
           <SelectValue placeholder="Select Language/Region" />
         </SelectTrigger>
         <SelectContent>
           {calendarMeta?.locales.map((calLocMeta, index) => {
             const flag = locales.find((v) => v.locale === calLocMeta.locale)?.flag;
             return (
-              <SelectItem key={index} className="justify-items-start" value={calLocMeta.locale}>
-                <div className="w-[320px] min-w-max flex items-center">
-                  <div className="flex-1 text-left">{calLocMeta.displayName}</div>
-                  <Badge className="flex-none text-xs ml-auto font-mono" variant="secondary">{calLocMeta.locale}&nbsp;{flag}</Badge>
-                </div>
+              <SelectItem key={index} className="w-full flex items-center" value={calLocMeta.locale}>
+                <div className="flex-1 text-left">{calLocMeta.displayName}</div>
+                <Badge className="flex-none text-xs ml-auto font-mono" variant="secondary">{calLocMeta.locale}&nbsp;{flag}</Badge>
               </SelectItem>
             )
           })}
@@ -104,7 +102,7 @@ export function SettingsCalendar() {
   }
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col items-stretch gap-3">
       <h2 className="mt-2">Main Calendar</h2>
 
       <CalendarSelector selected={mainCal.calendar} onChange={handleMainCalCalendarChange} />

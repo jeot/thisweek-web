@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import '@/App.css'
 import { SidebarLayout } from '@/components/SidebarLayout'
 import { ThisWeekPage } from '@/components/ThisWeekPage';
-import { Settings as SettingsPage } from '@/components/Settings';
+import { SettingsPage } from '@/components/SettingsPage';
 import { lorem } from '@/assets/lorem'
 import { useCalendarState } from "@/store/calendarStore";
 import { useAppState } from "@/store/appStore";

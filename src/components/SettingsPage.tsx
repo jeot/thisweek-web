@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { SettingPageType, useAppState } from "@/store/appStore";
 import { SettingsAbout } from "./SettingsAbout";
 
-export function Settings() {
+export function SettingsPage() {
   const settingPage = useAppState((state) => state.settingPage);
   const setSettingPage = useAppState((state) => state.setSettingPage);
 
@@ -27,11 +27,11 @@ export function Settings() {
 
   return (
     <div className="h-full">
-      <Tabs value={settingPage} className="w-full sm:hidden p-4" onValueChange={handleTabChange}>
-        <TabsList className="w-full">
+      <Tabs value={settingPage} className="w-full sm:hidden p-2" onValueChange={handleTabChange}>
+        <TabsList className="w-full gap-1">
           {settings.filter((v) => !v.hidden).map((v) => {
             return (
-              <TabsTrigger key={v.name} value={v.name} className="hover:bg-primary/5 m-1">{v.name}</TabsTrigger>
+              <TabsTrigger key={v.name} value={v.name} className="hover:bg-primary/5">{v.name}</TabsTrigger>
             );
           })}
         </TabsList>
@@ -52,7 +52,7 @@ export function Settings() {
             );
           })}
         </div>
-        <div className="flex-3 p-4 min-w-sm overflow-y-auto">
+        <div className="flex-3 p-4 w-1 overflow-y-auto">
           <SettingContent />
         </div>
       </div>

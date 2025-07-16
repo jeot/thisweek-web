@@ -17,6 +17,14 @@
   border: 1px solid pink;
 }
 
+.green {
+  border: 2px solid green;
+}
+
+.blue {
+  border: 1px solid blue;
+}
+
 .red {
   border: 5px solid red;
 }
