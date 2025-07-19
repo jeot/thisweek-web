@@ -16,22 +16,18 @@ export function loadGA(id: string) {
   const scriptExists = document.querySelector(`script[src*="${id}"]`);
   if (scriptExists) { console.log("GA script already exists"); return; }
 
-  const script = document.createElement('script');
-  script.async = true;
-  script.src = `https://www.googletagmanager.com/gtag/js?id=${id}`;
-  document.head.appendChild(script);
+  const script1 = document.createElement('script');
+  script1.src = `https://www.googletagmanager.com/gtag/js?id=${id}`;
+  script1.async = true;
+  document.head.appendChild(script1);
 
-  // Initialize gtag
-  // @ts-ignore
-  window.dataLayer = window.dataLayer || [];
-  function gtag(...args: any[]) {
-    // @ts-ignore
-    window.dataLayer.push(args);
-  }
-  // @ts-ignore
-  window.gtag = gtag;
-
-  gtag('js', new Date());
-  gtag('config', id);
+  const script2 = document.createElement('script');
+  script2.innerHTML = `
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', '${id}');
+  `;
+  document.head.appendChild(script2);
 }
 
