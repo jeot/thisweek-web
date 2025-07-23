@@ -123,7 +123,8 @@ function App() {
     }
   }, [theme]);
 
-  const ThisYearPage = () => <div><h1>ThisYearPage</h1><p>{lorem}</p></div>;
+  const ThisYearPage = () => <div className='p-4'><h1>ThisYearPage</h1><p>Maybe in the future!</p><p>{lorem}</p></div>;
+  const ProjectsPage = () => <div className='p-4'><h1>Projects/ListPage</h1><p>Maybe in the future!</p><p>{lorem}</p></div>;
   const handleChangePageView = (page: PageViewType) => {
     setPageView(page);
   };
@@ -138,6 +139,7 @@ function App() {
       >
         {pageView === 'This Week' && <ThisWeekPage />}
         {pageView === 'This Year' && <ThisYearPage />}
+        {pageView === 'Projects' && <ProjectsPage />}
         {pageView === 'Settings' && <SettingsPage />}
         {/* and so on */}
       </SidebarLayout>

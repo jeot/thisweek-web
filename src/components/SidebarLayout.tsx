@@ -2,7 +2,8 @@ import { useState } from "react"
 import { useTheme } from 'next-themes';
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetTrigger, SheetContent, SheetClose, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet"
-import { Menu, CheckCheck, Settings, CalendarHeart } from "lucide-react"
+import { Menu, CheckCheck, Settings } from "lucide-react"
+// import { CalendarHeart, ListTodo } from "lucide-react"
 import { Moon, Sun } from 'lucide-react';
 import HeaderContent from "./HeaderContent";
 import { PageViewType } from "@/types/types";
@@ -23,7 +24,8 @@ export function SidebarLayout({ children, onMenuClick, activeView, title }: { ch
 
   const menuItems = [
     { icon: CheckCheck, label: "This Week", onClick: () => { onMenuClick('This Week') } },
-    { icon: CalendarHeart, label: "Year 2025", onClick: () => { onMenuClick('This Year') } },
+    // { icon: CalendarHeart, label: "Year 2025", onClick: () => { onMenuClick('This Year') } },
+    // { icon: ListTodo, label: "Projects", onClick: () => { onMenuClick('Projects') } },
     { icon: null, label: "Spacer", onClick: () => { } },
     { icon: Settings, label: "Settings", onClick: () => { onMenuClick('Settings') } },
     { icon: ThemeIcon, label: theme === 'light' ? 'Dark' : 'Light', onClick: () => setTheme(theme === 'light' ? 'dark' : 'light') },
@@ -35,12 +37,12 @@ export function SidebarLayout({ children, onMenuClick, activeView, title }: { ch
       {/* Sidebar - Wide view only (desktop or horizental mobile) */}
       <div
         className={cn("hidden sm:flex flex-col flex-none transition-all duration-200 border-r box-content",
-          `${collapsed ? "w-16" : "w-48"}`)}
+          `${collapsed ? "w-14" : "w-48"}`)}
       >
         <Button
           variant="ghost"
           size="icon"
-          className="w-auto m-2 p-2 justify-center"
+          className="w-auto justify-center px-2 py-6 rounded-none"
           onClick={() => {
             setCollapsed(!collapsed)
             // hack: the TextareaAutosize used in <Item> only listens to resize event
@@ -58,7 +60,7 @@ export function SidebarLayout({ children, onMenuClick, activeView, title }: { ch
             else return (
               <Button
                 key={label}
-                variant="shk"
+                variant={activeView == label ? "default" : "shk"}
                 size="icon"
                 className={`w-auto m-2 p-2 ${collapsed ? "" : "justify-start"}`}
                 onClick={onClick}
@@ -77,15 +79,14 @@ export function SidebarLayout({ children, onMenuClick, activeView, title }: { ch
       <div className="flex flex-col flex-1 w-1">
 
         {/* Full Header */}
-        <header className="flex h-13 items-center justify-left border-b box-content">
+        <header className="flex h-12 items-center justify-left border-b box-content">
           {/* Sheet open button (visible on small view only) */}
           <div className="sm:hidden">
             <Sheet open={open} onOpenChange={setOpen}>
-              <SheetTrigger>
+              <SheetTrigger asChild>
                 <Button
-                  asChild
                   variant="ghost" size="icon"
-                  className="p-2 m-2 w-12 justify-center"
+                  className="w-14 justify-center px-2 py-6 rounded-none"
                   onClick={() => setOpen(true)}
                 >
                   <Menu />
@@ -98,11 +99,11 @@ export function SidebarLayout({ children, onMenuClick, activeView, title }: { ch
                     &nbsp;
                   </SheetDescription>
                 </SheetHeader>
-                <SheetClose>
+                <SheetClose asChild>
                   <Button
                     variant="ghost"
                     size="default"
-                    className="w-full justify-start"
+                    className="w-full justify-center px-2 py-2 rounded-none"
                   >
                     <Menu />
                   </Button>
@@ -113,7 +114,7 @@ export function SidebarLayout({ children, onMenuClick, activeView, title }: { ch
                     else return (
                       <Button
                         key={label}
-                        variant="ghost"
+                        variant={activeView == label ? "default" : "shk"}
                         className="justify-start"
                         onClick={() => {
                           onClick();
@@ -126,7 +127,7 @@ export function SidebarLayout({ children, onMenuClick, activeView, title }: { ch
                   })}
                 </div>
                 <p className="text-xs text-muted-foreground text-center">
-                  &nbsp;{open && `v${__APP_VERSION__}`}
+                  &nbsp;{open && `v${__APP_VERSION__} `}
                 </p>
               </SheetContent>
             </Sheet>
