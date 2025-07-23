@@ -73,9 +73,9 @@ function List({ className }: { className?: string }) {
 
 export function SettingsAbout() {
   return (
-    <div className="">
+    <div className="mt-2">
       {/*todo: <span>[thisweek logo]</span>*/}
-      <h1>This<span className="font-normal">Week</span> <span className="font-normal text-base">App</span></h1>
+      <h1>This<span className="font-normal mt-2">Week</span> <span className="font-normal text-base">App</span></h1>
       <span className="text-sm font-semibold">v{__APP_VERSION__}</span>
 
       <blockquote className="mt-6 border-l-2 pl-6 md:w-md italic text-sm">

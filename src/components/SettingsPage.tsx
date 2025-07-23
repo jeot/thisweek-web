@@ -5,6 +5,7 @@ import { SettingsKeymap } from "@/components/SettingsKeymap"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { SettingPageType, useAppState } from "@/store/appStore";
 import { SettingsAbout } from "./SettingsAbout";
+import { SettingsSync } from "./SettingsSync";
 
 export function SettingsPage() {
   const settingPage = useAppState((state) => state.settingPage);
@@ -21,6 +22,7 @@ export function SettingsPage() {
     { name: "General", child: SettingsGeneral, hidden: true },
     { name: "Calendars", child: SettingsCalendar },
     { name: "Keymaps", child: SettingsKeymap },
+    { name: "Syncing", child: SettingsSync },
     { name: "About", child: SettingsAbout },
   ];
   const SettingContent = settings.find((v) => { return (v.name === settingPage) })?.child!;

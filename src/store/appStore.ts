@@ -2,8 +2,9 @@ import { ItemType, PageViewType } from '@/types/types';
 import { create } from 'zustand';
 import { useWeekState } from './weekStore';
 import { saveAppConfigToIDBPartial } from '@/lib/appConfigDb';
+import { Session } from '@supabase/supabase-js';
 
-export type SettingPageType = 'General' | 'Calendars' | 'Keymaps' | 'About';
+export type SettingPageType = 'General' | 'Calendars' | 'Keymaps' | 'Syncing' | 'About';
 
 type AppState = {
 	pageView: PageViewType;
@@ -18,6 +19,9 @@ type AppState = {
 
 	sidebarCollapsed: boolean;
 	setSidebarCollapsed: (v: boolean, save?: boolean) => void;
+
+	session: Session | null;
+	setSession: (s: Session | null) => void;
 };
 
 export const useAppState = create<AppState>((set, get) => ({
@@ -43,7 +47,10 @@ export const useAppState = create<AppState>((set, get) => ({
 	setSidebarCollapsed: (v, save = true) => {
 		set({ sidebarCollapsed: v });
 		if (save) saveAppConfigToIDBPartial({ sidebarCollapsed: v });
-	}
+	},
+
+	session: null,
+	setSession: (s) => set({ session: s }),
 }));
 
 

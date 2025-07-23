@@ -10,6 +10,7 @@ import * as keymaps from '@/lib/keymaps';
 import { useTheme } from 'next-themes';
 import { PageViewType } from './types/types';
 import { useKeymapsState } from "@/store/keymapStore";
+import supabase from '@/lib/supabase'
 
 const loadedCSS = new Set<string>();
 
@@ -46,7 +47,24 @@ function App() {
   const setPageView = useAppState((state) => state.setPageView);
   const mainCal = useCalendarState((state) => state.mainCal);
   const secondCalendar = useCalendarState((state) => state.secondCal);
+  const setSession = useAppState((state) => state.setSession);
   const { setTheme, theme } = useTheme();
+
+  // Authentication
+  useEffect(() => {
+    supabase.auth.getSession()
+      .then((result) => {
+        setSession(result.data.session);
+      }).catch((err) => {
+        console.log("error getting session:", err);
+      });
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session)
+    })
+    return () => {
+      listener.subscription.unsubscribe()
+    }
+  }, [])
 
   const keymap = useKeymapsState((state) => state.keymap);
   useEffect(() => {
