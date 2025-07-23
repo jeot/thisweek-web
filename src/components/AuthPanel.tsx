@@ -1,12 +1,13 @@
 import { Auth } from '@supabase/auth-ui-react'
 import { ThemeSupa } from '@supabase/auth-ui-shared'
-import supabase from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
 import { useAppState } from "@/store/appStore";
 import { Button } from './ui/button';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export function AuthPanel() {
-  const session = useAppState((state) => state.session);
+  const data = useAppState((state) => state.authData);
+  const error = useAppState((state) => state.authError);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = async () => {
@@ -23,7 +24,10 @@ export function AuthPanel() {
     // optionally, clear state, show notification, or reload
   }
 
-  if (!session) {
+  useEffect(() => {
+  }, [])
+
+  if (error || !data?.claims) {
     return (
       <div className="max-w-md mx-auto p-4 flex flex-col gap-1">
         <p className="font-semibold">Log in or sign up to sync your data across devices.</p>
@@ -36,16 +40,16 @@ export function AuthPanel() {
       </div>
     )
   } else {
-    const username = session.user.email || session.user.id;
     return (
       <div className="max-w-md mx-auto p-4 flex flex-col gap-3">
         <p className="font-semibold">
-          You're logged in as <span className="text-green-600">{username}</span>.
+          You're logged in as <span className="text-green-600">{data.claims.email}</span>.
           <br />
           To stop syncing, simply log out.
         </p>
         <Button variant="destructive" className={isLoggingOut && "bg-destructive/50" || "hover:cursor-pointer"} disabled={isLoggingOut} onClick={() => handleLogout()}>Logout</Button>
-        <span className="font-light text-xs">({session.user.id})</span>
+        <span className="font-light text-xs">{JSON.stringify(data.claims, null, 2)}</span>
+        <span className="font-light text-xs">{JSON.stringify(data.header, null, 2)}</span>
       </div>
     )
   }

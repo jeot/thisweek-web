@@ -38,15 +38,15 @@ export function SettingsKeymap() {
         </TableHeader>
         <TableBody>
           {
-            keymaps.map((value) => {
+            keymaps.map((value, index) => {
               const keys = Array.isArray(value?.key) ? value.key :
                 (value.key !== undefined ? [value.key] : undefined);
               const sequence = value.sequence;
               return (
-                <TableRow>
+                <TableRow key={`key-${value.group}-${index}`}>
                   <TableCell className="font-base">
-                    {keys && <KeysDisplay keys={keys} seperator="&nbsp;or&nbsp;" />}
-                    {sequence && <KeysDisplay keys={sequence} seperator="&nbsp;" />}
+                    {keys && <KeysDisplay key={`keys-${value.group}-${index}`} keys={keys} seperator="&nbsp;or&nbsp;" />}
+                    {sequence && <KeysDisplay key={`sequence-${value.group}-${index}`} keys={sequence} seperator="&nbsp;" />}
                   </TableCell >
                   <TableCell>{value.desc}</TableCell>
                 </TableRow >

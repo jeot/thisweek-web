@@ -1,4 +1,4 @@
-import { AuthPanel } from "./Auth";
+import { AuthPanel } from "./AuthPanel";
 // import { useAppState } from "@/store/appStore";
 
 export function SettingsSync() {
@@ -6,7 +6,6 @@ export function SettingsSync() {
   // const session = useAppState((state) => state.session);
   // const syncEnabled = false;
   // function setSyncEnabled() { }
-
   return (
     <div className="flex flex-col items-stretch gap-3 max-w-md">
       <div className="flex items-baseline space-x-5">

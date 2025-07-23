@@ -2,7 +2,7 @@ import { ItemType, PageViewType } from '@/types/types';
 import { create } from 'zustand';
 import { useWeekState } from './weekStore';
 import { saveAppConfigToIDBPartial } from '@/lib/appConfigDb';
-import { Session } from '@supabase/supabase-js';
+import { AuthError, Session } from '@supabase/supabase-js';
 
 export type SettingPageType = 'General' | 'Calendars' | 'Keymaps' | 'Syncing' | 'About';
 
@@ -20,8 +20,12 @@ type AppState = {
 	sidebarCollapsed: boolean;
 	setSidebarCollapsed: (v: boolean, save?: boolean) => void;
 
-	session: Session | null;
-	setSession: (s: Session | null) => void;
+	authSession: Session | null;
+	setAuthSession: (x: Session | null) => void;
+	authData: any | null;
+	setAuthData: (x: any | null) => void;
+	authError: AuthError | null;
+	setAuthError: (x: AuthError | null) => void;
 };
 
 export const useAppState = create<AppState>((set, get) => ({
@@ -49,8 +53,12 @@ export const useAppState = create<AppState>((set, get) => ({
 		if (save) saveAppConfigToIDBPartial({ sidebarCollapsed: v });
 	},
 
-	session: null,
-	setSession: (s) => set({ session: s }),
+	authSession: null,
+	setAuthSession: (x) => set({ authSession: x }),
+	authData: null,
+	setAuthData: (x) => set({ authData: x }),
+	authError: null,
+	setAuthError: (x) => set({ authError: x }),
 }));
 
 
