@@ -1,6 +1,12 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* Optional: configure your container utility */
+@utility container {
+  margin-inline: 0px;
+  padding-inline: 0px;
+}
+
 @theme {
   --font-global:
     "Open Sans",
