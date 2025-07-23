@@ -51,6 +51,9 @@ export function SettingsPage() {
               <Button key={v.name} className="text-base" variant={variant} onClick={() => { handleTabChange(v.name) }}>{v.name}</Button>
             );
           })}
+          <p className="mt-auto text-xs text-muted-foreground text-center">
+            &nbsp;v{__APP_VERSION__}
+          </p>
         </div>
         <div className="flex-3 p-4 w-1 overflow-y-auto">
           <SettingContent />

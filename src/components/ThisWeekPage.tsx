@@ -70,7 +70,7 @@ export function ThisWeekPage() {
         <WeekDatesCard />
       </div>
       {/* container for list of items */}
-      <ListOfItemsContainer items={items} newEdit={newEdit} existingEdit={existingEdit} modifiable header={"Todos & Notes"} />
+      <ListOfItemsContainer items={items} newEdit={newEdit} existingEdit={existingEdit} modifiable header={"Tasks & Notes"} />
     </div>
   );
 }

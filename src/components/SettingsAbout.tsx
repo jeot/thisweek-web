@@ -42,22 +42,22 @@ const list: Array<{
     { id: 2, type: 'todo', status: 'done', title: "Weekly planning with todos ☑️ and notes 📝" },
     { id: 3, type: 'todo', status: 'done', title: "Works offline — data is stored in your browser" },
     { id: 4, type: 'todo', status: 'done', title: "Supports multiple calendars 🗓 and locales 🌐" },
-    { id: 5, type: 'todo', status: 'done', title: "Option to view a secondary calendar" },
-    { id: 6, type: 'todo', status: 'undone', title: "🔄 Sync across multiple devices" },
+    { id: 5, type: 'todo', status: 'done', title: "Display secondary calendar dates" },
+    { id: 6, type: 'todo', status: 'undone', title: "Sync across multiple devices 💻📱" },
     {
       id: 7, type: 'todo', status: 'undone', title:
-        `Headings and nested todos/notes
-\t🟡 Group items under custom headings
-\t🟡 Add sub-items to individual todos/notes`
+        `Nested todos/notes
+\t🟡 Add sub-items to individual todos/notes
+\t🟡 Group items under custom headings`
     },
-    { id: 8, type: 'todo', status: 'undone', title: "🗂️ Project-based organization" },
+    { id: 8, type: 'todo', status: 'undone', title: "🗂️ Lists and Project-like organization" },
     { id: 9, type: 'todo', status: 'undone', title: "🎯 Yearly goals and objectives" },
     {
       id: 10, type: 'note', status: 'undone', title:
-        `📝 Notes:
-\t🔸Your data stays on your device.
-\t🔸Built with React, TS, and love ❤️
-\t🔸Feedback is always welcome.`
+        `Some notes 📝
+Your data stays on your device.
+Built with React, TS, and love ❤️
+Feedback is always welcome.`
     },
   ];
 
@@ -68,7 +68,7 @@ function List({ className }: { className?: string }) {
     return item;
   });
   console.log(items);
-  return <ListOfItemsContainer className={className} items={items} />
+  return <ListOfItemsContainer className={className} items={items} header="What is ThisWeek App?" />
 }
 
 export function SettingsAbout() {
