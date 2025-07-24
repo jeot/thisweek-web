@@ -4,10 +4,12 @@ import { supabase } from '@/lib/supabase'
 import { useAuthState } from "@/store/authStore";
 import { Button } from './ui/button';
 import { useEffect, useState } from 'react';
+import { useTheme } from 'next-themes';
 
 export function AuthPanel() {
   const data = useAuthState((state) => state.data);
   const error = useAuthState((state) => state.error);
+  const { setTheme, theme } = useTheme();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = async () => {
@@ -41,7 +43,7 @@ export function AuthPanel() {
         <Auth
           supabaseClient={supabase}
           appearance={{ theme: ThemeSupa }}
-          theme="dark"
+          theme={theme}
           providers={[]} // Add "google", "github", etc. later if needed
         />
       </div>
@@ -55,8 +57,8 @@ export function AuthPanel() {
           To stop syncing, simply log out.
         </p>
         <Button variant="destructive" className={isLoggingOut && "bg-destructive/50" || "hover:cursor-pointer"} disabled={isLoggingOut} onClick={() => handleLogout()}>Logout</Button>
-        <span className="font-light text-xs">{JSON.stringify(data.claims, null, 2)}</span>
-        <span className="font-light text-xs">{JSON.stringify(data.header, null, 2)}</span>
+        <span className="font-light font-mono text-xxs">{JSON.stringify(data.claims, null, 2)}</span>
+        <span className="font-light font-mono text-xxs">{JSON.stringify(data.header, null, 2)}</span>
       </div>
     )
   }
