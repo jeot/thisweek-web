@@ -1,20 +1,27 @@
 import { Auth } from '@supabase/auth-ui-react'
 import { ThemeSupa } from '@supabase/auth-ui-shared'
 import { supabase } from '@/lib/supabase'
-import { useAppState } from "@/store/appStore";
+import { useAuthState } from "@/store/authStore";
 import { Button } from './ui/button';
 import { useEffect, useState } from 'react';
 
 export function AuthPanel() {
-  const data = useAppState((state) => state.authData);
-  const error = useAppState((state) => state.authError);
+  const data = useAuthState((state) => state.data);
+  const error = useAuthState((state) => state.error);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
     supabase.auth.signOut()
-      .then(() => {
-        console.log("loged out successful!");
+      .then((err) => {
+        if (err === null) {
+          console.log("loged out successful!");
+        } else {
+          console.log("log out failed! err:", err);
+          if (err?.error?.name === "AuthSessionMissingError") {
+            console.log("session is already terminated in supabase. good!");
+          }
+        }
         setIsLoggingOut(false);
       })
       .catch((err) => {

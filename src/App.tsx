@@ -10,7 +10,8 @@ import * as keymaps from '@/lib/keymaps';
 import { useTheme } from 'next-themes';
 import { PageViewType } from './types/types';
 import { useKeymapsState } from "@/store/keymapStore";
-import { useAuth } from './lib/useAuth';
+import { useAuthState } from "@/store/authStore";
+import { supabase } from '@/lib/supabase'
 
 const loadedCSS = new Set<string>();
 
@@ -48,7 +49,18 @@ function App() {
   const mainCal = useCalendarState((state) => state.mainCal);
   const secondCalendar = useCalendarState((state) => state.secondCal);
   const { setTheme, theme } = useTheme();
-  useAuth(); // Authentication
+  const fetchAuthClaims = useAuthState((state) => state.fetchClaims);
+
+  // Authentication
+  useEffect(() => {
+    fetchAuthClaims();
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, _session) => {
+      fetchAuthClaims();
+    });
+    return () => {
+      listener.subscription.unsubscribe();
+    };
+  }, []);
 
   const keymap = useKeymapsState((state) => state.keymap);
   useEffect(() => {

@@ -3,7 +3,7 @@ import { getDateViewInLocaleCalendar } from "@/lib/week";
 import { useCalendarState } from "@/store/calendarStore";
 import { useWeekState } from "@/store/weekStore";
 import { DateTime } from "luxon";
-import { useAppState } from "@/store/appStore";
+import { useAuthState } from "@/store/authStore";
 import { CloudIcon, CloudOffIcon } from "lucide-react";
 import { Button } from "./ui/button";
 
@@ -16,7 +16,7 @@ export default function HeaderContent({ title }: { title?: string }) {
   const today = getDateViewInLocaleCalendar(DateTime.now(), mainCal.locale.locale, mainCal.calendar, mainCal.locale.direction);
   // const today2 = getDateViewInLocaleCalendar(DateTime.now(), secondCal.locale.locale, secondCal.calendar, secondCal.locale.direction);
 
-  const session = useAppState((state) => state.authSession);
+  const session = useAuthState((state) => state.session);
 
   return (
     <div className="h-full flex items-center justify-between px-4 py-1">
