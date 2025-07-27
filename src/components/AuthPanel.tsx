@@ -14,6 +14,7 @@ export function AuthPanel() {
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
+    // todo: this is global (kills all sessions), make it local in the future.
     supabase.auth.signOut()
       .then((err) => {
         if (err === null) {
