@@ -75,8 +75,8 @@ export function SettingsAbout() {
   return (
     <div className="">
       {/*todo: <span>[thisweek logo]</span>*/}
-      <h1>This<span className="font-normal">Week</span> <span className="font-normal text-base">App</span></h1>
-      <span className="text-sm font-semibold">v{__APP_VERSION__}</span>
+      <h2 className="mt-2">This<span className="font-normal">Week</span> <span className="font-normal text-base">App</span></h2>
+      <span className="text-xs font-semibold">&nbsp;v{__APP_VERSION__}</span>
 
       <blockquote className="mt-6 border-l-2 pl-6 md:w-md italic text-sm">
         &quot;The story starts with you. It ends with you.
