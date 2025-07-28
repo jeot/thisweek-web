@@ -67,7 +67,6 @@ function List({ className }: { className?: string }) {
     item = { ...item, category: "project", ...i }
     return item;
   });
-  console.log(items);
   return <ListOfItemsContainer className={className} items={items} header="What is ThisWeek App?" />
 }
 
