@@ -10,20 +10,21 @@ export function SettingsKeymap() {
 
   function KeysDisplay({ keys, seperator }: { keys: Array<string>, seperator: string }) {
     return (keys.map((value, i) => {
-      return (<><Badge variant="secondary" className="font-semibold rounded-xs">
-        {value
-          .replace("escape", "Escape")
-          .replace("space", "Space")
-          .replace("up", "Up")
-          .replace("down", "Down")
-          .replace("right", "Right")
-          .replace("left", "Left")
-          .replace("ctrl", "Ctrl")
-          .replace("shift", "Shift")
-          .replace("+", " + ")}
-      </Badge>
+      return (<span key={"key-" + value + i}>
+        <Badge variant="secondary" className="font-semibold rounded-xs px-1">
+          {value
+            .replace("escape", "Escape")
+            .replace("space", "Space")
+            .replace("up", "Up")
+            .replace("down", "Down")
+            .replace("right", "Right")
+            .replace("left", "Left")
+            .replace("ctrl", "Ctrl")
+            .replace("shift", "Shift")
+            .replace("+", " + ")}
+        </Badge>
         {(i !== keys.length - 1) && <span>{seperator}</span>}
-      </>)
+      </span>)
     }))
   }
 
@@ -38,12 +39,12 @@ export function SettingsKeymap() {
         </TableHeader>
         <TableBody>
           {
-            keymaps.map((value) => {
+            keymaps.map((value, i) => {
               const keys = Array.isArray(value?.key) ? value.key :
                 (value.key !== undefined ? [value.key] : undefined);
               const sequence = value.sequence;
               return (
-                <TableRow>
+                <TableRow key={"table-row-key-" + i}>
                   <TableCell className="font-base">
                     {keys && <KeysDisplay keys={keys} seperator="&nbsp;or&nbsp;" />}
                     {sequence && <KeysDisplay keys={sequence} seperator="&nbsp;" />}
