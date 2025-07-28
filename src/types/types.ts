@@ -58,13 +58,15 @@ export interface ItemType {
   meta: Record<string, any> | null; // future: for rare/experimental fields, e.g., colors
   recurrence: null; // future
 
-  // future: syncing
+  // future: syncing & encryption
   createdAt: number;
   modifiedAt: number;
   deletedAt: number | null; // future: for deleting items with syncing
   version: number; // future: for syncing, conflict resolution, versioning, colaboration.
   syncedAt: number | null; // only for debugging
   modifiedBy: string // device ID
+  iv: string | null; // iv for encryption
+  encrypted: boolean;
 }
 
 // future: projects table
@@ -79,3 +81,15 @@ interface ProjectType {
   modifiedAt: number;
 }
 */
+
+export interface DeviceInfo {
+  key: string;     // always "deviceId" (you could use enum too)
+  value: string;   // the UUID
+}
+
+export interface EncryptionKeyEntry {
+  id: string;         // e.g., "local_dek"
+  encryptedKey: string; // base64 string
+  iv: string;           // base64 string
+}
+

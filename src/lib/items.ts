@@ -1,6 +1,5 @@
 import { ItemType } from "@/types/types";
-import { db } from "@/lib/db.ts";
-import { getOrCreateDeviceId } from "./db";
+import { db, getDeviceId } from "@/lib/db.ts";
 import { useWeekState } from "@/store/weekStore";
 import { useCalendarState } from "@/store/calendarStore";
 import { useAppState } from "@/store/appStore";
@@ -53,7 +52,7 @@ export function createNewItem(orderingNumber?: number): ItemType {
   const tzIANA = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Local';
   let order = { weekly: 0, project: 0 };
   if (orderingNumber !== undefined) order[category] = orderingNumber;
-  const modifiedBy = getOrCreateDeviceId();
+  const modifiedBy = getDeviceId();
 
   const newItem: ItemType = {
     id: -1,
@@ -89,6 +88,8 @@ export function createNewItem(orderingNumber?: number): ItemType {
     version: 1,
     syncedAt: null,
     modifiedBy: modifiedBy,
+    iv: null,
+    encrypted: false,
   };
   return newItem;
 }
@@ -145,7 +146,7 @@ export async function checkAndFixOrdering(items: ItemType[]) {
 
 export async function saveAsNewItem(item: ItemType) {
   item.modifiedAt = (new Date()).getTime();
-  item.modifiedBy = getOrCreateDeviceId();
+  item.modifiedBy = getDeviceId();
   console.log("trying to add new item...");
   const { id, ...newItem } = item; // this actually removes the id
   console.log("newItem:", newItem);
@@ -157,7 +158,7 @@ export async function saveAsNewItem(item: ItemType) {
 export async function applyEditingItem(item: ItemType) {
   item.version++;
   item.modifiedAt = (new Date()).getTime();
-  item.modifiedBy = getOrCreateDeviceId();
+  item.modifiedBy = getDeviceId();
   let returnId: number | null = null
   if ((await getExistingEdit())?.id === item.id) {
     try {
@@ -191,7 +192,7 @@ export async function applyEditingItem(item: ItemType) {
 
 export async function updateItem(item: ItemType) {
   item.modifiedAt = (new Date()).getTime();
-  item.modifiedBy = getOrCreateDeviceId();
+  item.modifiedBy = getDeviceId();
   if ((await getExistingEdit())?.id === item.id && (await getExistingEdit())?.uuid === item.uuid) {
     try {
       console.log("updating existingEdit...");
