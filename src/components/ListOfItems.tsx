@@ -5,6 +5,7 @@ import { CirclePlus } from "lucide-react";
 import { saveAsNewItem, applyEditingItem, cancelEditingItem, createExistingEditingItem, createNewEditingItem, createNewItem, deleteItem, getNewOrderingNumber, moveItemToSectionRelative, updateItem } from "@/lib/items";
 import { useActionListener } from "@/lib/useActionListener";
 import { ItemType } from "@/types/types";
+import { useCalendarState } from "@/store/calendarStore";
 import { useAppState } from "@/store/appStore";
 import { useWeekState } from "@/store/weekStore";
 import { cn } from "@/lib/utils";
@@ -51,6 +52,9 @@ export function ListOfItems({ className, items, newEdit, existingEdit, modifiabl
   const internalCopiedItem = useAppState((state) => state.internalCopiedItem);
   const setInternalCopiedItem = useAppState((state) => state.setInternalCopiedItem);
   const weekReference = useWeekState((state) => state.weekReference);
+  const mainCal = useCalendarState((state) => state.mainCal);
+
+  const defaultLocaleDirection = (mainCal.locale.direction === 'ltr');
 
   let allItems: Array<ItemType> = [];
   allItems.push(...items);
@@ -271,10 +275,12 @@ export function ListOfItems({ className, items, newEdit, existingEdit, modifiabl
     move('updown', 1);
   });
   useActionListener('move-right', () => {
-    move('leftright', 1);
+    if (defaultLocaleDirection) move('leftright', 1);
+    else move('leftright', -1);
   });
   useActionListener('move-left', () => {
-    move('leftright', -1);
+    if (defaultLocaleDirection) move('leftright', -1);
+    else move('leftright', 1);
   });
 
   async function handleOnItemActionCallback(action: ItemActionType, item: ItemType) {

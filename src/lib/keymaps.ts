@@ -55,7 +55,7 @@ export const KEYMAPS: Array<KeyMap> = [
   { group: "VIMMODE", sequence: ["space", "space"], fastTyping: [], action: 'toggle_status', desc: "Toggle Item Complete Status" },
   { group: "VIMMODE", sequence: ["d", "d"], fastTyping: [], action: 'delete', desc: "Delete Selected Item" },
   { group: "VIMMODE", sequence: ["y", "y"], fastTyping: [], action: 'copy', desc: "Copy Selected Item" },
-  { group: "VIMMODE", sequence: ["y", "a", "p"], fastTyping: ["", "y+a", "a+p,y+a+p"], action: 'copy_all_items_text', desc: "Copy All Items Text" }, // fix:
+  { group: "VIMMODE", sequence: ["y", "a", "p"], fastTyping: ["", "y+a", "a+p,y+a+p"], action: 'copy_all_items_text', desc: "Copy All Items Text" }, // todo:
 ]
 
 let listeners: Array<(action: Action) => void> = [];

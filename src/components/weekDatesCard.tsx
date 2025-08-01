@@ -20,11 +20,13 @@ function WeekDatesCard() {
   const defaultDirection = (weekView.direction === 'ltr');
 
   useActionListener('right', () => {
-    gotoWeekRelative(1);
+    if (defaultDirection) gotoWeekRelative(1);
+    else gotoWeekRelative(-1);
   });
 
   useActionListener('left', () => {
-    gotoWeekRelative(-1);
+    if (defaultDirection) gotoWeekRelative(-1);
+    else gotoWeekRelative(+1);
   });
 
   useActionListener('today', () => {
