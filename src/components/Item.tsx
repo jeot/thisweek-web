@@ -103,6 +103,7 @@ export function Item({ className, item, editing, selected, disableContextMenu, o
   }, [editing]);
 
   const handleKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (event: React.KeyboardEvent) => {
+    if (!editing) return;
     // ignore Enter with other mod-keys
     if (event.key === 'Enter' && (event.ctrlKey || event.altKey || event.metaKey)) {
       event.preventDefault();

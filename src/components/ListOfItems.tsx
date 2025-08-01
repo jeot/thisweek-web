@@ -209,6 +209,7 @@ export function ListOfItems({ className, items, newEdit, existingEdit, modifiabl
     const type = (item.type === 'todo') ? 'note' : 'todo';
     updateItem({ ...item, type: type });
   }
+
   useActionListener('toggle_type', () => {
     toggleItemType(selectedItem);
   });

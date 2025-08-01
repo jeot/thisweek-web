@@ -214,7 +214,7 @@ export async function updateItem(item: ItemType) {
       const existingItem = await db.items.get(item.id);
       if (existingItem?.id === item.id && existingItem?.uuid === item.uuid) {
         item.version++;
-        console.log("updating existing item...");
+        console.log("updating existing item..., id: ", item.id);
         const count = await db.items.update(item.id, { ...item });
         if (count) console.log(`update successful`);
         else console.log(`update error: Item not found!`);
