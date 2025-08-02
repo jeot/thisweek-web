@@ -1,4 +1,5 @@
-import { WeekdayNumbers } from "./types";
+import { CalendarLocaleType, LocaleType, WeekdayNumbers } from "./types";
+import localesJsonData from "@/types/localesJsonData.json"
 
 // Auto-generated calendar locale metadata
 export type CalendarType =
@@ -419,3 +420,28 @@ export const calendars: CalendarMeta[] = [
     ]
   }
 ];
+
+export const getCalendarLocaleWeekStartDay = (cal: CalendarType, loc?: string): CalendarLocaleType | undefined => {
+  // change to default locale (first item)
+  const locales = calendars.find((v) => v.name === cal)?.locales;
+  if (!locales) return undefined;
+  const locale = loc ? locales.find((v) => v.locale === loc) : locales[0];
+  if (!locale) return undefined;
+  const startWeekday = locale.startWeekday;
+  const localeValue = localesJsonData.find((v) => v.locale === locale.locale);
+  if (!localeValue) return undefined;
+
+  if (locale) {
+    return {
+      calendar: cal,
+      locale: localeValue as LocaleType,
+      weekStartsOn: startWeekday,
+    }
+  } else {
+    return undefined;
+  }
+}
+
+export const getFlagEmoji = (loc: string): string => {
+  return localesJsonData.find((v) => v.locale === loc)?.flag || "🇺🇳";
+}

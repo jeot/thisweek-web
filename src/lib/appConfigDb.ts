@@ -1,32 +1,9 @@
-import { CalendarLocaleType, LocaleType, WeekdayType } from '@/types/types';
+import { getCalendarLocaleWeekStartDay } from '@/types/calendarLocales';
+import { CalendarLocaleType, WeekdayType } from '@/types/types';
 import { DBSchema, openDB } from 'idb';
 
-const enUSLocale: LocaleType = {
-  locale: "en-US",
-  language: "English",
-  region: "United States",
-  nativeName: "English",
-  flag: "🇺🇸",
-  direction: "ltr"
-};
-
-import localesData from '@/types/locales.json'
-import { calendars } from '@/types/calendarLocales'
-const test_cal = 'hebrew';
-const test_default_loc = calendars.find((cal) => cal.name === test_cal)!;
-const test_loc_str = test_default_loc.locales[0].locale;
-const test_week_start = test_default_loc.locales[0].startWeekday;
-const test_locale: LocaleType = localesData.find((loc) => loc.locale === test_loc_str)! as LocaleType;
-
-const testCal: CalendarLocaleType = {
-  calendar: test_cal, locale: test_locale, weekStartsOn: test_week_start
-}
-
-export const DEFAULT_MAIN_CAL_LOC: CalendarLocaleType = {
-  calendar: 'gregory', locale: enUSLocale, weekStartsOn: 'mon'
-}
-
-export const DEFAULT_SECOND_CAL_LOC: CalendarLocaleType = testCal;
+export const DEFAULT_MAIN_CAL_LOC: CalendarLocaleType = getCalendarLocaleWeekStartDay('gregory')!;
+export const DEFAULT_SECOND_CAL_LOC: CalendarLocaleType = getCalendarLocaleWeekStartDay('chinese')!;
 
 const APP_CONFIG_DB = "app-config-db";
 const CONFIG_STORE = "app-config-store";
@@ -157,4 +134,3 @@ export async function saveAppConfigToIDBPartial(partial: Partial<AppConfig>) {
     console.log("catch error: ", err);
   }
 }
-
