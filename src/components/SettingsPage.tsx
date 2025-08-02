@@ -6,14 +6,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { SettingPageType, useAppState } from "@/store/appStore";
 import { SettingsAbout } from "./SettingsAbout";
 import { useMediaQuery } from "@/lib/useMediaQuery";
+import { useEffect, useRef } from "react";
 
 export function SettingsPage() {
   const settingPage = useAppState((state) => state.settingPage);
   const setSettingPage = useAppState((state) => state.setSettingPage);
   const isWideScreen = useMediaQuery("(min-width: 40rem)"); // tailwindcss defines 640px as 40rem
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   function handleTabChange(x: string) {
-    console.log(x)
     setSettingPage(x as SettingPageType)
   }
 
@@ -26,6 +27,14 @@ export function SettingsPage() {
     { name: "About", child: SettingsAbout },
   ];
   const SettingContent = settings.find((v) => { return (v.name === settingPage) })?.child!;
+
+
+  // todo: scroll to top don't work in tabs mode.
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = 0;
+    }
+  }, [settingPage]); // depends on settingPage change
 
   if (isWideScreen)
     return (
@@ -41,14 +50,16 @@ export function SettingsPage() {
             &nbsp;v{__APP_VERSION__}
           </p>
         </div>
-        <div className="flex-3 p-4 w-1 overflow-y-auto">
+        <div
+          ref={scrollRef}
+          className="flex-3 p-4 w-1 overflow-y-auto">
           <SettingContent />
         </div>
       </div>)
   else
     return (
-      <Tabs value={settingPage} className="p-2 h-full w-full" onValueChange={handleTabChange}>
-        <TabsList className="w-full gap-1">
+      <Tabs value={settingPage} className="h-full w-full gap-0" onValueChange={handleTabChange}>
+        <TabsList className="w-full gap-2 rounded-none">
           {settings.filter((v) => !v.hidden).map((v) => {
             return (
               <TabsTrigger key={v.name} value={v.name} className="hover:bg-primary/5">{v.name}</TabsTrigger>
@@ -58,8 +69,14 @@ export function SettingsPage() {
         {settings.filter((v) => !v.hidden).map((v) => {
           const Content = v.child;
           return (
-            <TabsContent key={v.name} value={v.name}>
-              <div className="p-1 overflow-y-auto">
+            <TabsContent
+              className="overflow-y-auto"
+              id="id-settings-tab-content"
+              key={v.name} value={v.name}
+            >
+              <div
+                className="p-2"
+              >
                 <Content />
               </div>
             </TabsContent>
