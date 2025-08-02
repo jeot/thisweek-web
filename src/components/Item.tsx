@@ -7,7 +7,7 @@ import { CheckIcon, XIcon } from "lucide-react";
 import TextareaAutosize from 'react-textarea-autosize';
 import { useTheme } from "next-themes";
 
-export type ItemActionType = "None" | "Edit" | "Copy" | "Paste" | "Delete" | "Update" | "Apply" | "Cancel" | "ContextMenuOpened" | "Move Up" | "Move Down" | "Move Next" | "Move Previous" | "Toggle Type";
+export type ItemActionType = "None" | "Edit" | "Copy" | "Paste" | "Delete" | "Update" | "Apply" | "Cancel" | "ContextMenuOpened" | "Move Up" | "Move Down" | "Move Next" | "Move Previous" | "Move Today" | "Toggle Type";
 
 type ContextMenuType = {
   name: string;
@@ -31,6 +31,7 @@ export function Item({ className, item, editing, editingPosition, selected, disa
         { name: "Move Down", variant: "default", action: 'Move Down' },
         { name: "Send to Next Week", variant: "default", action: 'Move Next' },
         { name: "Send to Previous Week", variant: "default", action: 'Move Previous' },
+        { name: "Send to This Week", variant: "default", action: 'Move Today' },
       ]
     },
     { name: "Seperator", separator: true, action: 'None' },

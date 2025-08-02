@@ -275,10 +275,15 @@ export async function checkEditingIntegrity() {
   }
 }
 
-export async function moveItemToSectionRelative(item: ItemType, offset: number) {
+export async function moveItemToSectionRelative(item: ItemType, offset: number, relativeToToday?: boolean) {
   if (item.category === "weekly") {
     const MILLISECONDS_IN_WEEK = 604800000;
-    const newSchedule = item.scheduledAt + (offset * MILLISECONDS_IN_WEEK);
+    let newSchedule = 0;
+    if (relativeToToday) {
+      newSchedule = (new Date()).getTime() + (offset * MILLISECONDS_IN_WEEK);
+    } else {
+      newSchedule = item.scheduledAt + (offset * MILLISECONDS_IN_WEEK);
+    }
     updateItem({
       ...item,
       scheduledAt: newSchedule,

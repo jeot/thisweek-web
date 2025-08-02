@@ -253,7 +253,7 @@ export function ListOfItems({ className, items, newEdit, existingEdit, modifiabl
     }
   });
 
-  function move(direction: 'updown' | 'leftright', offset: number) {
+  function move(direction: 'updown' | 'leftright', offset: number, relativeToToday: boolean = false) {
     if (!modifiable || !selectedItem) return;
     console.log("moving...", direction, offset, selectedItem);
     if (direction === 'updown') {
@@ -267,8 +267,8 @@ export function ListOfItems({ className, items, newEdit, existingEdit, modifiabl
     }
     if (direction === 'leftright') {
       console.log("leftright...");
-      moveItemToSectionRelative(selectedItem, offset);
-      gotoSectionRelative(offset);
+      moveItemToSectionRelative(selectedItem, offset, relativeToToday);
+      if (!relativeToToday) gotoSectionRelative(offset);
     }
   }
 
@@ -289,7 +289,7 @@ export function ListOfItems({ className, items, newEdit, existingEdit, modifiabl
   });
 
   async function handleOnItemActionCallback(action: ItemActionType, item: ItemType) {
-    const modifyingActions: Array<ItemActionType> = ["Edit", "Paste", "Delete", "Update", "Apply", "Move Up", "Move Down", "Move Next", "Move Previous"];
+    const modifyingActions: Array<ItemActionType> = ["Edit", "Paste", "Delete", "Update", "Apply", "Move Up", "Move Down", "Move Next", "Move Previous", "Move Today"];
     if (!modifiable && (modifyingActions.indexOf(action) >= 0)) return;
     // console.log("handleOnItemActionCallback:", action, item);
     if (action === "None") { /* have a tea. */ }
@@ -308,6 +308,7 @@ export function ListOfItems({ className, items, newEdit, existingEdit, modifiabl
     if (action === "Move Down") { move('updown', 1); }
     if (action === "Move Next") { move('leftright', 1); }
     if (action === "Move Previous") { move('leftright', -1); }
+    if (action === "Move Today") { move('leftright', 0, true); }
     if (action === "Toggle Type") {
       toggleItemType(item);
     }
