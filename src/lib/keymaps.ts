@@ -6,7 +6,7 @@ import hotkeys from 'hotkeys-js';
 // keys: A~Z, Enter, Delete, Space, Escape, ArrowUp, ArrowLeft, ArrowRight, ArrowDown
 // keys: sequence of keys (seperated with space)
 
-export type Action = 'today' | 'up' | 'down' | 'left' | 'right' | 'move-up' | 'move-down' | 'move-left' | 'move-right' | 'delete' | 'edit_start' | 'edit_end' | 'edit_all' | 'copy' | 'paste' | 'copy_all_items_text' | 'toggle_theme' | 'toggle_status' | 'toggle_type' | 'paste' | 'paste_above' | 'cancel' | 'create' | 'create_above' | 'todo';
+export type Action = 'today' | 'up' | 'down' | 'left' | 'right' | 'move-up' | 'move-down' | 'move-left' | 'move-right' | 'delete' | 'edit_start' | 'edit_end' | 'edit_select_all' | 'copy' | 'paste' | 'copy_all_items_text' | 'toggle_theme' | 'toggle_status' | 'toggle_type' | 'paste' | 'paste_above' | 'cancel' | 'create' | 'create_above' | 'todo';
 
 export type KeyMap = {
   mode?: "N" | "NI";
@@ -32,8 +32,8 @@ export const KEYMAPS: Array<KeyMap> = [
   { group: "GENERAL", key: ["ctrl+e"], fastTyping: [], action: 'edit_end', desc: "Edit Selected Item" },
   { group: "GENERAL", key: ["ctrl+c"], fastTyping: [], action: 'copy', desc: "Copy Selected Item" },
   { group: "GENERAL", key: ["ctrl+v"], fastTyping: [], action: 'paste', desc: "Paste Copied Item or Text from Clipboard" },
-  { group: "GENERAL", key: ["ctrl+g"], fastTyping: [], action: 'create', desc: "Create New Item (ToDo/Note)" },
-  { group: "GENERAL", key: ["ctrl+x"], fastTyping: [], action: 'toggle_type', desc: "Toggle Item Type (ToDo/Note)" },
+  { group: "GENERAL", key: ["ctrl+g"], fastTyping: [], action: 'create', desc: "Create New Item (Todo/Note)" },
+  { group: "GENERAL", key: ["ctrl+x"], fastTyping: [], action: 'toggle_type', desc: "Toggle Item Type (Todo/Note)" },
   { group: "GENERAL", key: "t", fastTyping: [], action: 'today', desc: "Go to Today" },
 
   { group: "VIMMODE", key: "k", fastTyping: ["j+k"], action: 'up', desc: "Select Previous Item" },
@@ -46,12 +46,13 @@ export const KEYMAPS: Array<KeyMap> = [
   { group: "VIMMODE", key: "ctrl+l", fastTyping: ["ctrl+h+l"], action: 'move-right', desc: "Move Selected Item to Next Week/Year/Section" },
   { group: "VIMMODE", key: ["i", "a", "shift+a"], fastTyping: [], action: 'edit_end', desc: "Edit Selected Item (caret at end)" },
   { group: "VIMMODE", key: "shift+i", fastTyping: [], action: 'edit_start', desc: "Edit Selected Item (caret at start)" },
+  { group: "VIMMODE", sequence: ["c", "c"], fastTyping: [], action: 'edit_select_all', desc: "Edit Selected Item (select all text)" },
   { group: "VIMMODE", key: "p", fastTyping: [], action: 'paste', desc: "Paste Copied Item or Text from Clipboard" },
   { group: "VIMMODE", key: "shift+p", fastTyping: [], action: 'paste_above', desc: "Paste Copied Item or Text from Clipboard (above selected item)" },
   { group: "VIMMODE", key: "o", fastTyping: [], action: 'create', desc: "Create New Item (bellow selected item)" },
   { group: "VIMMODE", key: "shift+o", fastTyping: [], action: 'create_above', desc: "Create New Item (above selected item)" },
   { group: "VIMMODE", sequence: ["space", "t"], fastTyping: ["", "space+t"], action: 'toggle_theme', desc: "Toggle Theme (Dark/Light)" },
-  { group: "VIMMODE", sequence: ["space", "x"], fastTyping: ["", "space+x"], action: 'toggle_type', desc: "Toggle Item Type (ToDo/Note)" },
+  { group: "VIMMODE", sequence: ["space", "x"], fastTyping: ["", "space+x"], action: 'toggle_type', desc: "Toggle Item Type (Todo/Note)" },
   { group: "VIMMODE", sequence: ["space", "space"], fastTyping: [], action: 'toggle_status', desc: "Toggle Item Complete Status" },
   { group: "VIMMODE", sequence: ["d", "d"], fastTyping: [], action: 'delete', desc: "Delete Selected Item" },
   { group: "VIMMODE", sequence: ["y", "y"], fastTyping: [], action: 'copy', desc: "Copy Selected Item" },

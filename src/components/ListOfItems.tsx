@@ -235,7 +235,7 @@ export function ListOfItems({ className, items, newEdit, existingEdit, modifiabl
     createExistingEditingItem(selectedItem);
   });
 
-  useActionListener('edit_all', () => {
+  useActionListener('edit_select_all', () => {
     if (!modifiable || !selectedItem) return;
     console.log("editing id:", selectedId);
     setEditingPosition('caret_select_all');

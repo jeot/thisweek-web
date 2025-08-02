@@ -87,16 +87,17 @@ export function Item({ className, item, editing, editingPosition, selected, disa
 
   useEffect(() => {
     if (editing) setTitle(item.title);
-    if (editing && textareaRef.current) {
-      const el = textareaRef.current;
+    const el = textareaRef.current;
+    if (editing && el) {
       requestAnimationFrame(() => {
         el.focus();
         if (editing && editingPosition === 'caret_start') el.setSelectionRange(0, 0); // Move caret to start
         else if (editing && editingPosition === 'caret_end') el.setSelectionRange(el.value.length, el.value.length); // Move caret to end
         else if (editing && editingPosition === 'caret_select_all') el.setSelectionRange(0, el.value.length); // Select all
-        else el.setSelectionRange(0, 0); // New item
+        else el.setSelectionRange(0, 0);
       });
     }
+    if (!editing && el) el.setSelectionRange(0, 0);
   }, [editing]);
 
   const handleKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (event: React.KeyboardEvent) => {

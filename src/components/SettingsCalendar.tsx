@@ -12,10 +12,10 @@ export function SettingsCalendar() {
 
   const mainCal = useCalendarState((state) => state.mainCal);
   const setMainCal = useCalendarState((state) => state.setMainCal);
-  const setMainCalLocale = useCalendarState((state) => state.setMainCalLocale);
+  // const setMainCalLocale = useCalendarState((state) => state.setMainCalLocale);
   const secondCal = useCalendarState((state) => state.secondCal);
   const setSecondCal = useCalendarState((state) => state.setSecondCal);
-  const setSecondCalLocale = useCalendarState((state) => state.setSecondCalLocale);
+  // const setSecondCalLocale = useCalendarState((state) => state.setSecondCalLocale);
   const secondCalEnabled = useCalendarState((state) => state.secondCalEnabled);
   const setSecondCalEnabled = useCalendarState((state) => state.setSecondCalEnabled);
 
