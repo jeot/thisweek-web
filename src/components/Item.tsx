@@ -17,8 +17,8 @@ type ContextMenuType = {
   action: ItemActionType;
 };
 
-export function Item({ className, item, editing, selected, disableContextMenu, onItemActionCallback, ...props }:
-  { item: ItemType, editing: boolean, selected?: boolean, disableContextMenu?: boolean, onItemActionCallback: (action: ItemActionType, item: ItemType) => void } & React.ComponentProps<"div">) {
+export function Item({ className, item, editing, editingPosition, selected, disableContextMenu, onItemActionCallback, ...props }:
+  { item: ItemType, editing: boolean, editingPosition: any, selected?: boolean, disableContextMenu?: boolean, onItemActionCallback: (action: ItemActionType, item: ItemType) => void } & React.ComponentProps<"div">) {
 
   const contextMenus: Array<ContextMenuType> = [
     { name: "Edit", variant: "default", action: 'Edit' },
@@ -45,7 +45,7 @@ export function Item({ className, item, editing, selected, disableContextMenu, o
       if (editing) {
         onItemActionCallback('Update', { ...item, title: title });
       }
-    }, 1000); // 1 second delay
+    }, 500); // 0.5 second delay
 
     return () => clearTimeout(timeout); // reset timer on each change
   }, [title, editing]);
@@ -91,13 +91,10 @@ export function Item({ className, item, editing, selected, disableContextMenu, o
       const el = textareaRef.current;
       requestAnimationFrame(() => {
         el.focus();
-        if (editing) el.setSelectionRange(el.value.length, el.value.length);
-        /*todo:
-        if (editing === 'caret_start') el.setSelectionRange(0, 0); // Move caret to start
-        if (editing === 'caret_end') el.setSelectionRange(el.value.length, el.value.length); // Move caret to end
-        if (editing === 'select_all') el.setSelectionRange(0, el.value.length); // Select all
-        if (editing === 'new_item') el.setSelectionRange(0, 0); // New item
-        */
+        if (editing && editingPosition === 'caret_start') el.setSelectionRange(0, 0); // Move caret to start
+        else if (editing && editingPosition === 'caret_end') el.setSelectionRange(el.value.length, el.value.length); // Move caret to end
+        else if (editing && editingPosition === 'caret_select_all') el.setSelectionRange(0, el.value.length); // Select all
+        else el.setSelectionRange(0, 0); // New item
       });
     }
   }, [editing]);
@@ -144,13 +141,14 @@ export function Item({ className, item, editing, selected, disableContextMenu, o
           dir={getSmartTextDirection(displayTitle)}
           className={cn(
             "relative rounded-md flex flex-row items-start w-full gap-0",
+            "hover:shadow-xs hover:bg-input/50 hover:dark:bg-input/30",
             `${selected && !editing ? "ring-1 ring-indigo-500" : ""}`,
             className
           )}
           {...props}
         >
           {item.type === 'todo' &&
-            <Button variant="ghost" className="mt-[0.2rem]" size="shk"
+            <Button variant="noHover" className="mt-[0.2rem]" size="shk"
               onClick={(event) => {
                 event.stopPropagation();
                 const newStatus = item.status === 'done' ? 'undone' : 'done';
@@ -160,7 +158,7 @@ export function Item({ className, item, editing, selected, disableContextMenu, o
               {item.status === 'done' ? <CircleCheckFilled /> : <CircleCheckEmpty />}
             </Button>}
           {item.type === 'note' &&
-            <Button variant="ghost" className="mt-[0.2rem]" size="shk"
+            <Button variant="noHover" className="mt-[0.2rem]" size="shk"
               onClick={(event) => {
                 event.stopPropagation();
               }}>
@@ -176,7 +174,9 @@ export function Item({ className, item, editing, selected, disableContextMenu, o
             className={cn(
               "border-input placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 flex field-sizing-content min-h-16 w-full rounded-md border bg-transparent px-2 py-2 text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50",
               "leading-relaxed resize-none h-auto min-h-1 flex-1 border-none overflow-hidden",
-              "shadow-none dark:shadow-none bg-transparent dark:bg-transparent hover:shadow-xs hover:bg-input/50 hover:dark:bg-input/30 transition-all duration-200",
+              "shadow-none dark:shadow-none bg-transparent dark:bg-transparent",
+              // "hover:shadow-xs hover:bg-input/50 hover:dark:bg-input/30",
+              "transition-all duration-200",
               `${editing ? "ring-ring/30 ring-3 focus-visible:ring-ring/50" : "focus-visible:ring-0 ring-0"}`)}
             readOnly={!editing}
             onChange={(ev) => setTitle(ev.target.value)}

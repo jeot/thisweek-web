@@ -77,7 +77,7 @@ export const calendars: CalendarMeta[] = [
       {
         "locale": "pt-BR",
         "displayName": "Portugu\u00eas (Brazil)",
-        "startWeekday": 1
+        "startWeekday": 0
       },
       {
         "locale": "ru-RU",
@@ -117,12 +117,12 @@ export const calendars: CalendarMeta[] = [
       {
         "locale": "ar-SA",
         "displayName": "\u0627\u0644\u0639\u0631\u0628\u064a\u0629 (Saudi Arabia)",
-        "startWeekday": 1
+        "startWeekday": 0
       },
       {
         "locale": "ar-EG",
         "displayName": "\u0627\u0644\u0639\u0631\u0628\u064a\u0629 (Egypt)",
-        "startWeekday": 1
+        "startWeekday": 6
       },
       {
         "locale": "pl-PL",
@@ -187,7 +187,7 @@ export const calendars: CalendarMeta[] = [
       {
         "locale": "id-ID",
         "displayName": "Bahasa Indonesia (Indonesia)",
-        "startWeekday": 1
+        "startWeekday": 0
       },
     ]
   },
@@ -219,7 +219,7 @@ export const calendars: CalendarMeta[] = [
       {
         "locale": "he-IL",
         "displayName": "\u05e2\u05d1\u05e8\u05d9\u05ea (Israel)",
-        "startWeekday": 1
+        "startWeekday": 0
       },
       {
         "locale": "en-US",
@@ -235,17 +235,17 @@ export const calendars: CalendarMeta[] = [
       {
         "locale": "ar-SA",
         "displayName": "\u0627\u0644\u0639\u0631\u0628\u064a\u0629 (Saudi Arabia)",
-        "startWeekday": 1
+        "startWeekday": 0
       },
       {
         "locale": "ar-EG",
         "displayName": "\u0627\u0644\u0639\u0631\u0628\u064a\u0629 (Egypt)",
-        "startWeekday": 1
+        "startWeekday": 6
       },
       {
         "locale": "ur-PK",
-        "displayName": "ur-PK",
-        "startWeekday": 1
+        "displayName": "اردو (Pakistan)",
+        "startWeekday": 0
       },
       {
         "locale": "en-US",
@@ -277,7 +277,7 @@ export const calendars: CalendarMeta[] = [
       {
         "locale": "hi-IN",
         "displayName": "\u0939\u093f\u0928\u094d\u0926\u0940 (India)",
-        "startWeekday": 1
+        "startWeekday": 0
       },
       {
         "locale": "en-US",
@@ -304,8 +304,13 @@ export const calendars: CalendarMeta[] = [
   },
   {
     "name": "iso8601",
-    "displayName": "ISO 8601", //Gregorian (ISO 8601 - Mon start)
+    "displayName": "ISO 8601", //Gregorian (ISO 8601 - always starts at Monday)
     "locales": [
+      {
+        "locale": "en-US",
+        "displayName": "English (United States)",
+        "startWeekday": 1
+      },
       {
         "locale": "en-GB",
         "displayName": "English (United Kingdom)",
@@ -330,11 +335,6 @@ export const calendars: CalendarMeta[] = [
         "locale": "fi-FI",
         "displayName": "Suomi (Finland)",
         "startWeekday": 1
-      },
-      {
-        "locale": "en-US",
-        "displayName": "English (United States)",
-        "startWeekday": 0
       }
     ]
   },
@@ -377,12 +377,12 @@ export const calendars: CalendarMeta[] = [
       {
         "locale": "ar-EG",
         "displayName": "\u0627\u0644\u0639\u0631\u0628\u064a\u0629 (Egypt)",
-        "startWeekday": 1
+        "startWeekday": 6
       },
       {
         "locale": "en-US",
         "displayName": "English (United States)",
-        "startWeekday": 0
+        "startWeekday": 6
       }
     ]
   },
@@ -393,7 +393,7 @@ export const calendars: CalendarMeta[] = [
       {
         "locale": "am-ET",
         "displayName": "\u12a0\u121b\u122d\u129b (Ethiopia)",
-        "startWeekday": 1
+        "startWeekday": 0
       },
       {
         "locale": "en-US",
@@ -409,7 +409,7 @@ export const calendars: CalendarMeta[] = [
       {
         "locale": "am-ET",
         "displayName": "\u12a0\u121b\u122d\u129b (Ethiopia)",
-        "startWeekday": 1
+        "startWeekday": 0
       },
       {
         "locale": "en-US",

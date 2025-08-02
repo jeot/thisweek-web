@@ -1,6 +1,6 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from "@/components/ui/select"
 import { CalendarMeta, calendars, CalendarType } from "@/types/calendarLocales"
-import locales from "@/types/locales.json"
+import localesJson from "@/types/locales.json"
 import { useCalendarState } from "@/store/calendarStore"
 import { LocaleType } from "@/types/types";
 import { Badge } from "./ui/badge";
@@ -22,25 +22,27 @@ export function SettingsCalendar() {
   const mainCalendarMeta = calendars.find((cal) => cal.name === mainCal.calendar);
   const secondCalendarMeta = calendars.find((cal) => cal.name === secondCal.calendar);
 
-  const getCalendarLocaleWeekStartDay = (cal: CalendarType) => {
+  const getCalendarLocaleWeekStartDay = (cal: CalendarType, loc?: string) => {
     // change to default locale (first item)
-    const defaultCalLocMeta = calendars.find((v) => v.name === cal)?.locales[0];
-    if (defaultCalLocMeta) {
-      const loc = defaultCalLocMeta.locale;
-      const startWeekday = defaultCalLocMeta.startWeekday;
-      const locale = locales.find((v) => v.locale === loc) as LocaleType | undefined;
-      if (locale) {
-        return {
-          calendar: cal,
-          locale: locale,
-          weekStartsOn: startWeekday,
-        }
+    const locales = calendars.find((v) => v.name === cal)?.locales;
+    if (!locales) return undefined;
+    const locale = loc ? locales.find((v) => v.locale === loc) : locales[0];
+    if (!locale) return undefined;
+    const startWeekday = locale.startWeekday;
+    const localeValue = localesJson.find((v) => v.locale === locale.locale);
+    if (!localeValue) return undefined;
+
+    if (locale) {
+      return {
+        calendar: cal,
+        locale: localeValue as LocaleType,
+        weekStartsOn: startWeekday,
       }
     }
-    return undefined;
+    else return undefined;
   }
 
-  const getLocaleTypeFromLocaleString = (loc: string) => locales.find((v) => v.locale === loc) as LocaleType | undefined;
+  // const getLocaleTypeFromLocaleString = (loc: string) => localesJson.find((v) => v.locale === loc) as LocaleType | undefined;
 
   const handleMainCalCalendarChange = (cal: CalendarType) => {
     const x = getCalendarLocaleWeekStartDay(cal);
@@ -48,8 +50,8 @@ export function SettingsCalendar() {
   }
 
   const handleMainCalLocaleChange = (loc: string) => {
-    const x = getLocaleTypeFromLocaleString(loc);
-    if (x) setMainCalLocale(x);
+    const x = getCalendarLocaleWeekStartDay(mainCal.calendar, loc);
+    if (x) setMainCal(x);
   }
 
   const handleSecondCalCalendarChange = (cal: CalendarType) => {
@@ -57,8 +59,8 @@ export function SettingsCalendar() {
     if (x) setSecondCal(x);
   }
   const handleSecondCalLocaleChange = (loc: string) => {
-    const x = getLocaleTypeFromLocaleString(loc);
-    if (x) setSecondCalLocale(x);
+    const x = getCalendarLocaleWeekStartDay(secondCal.calendar, loc);
+    if (x) setSecondCal(x);
   }
 
   const CalendarSelector = ({ disabled, selected, onChange, ...props }: { disabled?: boolean, selected: CalendarType, onChange: (cal: CalendarType) => void }) => {
@@ -88,7 +90,7 @@ export function SettingsCalendar() {
         </SelectTrigger>
         <SelectContent>
           {calendarMeta?.locales.map((calLocMeta, index) => {
-            const flag = locales.find((v) => v.locale === calLocMeta.locale)?.flag;
+            const flag = localesJson.find((v) => v.locale === calLocMeta.locale)?.flag;
             return (
               <SelectItem key={index} className="w-full flex items-center" value={calLocMeta.locale}>
                 <div className="flex-1 text-left">{calLocMeta.displayName}</div>

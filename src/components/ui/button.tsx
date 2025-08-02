@@ -21,6 +21,8 @@ const buttonVariants = cva(
           "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
         ghost_dim:
           "text-foreground/20 hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
+        noHover:
+          "bg-none hover:bg-none hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
         shk:
           "hover:shadow-xs hover:border hover:border-s-4 border-indigo-500 hover:text-accent-foreground",

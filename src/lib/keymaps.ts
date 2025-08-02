@@ -44,7 +44,7 @@ export const KEYMAPS: Array<KeyMap> = [
   { group: "VIMMODE", key: "ctrl+j", fastTyping: ["ctrl+k+j"], action: 'move-down', desc: "Move Selected Item Down" },
   { group: "VIMMODE", key: "ctrl+h", fastTyping: ["ctrl+l+h"], action: 'move-left', desc: "Move Selected Item to Previous Week/Year/Section" },
   { group: "VIMMODE", key: "ctrl+l", fastTyping: ["ctrl+h+l"], action: 'move-right', desc: "Move Selected Item to Next Week/Year/Section" },
-  { group: "VIMMODE", key: ["i", "a", "A"], fastTyping: [], action: 'edit_end', desc: "Edit Selected Item (caret at end)" },
+  { group: "VIMMODE", key: ["i", "a", "shift+a"], fastTyping: [], action: 'edit_end', desc: "Edit Selected Item (caret at end)" },
   { group: "VIMMODE", key: "shift+i", fastTyping: [], action: 'edit_start', desc: "Edit Selected Item (caret at start)" },
   { group: "VIMMODE", key: "p", fastTyping: [], action: 'paste', desc: "Paste Copied Item or Text from Clipboard" },
   { group: "VIMMODE", key: "shift+p", fastTyping: [], action: 'paste_above', desc: "Paste Copied Item or Text from Clipboard (above selected item)" },

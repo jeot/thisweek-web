@@ -205,6 +205,7 @@ export interface WeekViewType {
 export function buildFullWeekView(refMillisUTC: number, mainCal: CalendarLocaleType, secondCal: CalendarLocaleType, secondCalEnabled: boolean): WeekViewType {
   const dt = DateTime.fromMillis(refMillisUTC);
   // console.log(dt.toString());
+  console.log("mainCal.weekStartsOn:", mainCal.weekStartsOn);
   const weekStartsOn = getWeekdayNumber(mainCal.weekStartsOn); // should be same for both date views
   const direction = mainCal.locale.direction; // should be same for both date views
   const dates = getDateViewsInLocaleCalendarOfWeekLocal(

@@ -56,7 +56,7 @@ function WeekDatesCard() {
         }}
       >
         <CardHeader className="gap-0">
-          <CardTitle className="text-sm">{weekView.weekTitle}</CardTitle>
+          <CardTitle className="text-sm font-normal">{weekView.weekTitle}</CardTitle>
           <CardDescription className="text-xs">{weekView.weekDescription}</CardDescription>
         </CardHeader>
         {/*<CardHeader>

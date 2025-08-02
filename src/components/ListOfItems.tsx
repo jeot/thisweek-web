@@ -54,6 +54,8 @@ export function ListOfItems({ className, items, newEdit, existingEdit, modifiabl
   const weekReference = useWeekState((state) => state.weekReference);
   const mainCal = useCalendarState((state) => state.mainCal);
 
+  const [editingPosition, setEditingPosition] = useState<'caret_start' | 'caret_end' | 'caret_select_all' | null>(null);
+
   const defaultLocaleDirection = (mainCal.locale.direction === 'ltr');
 
   let allItems: Array<ItemType> = [];
@@ -222,18 +224,21 @@ export function ListOfItems({ className, items, newEdit, existingEdit, modifiabl
   useActionListener('edit_start', () => {
     if (!modifiable || !selectedItem) return;
     console.log("editing id:", selectedId);
+    setEditingPosition('caret_start');
     createExistingEditingItem(selectedItem);
   });
 
   useActionListener('edit_end', () => {
     if (!modifiable || !selectedItem) return;
     console.log("editing id:", selectedId);
+    setEditingPosition('caret_end');
     createExistingEditingItem(selectedItem);
   });
 
   useActionListener('edit_all', () => {
     if (!modifiable || !selectedItem) return;
     console.log("editing id:", selectedId);
+    setEditingPosition('caret_select_all');
     createExistingEditingItem(selectedItem);
   });
 
@@ -321,14 +326,16 @@ export function ListOfItems({ className, items, newEdit, existingEdit, modifiabl
   return (
     <div className={cn("flex flex-col flex-1 w-full items-center gap-0", className)}>
       {allItems.map((item) => {
+        const displayItem = ((newEdit?.id === item.id) && newEdit) || ((existingEdit?.id === item.id) && existingEdit) || item;
         const editing = modifiable ? ((newEdit?.id === item.id) || (existingEdit?.id === item.id)) : false;
         const selected = (!newEdit && !existingEdit && (selectedId === item.id));
         return (
           <Item
             key={item.id}
             id={`item-id-${item.id}`}
-            item={item}
+            item={displayItem}
             editing={editing}
+            editingPosition={editing && editingPosition || null}
             selected={selected}
             disableContextMenu={editing}
             onItemActionCallback={handleOnItemActionCallback}
