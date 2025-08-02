@@ -63,14 +63,14 @@ export function ThisWeekPage() {
 
   return (
     <div ref={boxRef}
-      className="flex flex-col w-full min-h-full flex-1 gap-4 items-center"
+      className="flex flex-col w-full min-h-full flex-1 gap-2 items-center"
       onContextMenu={() => console.log("week page onContextMenu")}
     >
-      <div className="flex w-full justify-center mb-2">
+      <div className="flex w-full justify-center">
         <WeekDatesCard />
       </div>
       {/* container for list of items */}
-      <ListOfItemsContainer items={items} newEdit={newEdit} existingEdit={existingEdit} modifiable header={"Tasks & Notes"} />
+      <ListOfItemsContainer className="" items={items} newEdit={newEdit} existingEdit={existingEdit} modifiable />
     </div>
   );
 }
