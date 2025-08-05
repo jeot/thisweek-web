@@ -363,7 +363,7 @@ export function ListOfItems({ className, items, newEdit, existingEdit, modifiabl
 
 export function ListOfItemsContainer({ className, items, newEdit, existingEdit, modifiable, header }: { header?: string } & ListOfItemsProps) {
   return (
-    <div className={cn("flex flex-col min-w-64 w-full md:w-xl items-center p-2 gap-2", className)}>
+    <div className={cn("flex flex-col min-w-64 w-full md:w-2xl items-center p-2 gap-2", className)}>
       {header && <h3 className="text-primary/30">{header}</h3>}
       <ListOfItems items={items} newEdit={newEdit} existingEdit={existingEdit} modifiable={modifiable} />
     </ div>
