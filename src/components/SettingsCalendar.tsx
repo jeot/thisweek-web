@@ -4,6 +4,8 @@ import { useCalendarState } from "@/store/calendarStore"
 import { Badge } from "./ui/badge";
 import { Switch } from "@/components/ui/switch"
 import { WeekDatesCard } from "./weekDatesCard";
+import { WeekdayString } from "@/types/types";
+import { getWeekdayString } from "@/lib/week";
 
 
 export function SettingsCalendar() {
@@ -26,6 +28,10 @@ export function SettingsCalendar() {
   const handleMainCalLocaleChange = (loc: string) => {
     const x = getCalendarLocaleWeekStartDay(mainCal.calendar, loc);
     if (x) setMainCal(x);
+  }
+
+  const handleMainCalWeekStartDayChange = (startDay: WeekdayString) => {
+    setMainCal({ ...mainCal, weekStartsOn: startDay });
   }
 
   const handleSecondCalCalendarChange = (cal: CalendarType) => {
@@ -77,12 +83,38 @@ export function SettingsCalendar() {
     );
   }
 
+  const defaultWeekStartDay: WeekdayString = getWeekdayString(getCalendarLocaleWeekStartDay(mainCal.calendar, mainCal.locale.locale)?.weekStartsOn || 0);
+  const currentWeekStartDay = getWeekdayString(mainCal.weekStartsOn);
+
+  console.log("defaultWeekStartDay", defaultWeekStartDay);
+  console.log("currentWeekStartDay", currentWeekStartDay);
+
+  const WeekStartDaySelector = ({ selected, defaultDay, onChange, ...props }: { selected: WeekdayString, defaultDay: WeekdayString, onChange: (startDay: WeekdayString) => void }) => {
+    return (
+      <Select value={selected} onValueChange={onChange} {...props}>
+        <SelectTrigger className="w-full max-w-sm">
+          <SelectValue placeholder="Select start day of the week" />
+        </SelectTrigger>
+        <SelectContent>
+          {['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'].map((weekday, index) => {
+            return (
+              <SelectItem key={index} className="" value={weekday}>
+                <div className="flex-1 text-left">{weekday}{weekday === defaultDay && '*'}</div>
+              </SelectItem>
+            )
+          })}
+        </SelectContent>
+      </Select>
+    );
+  }
+
   return (
     <div className="flex flex-col items-stretch gap-3">
       <h2 className="mt-2">Main Calendar</h2>
 
       <CalendarSelector selected={mainCal.calendar} onChange={handleMainCalCalendarChange} />
       <LocaleSelector selected={mainCal.locale.locale} calendarMeta={mainCalendarMeta} onChange={handleMainCalLocaleChange} />
+      <WeekStartDaySelector selected={currentWeekStartDay} defaultDay={defaultWeekStartDay} onChange={handleMainCalWeekStartDayChange} />
 
       <div className="flex items-baseline space-x-5">
         <h2 className="mt-4">Second Calendar</h2>

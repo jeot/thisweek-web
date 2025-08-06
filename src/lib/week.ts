@@ -1,4 +1,4 @@
-import { CalendarLocaleType, weekdayMap, WeekdayNumbers, WeekdayType } from "@/types/types";
+import { CalendarLocaleType, weekdayMap, WeekdayNumbers, WeekdayString, WeekdayType } from "@/types/types";
 import { DateTime } from "luxon";
 
 // todo: change all referenceDate from DateTime to millis timestamp (number)
@@ -258,4 +258,15 @@ function getWeekdayNumber(weekStartsOn: WeekdayType): WeekdayNumbers {
     weekStartsOnNumber = weekStartsOn;
   }
   return weekStartsOnNumber;
+}
+
+export function getWeekdayString(weekday: WeekdayType): WeekdayString {
+  if (typeof weekday === 'string') { // value is of type WeekdayString
+    return weekday;
+  } else if (typeof weekday === 'number') { // value is of type WeekdayString
+    const x: WeekdayString = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'][weekday];
+    return x;
+  } else { // value is of type WeekdayNumbers
+    return 'sun';
+  }
 }
