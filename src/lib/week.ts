@@ -264,8 +264,7 @@ export function getWeekdayString(weekday: WeekdayType): WeekdayString {
   if (typeof weekday === 'string') { // value is of type WeekdayString
     return weekday;
   } else if (typeof weekday === 'number') { // value is of type WeekdayString
-    const x: WeekdayString = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'][weekday];
-    return x;
+    return ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'][weekday] as WeekdayString;
   } else { // value is of type WeekdayNumbers
     return 'sun';
   }

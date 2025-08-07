@@ -88,18 +88,26 @@ export function SettingsCalendar() {
 
   console.log("defaultWeekStartDay", defaultWeekStartDay);
   console.log("currentWeekStartDay", currentWeekStartDay);
+  const weekdaysArray = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+  const weekdaysDisplayArray = ['Sunday', 'Monday', 'Tuesday', 'Wednsday', 'Thursday', 'Friday', 'Saturday'];
+  const index = weekdaysArray.indexOf(currentWeekStartDay);
+  const currentWeekStartDayDisplay = weekdaysDisplayArray[index >= 0 ? index : 0]
 
   const WeekStartDaySelector = ({ selected, defaultDay, onChange, ...props }: { selected: WeekdayString, defaultDay: WeekdayString, onChange: (startDay: WeekdayString) => void }) => {
     return (
       <Select value={selected} onValueChange={onChange} {...props}>
         <SelectTrigger className="w-full max-w-sm">
-          <SelectValue placeholder="Select start day of the week" />
+          {/*<SelectValue placeholder="Select start day of the week" />*/}
+          {currentWeekStartDayDisplay}
         </SelectTrigger>
         <SelectContent>
-          {['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'].map((weekday, index) => {
+          {weekdaysArray.map((weekday, index) => {
             return (
               <SelectItem key={index} className="" value={weekday}>
-                <div className="flex-1 text-left">{weekday}{weekday === defaultDay && '*'}</div>
+                <div className="flex-1 text-left">
+                  {weekdaysDisplayArray[index]}
+                  {weekday === defaultDay && <span className="text-primary/50"> (Default)</span>}
+                </div>
               </SelectItem>
             )
           })}
