@@ -6,7 +6,7 @@ import packageJson from './package.json'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: '/app/',
+  base: '/',
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
