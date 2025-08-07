@@ -5,7 +5,7 @@ import App from './App.tsx'
 import { loadGA } from './ga';
 import { AppInitializer } from './AppInitializer.tsx';
 
-console.log(`ThisWeek App v${__APP_VERSION__}`);
+console.log(`* ThisWeek App v${__APP_VERSION__}`);
 
 // Load GA only in production and if ID is provided
 if (import.meta.env.PROD && import.meta.env.VITE_GA_ID) {
