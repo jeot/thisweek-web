@@ -5,7 +5,7 @@ import App from './App.tsx'
 import { loadGA } from './ga';
 import { AppInitializer } from './AppInitializer.tsx';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { LandingPage } from '@/LandingPage'
+// import { LandingPage } from '@/LandingPage'
 
 console.log(`* ThisWeek App v${__APP_VERSION__}`);
 
