@@ -100,9 +100,8 @@ export function ListOfItems({ className, items, newEdit, existingEdit, modifiabl
     if (!modifiable) return;
     try {
       console.log("trying to get the text from clipboard...");
-      const result = await navigator.permissions.query({ name: 'clipboard-read' as PermissionName });
-      console.log("permission: ", result.state); // 'granted', 'denied', or 'prompt'
-
+      // const result = await navigator.permissions.query({ name: 'clipboard-read' as PermissionName });
+      // console.log("permission: ", result.state); // 'granted', 'denied', or 'prompt'
       let text = await navigator.clipboard.readText();
       console.log("pasting text: ", text);
       if (text.trim().length == 0) {
@@ -133,6 +132,7 @@ export function ListOfItems({ className, items, newEdit, existingEdit, modifiabl
       const newItemPosition = getNewOrderingNumber(items, index, index + 1, "weekly")
       if (internalCopy && internalCopiedItem) {
         let newItem = internalCopiedItem;
+        newItem.category = "weekly";
         newItem.order["weekly"] = newItemPosition;
         newItem.scheduledAt = weekReference;
         newItem.deletedAt = null;

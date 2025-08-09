@@ -279,7 +279,7 @@ export async function moveItemToSectionRelative(item: ItemType, offset: number, 
   if (item.category === "weekly") {
     const MILLISECONDS_IN_WEEK = 604800000;
     let newSchedule = 0;
-    if (relativeToToday) {
+    if (relativeToToday === true) {
       newSchedule = (new Date()).getTime() + (offset * MILLISECONDS_IN_WEEK);
     } else {
       newSchedule = item.scheduledAt + (offset * MILLISECONDS_IN_WEEK);
