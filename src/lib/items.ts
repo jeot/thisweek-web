@@ -3,6 +3,7 @@ import { db, getDeviceId } from "@/lib/db.ts";
 import { useWeekState } from "@/store/weekStore";
 import { useCalendarState } from "@/store/calendarStore";
 import { useAppState } from "@/store/appStore";
+import { MILLISECONDS_IN_WEEK } from '@/lib/week';
 
 // save editing item for temporary edit
 async function saveEditingItem(item: ItemType, editingKey: 'editing_new' | 'editing_existing') {
@@ -101,6 +102,7 @@ export async function getItemsInWeeklyRange(startUtcMillis: number, endUtcMillis
       .where('scheduledAt')
       .between(startUtcMillis, endUtcMillis, true, true)
       .and((x) => x.deletedAt === null)
+      .and((x) => x.category === 'weekly')
       .sortBy('order.weekly')
 
     // Return result
@@ -277,7 +279,6 @@ export async function checkEditingIntegrity() {
 
 export async function moveItemToSectionRelative(item: ItemType, offset: number, relativeToToday?: boolean) {
   if (item.category === "weekly") {
-    const MILLISECONDS_IN_WEEK = 604800000;
     let newSchedule = 0;
     if (relativeToToday === true) {
       newSchedule = (new Date()).getTime() + (offset * MILLISECONDS_IN_WEEK);
@@ -306,4 +307,31 @@ export function getNewOrderingNumber(items: ItemType[], index: number, nextIndex
   const x = items[index]?.order[section];
   const y = items[nextIndex]?.order[section];
   return (x + y) / 2;
+}
+
+const list: Array<{
+  id: number;
+  title: string;
+  week: number;
+  type: 'todo' | 'note';
+  status: 'done' | 'undone' | 'pending' | 'blocked' | 'canceled';
+}> = [
+    { id: 0, type: 'todo', status: 'undone', week: 0, title: "Check me off. ✅" },
+    { id: 0, type: 'note', status: 'undone', week: 0, title: "No need to delete tasks. They stay in your weekly history." },
+    { id: 0, type: 'note', status: 'undone', week: 0, title: "What is the most important thing you have to do this week?" },
+    { id: 0, type: 'todo', status: 'undone', week: 0, title: "🚩 Add your first task. Tap “New Item” and plan something for this week." },
+    { id: 0, type: 'note', status: 'undone', week: 0, title: "Use ⬆️ ⬇️ for item selection, ⬅️ ➡️ for navigating other weeks." },
+    { id: 0, type: 'todo', status: 'undone', week: 0, title: "✏️ Edit this task. Select and press “Enter” to start editing." },
+    { id: 0, type: 'note', status: 'undone', week: 1, title: "Here is your next week!" },
+    { id: 0, type: 'todo', status: 'undone', week: 1, title: "Do one workout session this week. 💪" },
+    { id: 0, type: 'note', status: 'undone', week: 1, title: "Visit the Keymaps section in Settings for all keyboard shortcuts. ⌨️" },
+  ];
+
+export async function insertOnboardingTasks() {
+  list.forEach((item) => {
+    let newitem = createNewItem();
+    const meta = { onboarding: true }; // for later to avoid syncing! or deleting these items when logged in!
+    newitem = { ...newitem, type: item.type, status: item.status, title: item.title, meta: meta, scheduledAt: (new Date()).getTime() + (item.week * MILLISECONDS_IN_WEEK) };
+    saveAsNewItem(newitem);
+  });
 }

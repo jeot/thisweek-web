@@ -1,6 +1,8 @@
 import { CalendarLocaleType, weekdayMap, WeekdayNumbers, WeekdayString, WeekdayType } from "@/types/types";
 import { DateTime } from "luxon";
 
+export const MILLISECONDS_IN_WEEK = 604800000;
+
 // todo: change all referenceDate from DateTime to millis timestamp (number)
 // this is must for all db quary and week range setting will be based on millis timestamp
 

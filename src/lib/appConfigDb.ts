@@ -32,6 +32,7 @@ interface AppConfig {
     autoFetchEnabled: boolean;
   };
   sidebarCollapsed: boolean;
+  hasSeededOnboarding: boolean;
 }
 
 interface AppDB extends DBSchema {
@@ -43,7 +44,7 @@ interface AppDB extends DBSchema {
 
 const DEFAULT_APP_CONFIG: AppConfig = {
   theme: {
-    mode: 'light',
+    mode: 'dark',
     custom: undefined
   },
   mainCalendar: DEFAULT_MAIN_CAL_LOC,
@@ -60,6 +61,7 @@ const DEFAULT_APP_CONFIG: AppConfig = {
     autoFetchEnabled: false
   },
   sidebarCollapsed: true,
+  hasSeededOnboarding: false,
 };
 
 const db = openDB<AppDB>(APP_CONFIG_DB, 1, {
@@ -92,17 +94,20 @@ const db = openDB<AppDB>(APP_CONFIG_DB, 1, {
 export async function getAppConfigFromIDB(): Promise<AppConfig | undefined> {
   try {
     // console.log("geting config...");
-    const result = (await db).get(CONFIG_STORE, USER_APP_CONFIG_KEY);
-    return result;
+    const result = await (await db).get(CONFIG_STORE, USER_APP_CONFIG_KEY);
+    console.log("result:", result);
+    // there might be new default keys added later in the development. fill them in saved config.
+    return { ...DEFAULT_APP_CONFIG, ...result };
   } catch (err) {
     console.log("catch error: ", err);
+    return undefined;
   }
 }
 
 async function saveAppConfigToIDB(value: AppConfig) {
   try {
     console.log("saving config... ", value);
-    return (await db).put(CONFIG_STORE, value, USER_APP_CONFIG_KEY);
+    await (await db).put(CONFIG_STORE, value, USER_APP_CONFIG_KEY);
   } catch (err) {
     console.log("catch error: ", err);
   }
@@ -113,7 +118,7 @@ export async function ensureValidAppConfig() {
     const existing = await getAppConfigFromIDB();
     if (!existing) {
       console.log("no config found! saving default...");
-      await saveAppConfigToIDBPartial(DEFAULT_APP_CONFIG);
+      await saveAppConfigToIDB(DEFAULT_APP_CONFIG);
     }
   } catch (err) {
     console.log("catch error: ", err);

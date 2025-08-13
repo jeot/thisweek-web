@@ -1,6 +1,5 @@
+import { MILLISECONDS_IN_WEEK } from '@/lib/week';
 import { create } from 'zustand';
-
-const MILLISECONDS_IN_WEEK = 604800000;
 
 type WeekState = {
 	[x: string]: any;
