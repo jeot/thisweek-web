@@ -1,5 +1,4 @@
 import { useState } from "react"
-import { useTheme } from 'next-themes';
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetTrigger, SheetContent, SheetClose, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet"
 import { Menu, CheckCheck, Settings } from "lucide-react"
@@ -9,6 +8,7 @@ import HeaderContent from "./HeaderContent";
 import { PageViewType } from "@/types/types";
 import { cn } from "@/lib/utils";
 import { useAppState } from "@/store/appStore";
+import { useThemeState } from "@/store/themeStore";
 
 
 export function SidebarLayout({ children, onMenuClick, activeView, title }: { children: React.ReactNode, onMenuClick: (view: PageViewType) => void, activeView: PageViewType, title: string }) {
@@ -18,9 +18,10 @@ export function SidebarLayout({ children, onMenuClick, activeView, title }: { ch
   const [open, setOpen] = useState(false); // only for sheet on mobile
   const collapsed = useAppState((state) => state.sidebarCollapsed);
   const setCollapsed = useAppState((state) => state.setSidebarCollapsed);
-  const { setTheme, theme } = useTheme();
+  const toggleTheme = useThemeState((state) => state.toggleTheme);
+  const theme = useThemeState((state) => state.theme);
   if (!theme) return;
-  const ThemeIcon = (theme === 'light') ? Moon : Sun;
+  const ThemeIcon = (theme.mode === 'light') ? Moon : Sun;
 
   const menuItems = [
     { icon: CheckCheck, label: "This Week", onClick: () => { onMenuClick('This Week') } },
@@ -28,7 +29,7 @@ export function SidebarLayout({ children, onMenuClick, activeView, title }: { ch
     // { icon: ListTodo, label: "Projects", onClick: () => { onMenuClick('Projects') } },
     { icon: null, label: "Spacer", onClick: () => { } },
     { icon: Settings, label: "Settings", onClick: () => { onMenuClick('Settings') } },
-    { icon: ThemeIcon, label: theme === 'light' ? 'Dark' : 'Light', onClick: () => setTheme(theme === 'light' ? 'dark' : 'light') },
+    { icon: ThemeIcon, label: theme.mode === 'light' ? 'Dark' : 'Light', onClick: () => toggleTheme() },
   ]
 
   return (

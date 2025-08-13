@@ -15,7 +15,7 @@ interface AppConfig {
     custom?: {
       font?: string;
       size?: string;
-      colorScheme?: string;
+      colorScheme: string;
     };
   };
   mainCalendar: CalendarLocaleType;
@@ -95,7 +95,6 @@ export async function getAppConfigFromIDB(): Promise<AppConfig | undefined> {
   try {
     // console.log("geting config...");
     const result = await (await db).get(CONFIG_STORE, USER_APP_CONFIG_KEY);
-    console.log("result:", result);
     // there might be new default keys added later in the development. fill them in saved config.
     return { ...DEFAULT_APP_CONFIG, ...result };
   } catch (err) {

@@ -4,10 +4,9 @@ import { ensureValidAppConfig, getAppConfigFromIDB, saveAppConfigToIDBPartial } 
 import { useCalendarState } from "@/store/calendarStore";
 import { useKeymapsState } from "@/store/keymapStore";
 import { useAppState } from "@/store/appStore";
-import { insertOnboardingTasks } from './lib/items';
+import { getItemsCount, insertOnboardingTasks } from './lib/items';
 import { initDeviceId } from './lib/db';
-import { useTheme } from 'next-themes';
-
+import { useThemeState } from './store/themeStore';
 
 export function AppInitializer({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false);
@@ -16,13 +15,15 @@ export function AppInitializer({ children }: { children: React.ReactNode }) {
   const setSecondCalEnabled = useCalendarState((state) => state.setSecondCalEnabled);
   const setKeymap = useKeymapsState((state) => state.setKeymap);
   const setSidebarCollapsed = useAppState((state) => state.setSidebarCollapsed);
-  const { setTheme } = useTheme();
+  const setTheme = useThemeState((state) => state.setTheme);
 
   async function loadConfig() {
     try {
+      console.log("loading config from disk...");
       await initDeviceId();
       await ensureValidAppConfig();
       const config = await getAppConfigFromIDB();
+      const hasItems = (await getItemsCount()) > 0;
       console.log("saved config: ", config);
       if (config) {
         setMainCal(config.mainCalendar, false);
@@ -30,10 +31,10 @@ export function AppInitializer({ children }: { children: React.ReactNode }) {
         setSecondCalEnabled(config.secondCalendarEnabled, false);
         setKeymap(config.keymap, false);
         setSidebarCollapsed(config.sidebarCollapsed, false);
-        setTheme(config.theme.mode); // from useThemeStore
+        setTheme(config.theme, false);
         // ... repeat for other configs
         // check if it's not seeded bofore (first time user)
-        if (!config.hasSeededOnboarding) {
+        if (!config.hasSeededOnboarding && !hasItems) {
           await insertOnboardingTasks();
           await saveAppConfigToIDBPartial({ hasSeededOnboarding: true });
         }

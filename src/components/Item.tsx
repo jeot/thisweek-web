@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "./ui/button";
 import { CheckIcon, XIcon } from "lucide-react";
 import TextareaAutosize from 'react-textarea-autosize';
-import { useTheme } from "next-themes";
+import { useThemeState } from "@/store/themeStore";
 
 export type ItemActionType = "None" | "Edit" | "Copy" | "Paste" | "Delete" | "Update" | "Apply" | "Cancel" | "ContextMenuOpened" | "Move Up" | "Move Down" | "Move Next" | "Move Previous" | "Move Today" | "Toggle Type";
 
@@ -40,6 +40,7 @@ export function Item({ className, item, editing, editingPosition, selected, disa
 
   const [title, setTitle] = useState<string>(item.title);
   const displayTitle = editing ? title : item.title;
+  const theme = useThemeState((state) => state.theme);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -51,9 +52,8 @@ export function Item({ className, item, editing, editingPosition, selected, disa
     return () => clearTimeout(timeout); // reset timer on each change
   }, [title, editing]);
 
-  const { theme } = useTheme();
-  const checkedColor = theme === 'dark' ? "#00aa00" : "#20aa20";
-  const plainColor = theme === 'dark' ? "#333333" : "#dddddd";
+  const checkedColor = theme.mode === 'dark' ? "#00aa00" : "#20aa20";
+  const plainColor = theme.mode === 'dark' ? "#333333" : "#dddddd";
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   // form: https://heroicons.com/outline

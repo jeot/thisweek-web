@@ -7,9 +7,11 @@ import { lorem } from '@/assets/lorem'
 import { useCalendarState } from "@/store/calendarStore";
 import { useAppState } from "@/store/appStore";
 import * as keymaps from '@/lib/keymaps';
-import { useTheme } from 'next-themes';
 import { PageViewType } from './types/types';
 import { useKeymapsState } from "@/store/keymapStore";
+import { useThemeState } from "@/store/themeStore";
+import { useActionListener } from './lib/useActionListener';
+import { useTheme } from 'next-themes';
 
 const loadedCSS = new Set<string>();
 
@@ -46,7 +48,15 @@ function App() {
   const setPageView = useAppState((state) => state.setPageView);
   const mainCal = useCalendarState((state) => state.mainCal);
   const secondCalendar = useCalendarState((state) => state.secondCal);
-  const { setTheme, theme } = useTheme();
+  const toggleTheme = useThemeState((state) => state.toggleTheme);
+  const { setTheme } = useTheme();
+
+  const theme = useThemeState((state) => state.theme);
+  useEffect(() => {
+    console.log("setting theme to", theme.mode);
+    setTheme(theme.mode);
+    return;
+  }, [theme]);
 
   const keymap = useKeymapsState((state) => state.keymap);
   useEffect(() => {
@@ -110,18 +120,7 @@ function App() {
     // document.documentElement.classList.add('font-global');
   }, [mainCal, secondCalendar]);
 
-
-
-  function handleKeymapCallback(action: string): void {
-    if (action === 'toggle_theme') setTheme(theme === 'light' ? 'dark' : 'light');
-  }
-
-  useEffect(() => {
-    const unliten = keymaps.listenToActions(handleKeymapCallback);
-    return () => {
-      unliten();
-    }
-  }, [theme]);
+  useActionListener('toggle_theme', () => toggleTheme());
 
   const ThisYearPage = () => <div className='p-4'><h1>ThisYearPage</h1><p>Maybe in the future!</p><p>{lorem}</p></div>;
   const ProjectsPage = () => <div className='p-4'><h1>Projects/ListPage</h1><p>Maybe in the future!</p><p>{lorem}</p></div>;

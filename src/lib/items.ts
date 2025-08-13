@@ -309,6 +309,10 @@ export function getNewOrderingNumber(items: ItemType[], index: number, nextIndex
   return (x + y) / 2;
 }
 
+export async function getItemsCount(): Promise<number> {
+  return await db.items.count();
+}
+
 const list: Array<{
   id: number;
   title: string;
