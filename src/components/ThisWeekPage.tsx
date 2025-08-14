@@ -65,7 +65,7 @@ export function ThisWeekPage() {
 
   return (
     <div ref={boxRef}
-      className="red flex flex-col w-full min-h-full flex-1 gap-2 items-center"
+      className="flex flex-col w-full min-h-full flex-1 gap-2 items-center"
       onClick={(event) => {
         event.stopPropagation();
         console.log("week page click...");

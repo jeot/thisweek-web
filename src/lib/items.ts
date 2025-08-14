@@ -176,9 +176,11 @@ export async function applyEditingItem(item: ItemType) {
     }
   } else if ((await getNewEdit())?.id === item.id) {
     try {
-      // type NewItemType = Omit<ItemType, 'id'>;
       console.log("trying to add new item...");
       const { id, ...newItem } = item; // this actually removes the id
+      // fix the new item date and time
+      const weekTime = useWeekState.getState().weekReference;
+      newItem.scheduledAt = weekTime;
       console.log("newItem:", newItem);
       const insertedId = await db.items.add(newItem);
       console.log("add successful. new id: ", insertedId);
