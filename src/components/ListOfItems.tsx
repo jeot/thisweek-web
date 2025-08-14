@@ -8,6 +8,7 @@ import { ItemType } from "@/types/types";
 import { useCalendarState } from "@/store/calendarStore";
 import { useAppState } from "@/store/appStore";
 import { useWeekState } from "@/store/weekStore";
+import { useListState } from "@/store/listStore";
 import { cn } from "@/lib/utils";
 
 function scrollIntoViewIfNeeded(target: HTMLElement, parentID: string): void {
@@ -53,6 +54,8 @@ export function ListOfItems({ className, items, newEdit, existingEdit, modifiabl
   const setInternalCopiedItem = useAppState((state) => state.setInternalCopiedItem);
   const weekReference = useWeekState((state) => state.weekReference);
   const mainCal = useCalendarState((state) => state.mainCal);
+  const selectedId = useListState((state) => state.selectedId);
+  const setSelectedId = useListState((state) => state.setSelectedId);
 
   const [editingPosition, setEditingPosition] = useState<'caret_start' | 'caret_end' | 'caret_select_all' | null>(null);
 
@@ -73,7 +76,6 @@ export function ListOfItems({ className, items, newEdit, existingEdit, modifiabl
   allItems.sort((a, b) => a?.order.weekly - b?.order.weekly);
 
   const itemsLength = items.length || 0;
-  const [selectedId, setSelectedId] = useState<number | null>(null);
   const selectedIndex: number = items.findIndex((item) => (item.id === selectedId));
   const selectedIndexNotValid = ((selectedIndex < 0) || (selectedIndex >= itemsLength));
   const selectedItem = selectedIndexNotValid ? null : items[selectedIndex];
@@ -348,7 +350,8 @@ export function ListOfItems({ className, items, newEdit, existingEdit, modifiabl
         <Button variant="outline"
           className="mt-2"
           id="new-item-btn-id"
-          onClick={() => {
+          onClick={(event) => {
+            event.stopPropagation();
             const newItemPosition = getNewOrderingNumber(items, itemsLength, itemsLength + 1, "weekly");
             console.log("newItemPosition:", newItemPosition);
             createNewEditingItem(newItemPosition);

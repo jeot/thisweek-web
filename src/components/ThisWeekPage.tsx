@@ -3,6 +3,7 @@ import { ListOfItemsContainer } from '@/components/ListOfItems';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useCalendarState } from "@/store/calendarStore";
 import { useWeekState } from "@/store/weekStore";
+import { useListState } from "@/store/listStore";
 import { getUtcRangeForLocalWeekByRefMillis } from "@/lib/week";
 import { checkAndFixOrdering, checkEditingIntegrity, getItemsInWeeklyRange } from '@/lib/items';
 import { useEffect, useRef } from 'react';
@@ -15,6 +16,7 @@ export function ThisWeekPage() {
   const weekReference = useWeekState((state) => state.weekReference);
   const setWeekReference = useWeekState((state) => state.setWeekReference);
   const gotoWeekRelative = useWeekState((state) => state.gotoWeekRelative);
+  const setSelectedId = useListState((state) => state.setSelectedId);
   const [startUtcMillis, endUtcMillis] = getUtcRangeForLocalWeekByRefMillis(mainCal.weekStartsOn, weekReference);
 
   const items = useLiveQuery(
@@ -63,8 +65,12 @@ export function ThisWeekPage() {
 
   return (
     <div ref={boxRef}
-      className="flex flex-col w-full min-h-full flex-1 gap-2 items-center"
-      onContextMenu={() => console.log("week page onContextMenu")}
+      className="red flex flex-col w-full min-h-full flex-1 gap-2 items-center"
+      onClick={(event) => {
+        event.stopPropagation();
+        console.log("week page click...");
+        setSelectedId(null);
+      }}
     >
       <div className="flex w-full justify-center">
         <WeekDatesCard />
