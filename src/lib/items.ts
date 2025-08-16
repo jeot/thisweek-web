@@ -105,7 +105,8 @@ export async function getItemsInWeeklyRange(startUtcMillis: number, endUtcMillis
       .and((x) => x.category === 'weekly')
       .sortBy('order.weekly')
 
-    // Return result
+    await checkAndFixOrdering(items);
+
     return items;
   } catch (err) {
     console.log("error while query items:", err);
@@ -277,21 +278,6 @@ export async function checkEditingIntegrity() {
     if ((existingItem === undefined) || (existingItem.deletedAt !== null)) {
       clearExistingEdit();
     }
-  }
-}
-
-export async function moveItemToSectionRelative(item: ItemType, offset: number, relativeToToday?: boolean) {
-  if (item.category === "weekly") {
-    let newSchedule = 0;
-    if (relativeToToday === true) {
-      newSchedule = (new Date()).getTime() + (offset * MILLISECONDS_IN_WEEK);
-    } else {
-      newSchedule = item.scheduledAt + (offset * MILLISECONDS_IN_WEEK);
-    }
-    updateItem({
-      ...item,
-      scheduledAt: newSchedule,
-    });
   }
 }
 

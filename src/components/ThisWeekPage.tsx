@@ -1,64 +1,28 @@
 import { WeekDatesCard } from '@/components/weekDatesCard';
 import { ListOfItemsContainer } from '@/components/ListOfItems';
-import { useLiveQuery } from 'dexie-react-hooks';
 import { useCalendarConfig } from "@/store/calendarConfig";
 import { useAppLogic } from "@/store/appLogic";
-import { getUtcRangeForLocalWeekByRefMillis } from "@/lib/week";
-import { checkAndFixOrdering, checkEditingIntegrity, getItemsInWeeklyRange } from '@/lib/items';
-import { useEffect, useRef } from 'react';
-import { db } from '@/lib/db';
+import { useRef } from 'react';
 import { useSwipe } from '@/lib/useSwipe';
 
 
 export function ThisWeekPage() {
   const mainCal = useCalendarConfig((state) => state.mainCal);
-  const weekReference = useAppLogic((state) => state.weekReference);
-  const setWeekReference = useAppLogic((state) => state.setWeekReference);
-  const gotoWeekRelative = useAppLogic((state) => state.gotoWeekRelative);
+  const requestWeekChange = useAppLogic((state) => state.requestWeekChange);
   const setSelectedId = useAppLogic((state) => state.setSelectedId);
-  const [startUtcMillis, endUtcMillis] = getUtcRangeForLocalWeekByRefMillis(mainCal.weekStartsOn, weekReference);
-
-  const items = useLiveQuery(
-    async () => {
-      return getItemsInWeeklyRange(startUtcMillis, endUtcMillis);
-    },
-    // specify vars that affect query:
-    [startUtcMillis, endUtcMillis]
-  ) || [];
-
-  useEffect(() => {
-    checkAndFixOrdering(items);
-  }, [items]);
-
-  const existingEdit = useLiveQuery(async () => {
-    return (await db.editing.get('editing_existing'))?.item ?? null;
-  });
-
-  const newEdit = useLiveQuery(async () => {
-    return (await db.editing.get('editing_new'))?.item ?? null;
-  });
-
-  useEffect(() => {
-    checkEditingIntegrity();
-    if (existingEdit) {
-      setWeekReference(existingEdit.scheduledAt);
-    }
-    if (newEdit) {
-      setWeekReference(newEdit.scheduledAt);
-    }
-  }, [newEdit, existingEdit]);
+  const items = useAppLogic((state) => state.weeklyItems);
+  const editingNewItem = useAppLogic((state) => state.editingNewItem);
+  const editingExistingItem = useAppLogic((state) => state.editingExistingItem);
 
   const boxRef = useRef<HTMLDivElement>(null);
 
   useSwipe(boxRef, {
     onSwipe: (dir) => {
       console.log(`Swiped ${dir}`);
-      if (!existingEdit && !newEdit) {
-        if (dir === 'left' && mainCal.locale.direction === 'ltr') gotoWeekRelative(1);
-        if (dir === 'right' && mainCal.locale.direction === 'ltr') gotoWeekRelative(-1);
-        if (dir === 'left' && mainCal.locale.direction === 'rtl') gotoWeekRelative(-1);
-        if (dir === 'right' && mainCal.locale.direction === 'rtl') gotoWeekRelative(1);
-      }
+      if (dir === 'left' && mainCal.locale.direction === 'ltr') requestWeekChange(1);
+      if (dir === 'right' && mainCal.locale.direction === 'ltr') requestWeekChange(-1);
+      if (dir === 'left' && mainCal.locale.direction === 'rtl') requestWeekChange(-1);
+      if (dir === 'right' && mainCal.locale.direction === 'rtl') requestWeekChange(1);
     },
   });
 
@@ -75,7 +39,7 @@ export function ThisWeekPage() {
         <WeekDatesCard />
       </div>
       {/* container for list of items */}
-      <ListOfItemsContainer className="" items={items} newEdit={newEdit} existingEdit={existingEdit} modifiable />
+      <ListOfItemsContainer className="" items={items} newEdit={editingNewItem} existingEdit={editingExistingItem} modifiable />
     </div>
   );
 }

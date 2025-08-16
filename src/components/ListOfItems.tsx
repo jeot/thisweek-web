@@ -2,7 +2,8 @@ import { Item, ItemActionType } from "@/components/Item"
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { CirclePlus } from "lucide-react";
-import { saveAsNewItem, applyEditingItem, cancelEditingItem, createExistingEditingItem, createNewEditingItem, createNewItem, deleteItem, getNewOrderingNumber, moveItemToSectionRelative, updateItem } from "@/lib/items";
+// todo: check these! it is too much! AppLogic should handle most of these!
+import { saveAsNewItem, applyEditingItem, cancelEditingItem, createNewItem, deleteItem, getNewOrderingNumber, updateItem } from "@/lib/items";
 import { useActionListener } from "@/lib/useActionListener";
 import { ItemType } from "@/types/types";
 import { useCalendarConfig } from "@/store/calendarConfig";
@@ -47,13 +48,17 @@ interface ListOfItemsProps {
 }
 
 export function ListOfItems({ className, items, newEdit, existingEdit, modifiable }: ListOfItemsProps) {
-  const gotoSectionRelative = useAppLogic((state) => state.gotoSectionRelative);
-  const internalCopiedItem = useAppLogic((state) => state.internalCopiedItem);
-  const setInternalCopiedItem = useAppLogic((state) => state.setInternalCopiedItem);
   const weekReference = useAppLogic((state) => state.weekReference);
   const mainCal = useCalendarConfig((state) => state.mainCal);
   const selectedId = useAppLogic((state) => state.selectedId);
+  const internalCopiedItem = useAppLogic((state) => state.internalCopiedItem);
+
+  const moveItemScheduleTimeByWeeks = useAppLogic((state) => state.moveItemScheduleTimeByWeeks);
+  const moveItemScheduleTimeToThisWeek = useAppLogic((state) => state.moveItemScheduleTimeToThisWeek);
+  const setInternalCopiedItem = useAppLogic((state) => state.setInternalCopiedItem);
   const setSelectedId = useAppLogic((state) => state.setSelectedId);
+  const requestBeginEditingExistingItem = useAppLogic((state) => state.requestBeginEditingExistingItem);
+  const requestBeginEditingNewItem = useAppLogic((state) => state.requestBeginEditingNewItem);
 
   const [editingPosition, setEditingPosition] = useState<'caret_start' | 'caret_end' | 'caret_select_all' | null>(null);
 
@@ -198,7 +203,8 @@ export function ListOfItems({ className, items, newEdit, existingEdit, modifiabl
       getNewOrderingNumber(items, itemsLength, itemsLength + 1, "weekly") :
       getNewOrderingNumber(items, selectedIndex, selectedIndex + 1, "weekly");
     console.log("newItemPosition:", newItemPosition);
-    createNewEditingItem(newItemPosition);
+    requestBeginEditingNewItem(newItemPosition);
+    // createNewEditingItem(newItemPosition);
     // setEditing({ id: newItem.id, position: "caret_start" });
   });
 
@@ -206,7 +212,8 @@ export function ListOfItems({ className, items, newEdit, existingEdit, modifiabl
     if (!modifiable) return;
     const newItemPosition = getNewOrderingNumber(items, selectedIndex, selectedIndex - 1, "weekly");
     console.log("newItemPosition:", newItemPosition);
-    createNewEditingItem(newItemPosition);
+    requestBeginEditingNewItem(newItemPosition);
+    // createNewEditingItem(newItemPosition);
     // setEditing({ id: newItem.id, position: "caret_start" });
   });
 
@@ -225,21 +232,23 @@ export function ListOfItems({ className, items, newEdit, existingEdit, modifiabl
     if (!modifiable || !selectedItem) return;
     console.log("editing id:", selectedId);
     setEditingPosition('caret_start');
-    createExistingEditingItem(selectedItem);
+    requestBeginEditingExistingItem(selectedItem);
   });
 
   useActionListener('edit_end', () => {
     if (!modifiable || !selectedItem) return;
     console.log("editing id:", selectedId);
     setEditingPosition('caret_end');
-    createExistingEditingItem(selectedItem);
+    requestBeginEditingExistingItem(selectedItem);
+    // createExistingEditingItem(selectedItem);
   });
 
   useActionListener('edit_select_all', () => {
     if (!modifiable || !selectedItem) return;
     console.log("editing id:", selectedId);
     setEditingPosition('caret_select_all');
-    createExistingEditingItem(selectedItem);
+    requestBeginEditingExistingItem(selectedItem);
+    // createExistingEditingItem(selectedItem);
   });
 
   useActionListener('cancel', () => {
@@ -253,7 +262,7 @@ export function ListOfItems({ className, items, newEdit, existingEdit, modifiabl
     }
   });
 
-  function move(direction: 'updown' | 'leftright', offset: number, relativeToToday: boolean = false) {
+  function move(direction: 'updown' | 'leftright', offset: number) {
     if (!modifiable || !selectedItem) return;
     console.log("moving...", direction, offset, selectedItem);
     if (direction === 'updown') {
@@ -267,9 +276,15 @@ export function ListOfItems({ className, items, newEdit, existingEdit, modifiabl
     }
     if (direction === 'leftright') {
       console.log("leftright...");
-      moveItemToSectionRelative(selectedItem, offset, relativeToToday);
-      if (!relativeToToday) gotoSectionRelative(offset);
+      const weekOffset = offset;
+      moveItemScheduleTimeByWeeks(selectedItem, weekOffset);
     }
+  }
+
+  function moveToThisWeek() {
+    if (!modifiable || !selectedItem) return;
+    console.log("moving to today...");
+    moveItemScheduleTimeToThisWeek(selectedItem);
   }
 
   // move selected item (or right-clicked)
@@ -293,7 +308,10 @@ export function ListOfItems({ className, items, newEdit, existingEdit, modifiabl
     if (!modifiable && (modifyingActions.indexOf(action) >= 0)) return;
     // console.log("handleOnItemActionCallback:", action, item);
     if (action === "None") { /* have a tea. */ }
-    if (action === "Edit") { if (!existingEdit) createExistingEditingItem(item); }
+    if (action === "Edit") {
+      // if (!existingEdit) createExistingEditingItem(item);
+      if (!existingEdit) requestBeginEditingExistingItem(item);
+    }
     if (action === "Copy") { if (!existingEdit && !newEdit) setInternalCopiedItem(item); }
     if (action === "Paste") {
       if (selectedIndex >= 0) handlePasteAtIndex(selectedIndex);
@@ -308,7 +326,7 @@ export function ListOfItems({ className, items, newEdit, existingEdit, modifiabl
     if (action === "Move Down") { move('updown', 1); }
     if (action === "Move Next") { move('leftright', 1); }
     if (action === "Move Previous") { move('leftright', -1); }
-    if (action === "Move Today") { move('leftright', 0, true); }
+    if (action === "Move Today") { moveToThisWeek(); }
     if (action === "Toggle Type") {
       toggleItemType(item);
     }
@@ -352,7 +370,8 @@ export function ListOfItems({ className, items, newEdit, existingEdit, modifiabl
             event.stopPropagation();
             const newItemPosition = getNewOrderingNumber(items, itemsLength, itemsLength + 1, "weekly");
             console.log("newItemPosition:", newItemPosition);
-            createNewEditingItem(newItemPosition);
+            requestBeginEditingNewItem(newItemPosition);
+            // createNewEditingItem(newItemPosition);
           }}
         >
           <CirclePlus />New Item
@@ -370,4 +389,3 @@ export function ListOfItemsContainer({ className, items, newEdit, existingEdit, 
     </ div>
   );
 }
-

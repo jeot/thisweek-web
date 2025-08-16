@@ -11,6 +11,7 @@ import { useKeymapsConfig } from "@/store/keymapConfig";
 import { useThemeConfig } from "@/store/themeConfig";
 import { useActionListener } from './lib/useActionListener';
 import { useTheme } from 'next-themes';
+import { useLocalDbSyncItems } from './lib/dexieListeners';
 
 const loadedCSS = new Set<string>();
 
@@ -48,6 +49,8 @@ function App() {
   const secondCalendar = useCalendarConfig((state) => state.secondCal);
   const toggleTheme = useThemeConfig((state) => state.toggleTheme);
   const { setTheme } = useTheme();
+
+  useLocalDbSyncItems();
 
   const theme = useThemeConfig((state) => state.theme);
   useEffect(() => {

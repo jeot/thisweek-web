@@ -6,7 +6,7 @@ import { DateTime } from "luxon";
 
 export default function HeaderContent({ title }: { title?: string }) {
   const mainCal = useCalendarConfig((state) => state.mainCal);
-  const resetWeekReference = useAppLogic((state) => state.resetWeekReference);
+  const requestGoToToday = useAppLogic((state) => state.requestGoToToday);
   // const secondCal = useCalendarState((state) => state.secondCal);
   // const secondCalEnabled = useCalendarState((state) => state.secondCalEnabled);
 
@@ -20,7 +20,7 @@ export default function HeaderContent({ title }: { title?: string }) {
         || <h1 className="flex-none">{title}</h1>}
       <div className="h-full flex flex-wrap items-center justify-end">
         <Badge variant="ghost" className="mx-1 font-normal hover:bg-secondary hover:cursor-pointer" dir={today.direction}
-          onClick={() => resetWeekReference()}
+          onClick={() => requestGoToToday()}
         >
           {today.localeDisplay}
         </Badge>

@@ -13,24 +13,25 @@ function WeekDatesCard() {
   const secondCal = useCalendarConfig((state) => state.secondCal);
   const secondCalEnabled = useCalendarConfig((state) => state.secondCalEnabled);
   const weekReference = useAppLogic((state) => state.weekReference);
-  const resetWeekReference = useAppLogic((state) => state.resetWeekReference);
-  const gotoWeekRelative = useAppLogic((state) => state.gotoWeekRelative);
+  const requestWeekChange = useAppLogic((state) => state.requestWeekChange);
+  const requestGoToToday = useAppLogic((state) => state.requestGoToToday);
 
   const weekView = buildFullWeekView(weekReference, mainCal, secondCal, secondCalEnabled);
   const defaultDirection = (weekView.direction === 'ltr');
 
+  // todo: all user interactions actions should be handled by app logic!
   useActionListener('right', () => {
-    if (defaultDirection) gotoWeekRelative(1);
-    else gotoWeekRelative(-1);
+    if (defaultDirection) requestWeekChange(1);
+    else requestWeekChange(-1);
   });
 
   useActionListener('left', () => {
-    if (defaultDirection) gotoWeekRelative(-1);
-    else gotoWeekRelative(+1);
+    if (defaultDirection) requestWeekChange(-1);
+    else requestWeekChange(+1);
   });
 
   useActionListener('today', () => {
-    resetWeekReference();
+    requestGoToToday();
   });
 
   const NextIcon = defaultDirection ? ChevronRight : ChevronLeft;
@@ -69,11 +70,11 @@ function WeekDatesCard() {
         </CardAction>
       </CardHeader>*/}
         <CardContent className="px-1 flex flex-auto gap-0 place-content-around items-center">
-          <Button variant="ghost_dim" size="sm" onClick={() => gotoWeekRelative(-1)}
+          <Button variant="ghost_dim" size="sm" onClick={() => requestWeekChange(-1)}
             className="w-1/12"
           ><PrevIcon /></Button>
           <WeekDates weekView={weekView} className="w-10/12" />
-          <Button variant="ghost_dim" size="sm" onClick={() => gotoWeekRelative(1)}
+          <Button variant="ghost_dim" size="sm" onClick={() => requestWeekChange(1)}
             className="w-1/12"
           ><NextIcon /></Button>
         </CardContent>
