@@ -1,7 +1,7 @@
 import { ItemType, PageViewType } from '@/types/types';
 import { create } from 'zustand';
 import { MILLISECONDS_IN_WEEK } from '@/lib/week';
-import { createExistingEditingItem, createNewEditingItem, getNewOrderingNumber, updateItem } from '@/lib/items';
+import { createExistingEditingItem, createNewEditingItem, updateItem } from '@/lib/items';
 
 export type SettingPageType = 'General' | 'Calendars' | 'Keymaps' | 'About';
 
@@ -59,7 +59,8 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 	setEditingExistingItems: (item) => set({ editingExistingItem: item }),
 
 	requestPageViewChange: (page) => set({ pageView: page }),
-	requestBeginEditingNewItem: (orderingNumber: number, category?: 'weekly' | 'project') => {
+	requestBeginEditingNewItem: (orderingNumber, category = 'weekly') => {
+		category;
 		if (get().editingExistingItem || get().editingNewItem) return;
 		createNewEditingItem(orderingNumber);
 	},
