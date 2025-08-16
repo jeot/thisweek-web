@@ -1,12 +1,12 @@
 import { Switch } from "./ui/switch";
-import { useKeymapsState } from "@/store/keymapStore";
+import { useKeymapsConfig } from "@/store/keymapConfig";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, } from "@/components/ui/table"
 import { KeyMap, KEYMAPS } from '@/lib/keymaps';
 import { Badge } from "@/components/ui/badge"
 
 export function SettingsKeymap() {
-  const keymap = useKeymapsState((state) => state.keymap);
-  const setKeymap = useKeymapsState((state) => state.setKeymap);
+  const keymap = useKeymapsConfig((state) => state.keymap);
+  const setKeymap = useKeymapsConfig((state) => state.setKeymap);
 
   function KeysDisplay({ keys, seperator }: { keys: Array<string>, seperator: string }) {
     return (keys.map((value, i) => {

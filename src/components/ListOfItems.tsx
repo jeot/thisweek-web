@@ -5,10 +5,8 @@ import { CirclePlus } from "lucide-react";
 import { saveAsNewItem, applyEditingItem, cancelEditingItem, createExistingEditingItem, createNewEditingItem, createNewItem, deleteItem, getNewOrderingNumber, moveItemToSectionRelative, updateItem } from "@/lib/items";
 import { useActionListener } from "@/lib/useActionListener";
 import { ItemType } from "@/types/types";
-import { useCalendarState } from "@/store/calendarStore";
-import { useAppState } from "@/store/appStore";
-import { useWeekState } from "@/store/weekStore";
-import { useListState } from "@/store/listStore";
+import { useCalendarConfig } from "@/store/calendarConfig";
+import { useAppLogic } from "@/store/appLogic";
 import { cn } from "@/lib/utils";
 
 function scrollIntoViewIfNeeded(target: HTMLElement, parentID: string): void {
@@ -49,13 +47,13 @@ interface ListOfItemsProps {
 }
 
 export function ListOfItems({ className, items, newEdit, existingEdit, modifiable }: ListOfItemsProps) {
-  const gotoSectionRelative = useAppState((state) => state.gotoSectionRelative);
-  const internalCopiedItem = useAppState((state) => state.internalCopiedItem);
-  const setInternalCopiedItem = useAppState((state) => state.setInternalCopiedItem);
-  const weekReference = useWeekState((state) => state.weekReference);
-  const mainCal = useCalendarState((state) => state.mainCal);
-  const selectedId = useListState((state) => state.selectedId);
-  const setSelectedId = useListState((state) => state.setSelectedId);
+  const gotoSectionRelative = useAppLogic((state) => state.gotoSectionRelative);
+  const internalCopiedItem = useAppLogic((state) => state.internalCopiedItem);
+  const setInternalCopiedItem = useAppLogic((state) => state.setInternalCopiedItem);
+  const weekReference = useAppLogic((state) => state.weekReference);
+  const mainCal = useCalendarConfig((state) => state.mainCal);
+  const selectedId = useAppLogic((state) => state.selectedId);
+  const setSelectedId = useAppLogic((state) => state.setSelectedId);
 
   const [editingPosition, setEditingPosition] = useState<'caret_start' | 'caret_end' | 'caret_select_all' | null>(null);
 

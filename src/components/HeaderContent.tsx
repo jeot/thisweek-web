@@ -1,12 +1,12 @@
 import { Badge } from "@/components/ui/badge"
 import { getDateViewInLocaleCalendar } from "@/lib/week";
-import { useCalendarState } from "@/store/calendarStore";
-import { useWeekState } from "@/store/weekStore";
+import { useCalendarConfig } from "@/store/calendarConfig";
+import { useAppLogic } from "@/store/appLogic";
 import { DateTime } from "luxon";
 
 export default function HeaderContent({ title }: { title?: string }) {
-  const mainCal = useCalendarState((state) => state.mainCal);
-  const resetWeekReference = useWeekState((state) => state.resetWeekReference);
+  const mainCal = useCalendarConfig((state) => state.mainCal);
+  const resetWeekReference = useAppLogic((state) => state.resetWeekReference);
   // const secondCal = useCalendarState((state) => state.secondCal);
   // const secondCalEnabled = useCalendarState((state) => state.secondCalEnabled);
 

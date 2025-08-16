@@ -1,21 +1,21 @@
 // AppInitializer.tsx
 import { useEffect, useRef, useState } from 'react';
 import { ensureValidAppConfig, getAppConfigFromIDB, saveAppConfigToIDBPartial } from './lib/appConfigDb';
-import { useCalendarState } from "@/store/calendarStore";
-import { useKeymapsState } from "@/store/keymapStore";
-import { useAppState } from "@/store/appStore";
+import { useCalendarConfig } from "@/store/calendarConfig";
+import { useKeymapsConfig } from "@/store/keymapConfig";
 import { getItemsCount, insertOnboardingTasks } from './lib/items';
 import { initDeviceId } from './lib/db';
-import { useThemeState } from './store/themeStore';
+import { useThemeConfig } from '@/store/themeConfig';
+import { useOtherConfigs } from '@/store/otherConfigs';
 
 export function AppInitializer({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false);
-  const setMainCal = useCalendarState((state) => state.setMainCal);
-  const setSecondCal = useCalendarState((state) => state.setSecondCal);
-  const setSecondCalEnabled = useCalendarState((state) => state.setSecondCalEnabled);
-  const setKeymap = useKeymapsState((state) => state.setKeymap);
-  const setSidebarCollapsed = useAppState((state) => state.setSidebarCollapsed);
-  const setTheme = useThemeState((state) => state.setTheme);
+  const setMainCal = useCalendarConfig((state) => state.setMainCal);
+  const setSecondCal = useCalendarConfig((state) => state.setSecondCal);
+  const setSecondCalEnabled = useCalendarConfig((state) => state.setSecondCalEnabled);
+  const setKeymap = useKeymapsConfig((state) => state.setKeymap);
+  const setTheme = useThemeConfig((state) => state.setTheme);
+  const setSidebarCollapsed = useOtherConfigs((state) => state.setSidebarCollapsed);
 
   async function loadConfig() {
     try {

@@ -1,6 +1,6 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from "@/components/ui/select"
 import { CalendarMeta, calendars, CalendarType, getCalendarLocaleWeekStartDay, getFlagEmoji } from "@/types/calendarLocales"
-import { useCalendarState } from "@/store/calendarStore"
+import { useCalendarConfig } from "@/store/calendarConfig"
 import { Badge } from "./ui/badge";
 import { Switch } from "@/components/ui/switch"
 import { WeekDatesCard } from "./weekDatesCard";
@@ -10,12 +10,12 @@ import { getWeekdayString } from "@/lib/week";
 
 export function SettingsCalendar() {
 
-  const mainCal = useCalendarState((state) => state.mainCal);
-  const setMainCal = useCalendarState((state) => state.setMainCal);
-  const secondCal = useCalendarState((state) => state.secondCal);
-  const setSecondCal = useCalendarState((state) => state.setSecondCal);
-  const secondCalEnabled = useCalendarState((state) => state.secondCalEnabled);
-  const setSecondCalEnabled = useCalendarState((state) => state.setSecondCalEnabled);
+  const mainCal = useCalendarConfig((state) => state.mainCal);
+  const setMainCal = useCalendarConfig((state) => state.setMainCal);
+  const secondCal = useCalendarConfig((state) => state.secondCal);
+  const setSecondCal = useCalendarConfig((state) => state.setSecondCal);
+  const secondCalEnabled = useCalendarConfig((state) => state.secondCalEnabled);
+  const setSecondCalEnabled = useCalendarConfig((state) => state.setSecondCalEnabled);
 
   const mainCalendarMeta = calendars.find((cal) => cal.name === mainCal.calendar);
   const secondCalendarMeta = calendars.find((cal) => cal.name === secondCal.calendar);

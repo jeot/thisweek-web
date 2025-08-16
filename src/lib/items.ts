@@ -1,8 +1,7 @@
 import { ItemType } from "@/types/types";
 import { db, getDeviceId } from "@/lib/db.ts";
-import { useWeekState } from "@/store/weekStore";
-import { useCalendarState } from "@/store/calendarStore";
-import { useAppState } from "@/store/appStore";
+import { useAppLogic } from "@/store/appLogic";
+import { useCalendarConfig } from "@/store/calendarConfig";
 import { MILLISECONDS_IN_WEEK } from '@/lib/week';
 
 // save editing item for temporary edit
@@ -44,9 +43,10 @@ export async function createNewEditingItem(orderingNumber?: number): Promise<voi
 }
 
 export function createNewItem(orderingNumber?: number): ItemType {
-  const category = useAppState.getState().pageView === 'This Week' ? 'weekly' : 'project'
-  const weekTime = useWeekState.getState().weekReference;
-  const calendar = useCalendarState.getState().mainCal.calendar;
+  // todo: use function argument for these states:
+  const category = useAppLogic.getState().pageView === 'This Week' ? 'weekly' : 'project'
+  const weekTime = useAppLogic.getState().weekReference;
+  const calendar = useCalendarConfig.getState().mainCal.calendar;
   const currentTime = (new Date()).getTime();
   const uuid: string = crypto.randomUUID();
   const tzOffset = new Date().getTimezoneOffset();
@@ -179,7 +179,8 @@ export async function applyEditingItem(item: ItemType) {
       console.log("trying to add new item...");
       const { id, ...newItem } = item; // this actually removes the id
       // fix the new item date and time
-      const weekTime = useWeekState.getState().weekReference;
+      // todo: this should be by the caller of the function!
+      const weekTime = useAppLogic.getState().weekReference;
       newItem.scheduledAt = weekTime;
       console.log("newItem:", newItem);
       const insertedId = await db.items.add(newItem);

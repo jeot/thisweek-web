@@ -8,12 +8,12 @@ interface KeymapType {
 };
 
 
-type KeymapsState = {
+type KeymapsConfig = {
 	keymap: KeymapType;
 	setKeymap: (value: KeymapType, save?: boolean) => void;
 };
 
-export const useKeymapsState = create<KeymapsState>((set) => ({
+export const useKeymapsConfig = create<KeymapsConfig>((set) => ({
 	keymap: {
 		generalShortcutsEnabled: true,
 		vimModeShortcutsEnabled: false,

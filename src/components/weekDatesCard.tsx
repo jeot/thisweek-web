@@ -1,6 +1,6 @@
 import { Button } from "./ui/button";
-import { useCalendarState } from "@/store/calendarStore";
-import { useWeekState } from "@/store/weekStore";
+import { useCalendarConfig } from "@/store/calendarConfig";
+import { useAppLogic } from "@/store/appLogic";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { WeekDates } from "./weekDates";
 import { ChevronRight, ChevronLeft } from 'lucide-react';
@@ -9,12 +9,12 @@ import { useActionListener } from "@/lib/useActionListener";
 import { cn } from "@/lib/utils";
 
 function WeekDatesCard() {
-  const mainCal = useCalendarState((state) => state.mainCal);
-  const secondCal = useCalendarState((state) => state.secondCal);
-  const secondCalEnabled = useCalendarState((state) => state.secondCalEnabled);
-  const weekReference = useWeekState((state) => state.weekReference);
-  const resetWeekReference = useWeekState((state) => state.resetWeekReference);
-  const gotoWeekRelative = useWeekState((state) => state.gotoWeekRelative);
+  const mainCal = useCalendarConfig((state) => state.mainCal);
+  const secondCal = useCalendarConfig((state) => state.secondCal);
+  const secondCalEnabled = useCalendarConfig((state) => state.secondCalEnabled);
+  const weekReference = useAppLogic((state) => state.weekReference);
+  const resetWeekReference = useAppLogic((state) => state.resetWeekReference);
+  const gotoWeekRelative = useAppLogic((state) => state.gotoWeekRelative);
 
   const weekView = buildFullWeekView(weekReference, mainCal, secondCal, secondCalEnabled);
   const defaultDirection = (weekView.direction === 'ltr');

@@ -10,13 +10,13 @@ interface ThemeType {
 	};
 };
 
-type ThemeState = {
+type ThemeConfig = {
 	theme: ThemeType;
 	setTheme: (t: ThemeType, save?: boolean) => void;
 	toggleTheme: () => void,
 };
 
-export const useThemeState = create<ThemeState>((set, get) => ({
+export const useThemeConfig = create<ThemeConfig>((set, get) => ({
 	theme: { mode: 'dark', custom: undefined },
 	setTheme: (t, save = true) => {
 		set({ theme: t });

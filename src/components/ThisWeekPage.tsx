@@ -1,9 +1,8 @@
 import { WeekDatesCard } from '@/components/weekDatesCard';
 import { ListOfItemsContainer } from '@/components/ListOfItems';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { useCalendarState } from "@/store/calendarStore";
-import { useWeekState } from "@/store/weekStore";
-import { useListState } from "@/store/listStore";
+import { useCalendarConfig } from "@/store/calendarConfig";
+import { useAppLogic } from "@/store/appLogic";
 import { getUtcRangeForLocalWeekByRefMillis } from "@/lib/week";
 import { checkAndFixOrdering, checkEditingIntegrity, getItemsInWeeklyRange } from '@/lib/items';
 import { useEffect, useRef } from 'react';
@@ -12,11 +11,11 @@ import { useSwipe } from '@/lib/useSwipe';
 
 
 export function ThisWeekPage() {
-  const mainCal = useCalendarState((state) => state.mainCal);
-  const weekReference = useWeekState((state) => state.weekReference);
-  const setWeekReference = useWeekState((state) => state.setWeekReference);
-  const gotoWeekRelative = useWeekState((state) => state.gotoWeekRelative);
-  const setSelectedId = useListState((state) => state.setSelectedId);
+  const mainCal = useCalendarConfig((state) => state.mainCal);
+  const weekReference = useAppLogic((state) => state.weekReference);
+  const setWeekReference = useAppLogic((state) => state.setWeekReference);
+  const gotoWeekRelative = useAppLogic((state) => state.gotoWeekRelative);
+  const setSelectedId = useAppLogic((state) => state.setSelectedId);
   const [startUtcMillis, endUtcMillis] = getUtcRangeForLocalWeekByRefMillis(mainCal.weekStartsOn, weekReference);
 
   const items = useLiveQuery(

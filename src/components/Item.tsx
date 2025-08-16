@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "./ui/button";
 import { CheckIcon, XIcon } from "lucide-react";
 import TextareaAutosize from 'react-textarea-autosize';
-import { useThemeState } from "@/store/themeStore";
+import { useThemeConfig } from "@/store/themeConfig";
 
 export type ItemActionType = "None" | "Edit" | "Copy" | "Paste" | "Delete" | "Update" | "Apply" | "Cancel" | "ContextMenuOpened" | "Move Up" | "Move Down" | "Move Next" | "Move Previous" | "Move Today" | "Toggle Type";
 
@@ -40,7 +40,7 @@ export function Item({ className, item, editing, editingPosition, selected, disa
 
   const [title, setTitle] = useState<string>(item.title);
   const displayTitle = editing ? title : item.title;
-  const theme = useThemeState((state) => state.theme);
+  const theme = useThemeConfig((state) => state.theme);
 
   useEffect(() => {
     const timeout = setTimeout(() => {

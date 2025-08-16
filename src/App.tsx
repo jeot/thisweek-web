@@ -4,12 +4,11 @@ import { SidebarLayout } from '@/components/SidebarLayout'
 import { ThisWeekPage } from '@/components/ThisWeekPage';
 import { SettingsPage } from '@/components/SettingsPage';
 import { lorem } from '@/assets/lorem'
-import { useCalendarState } from "@/store/calendarStore";
-import { useAppState } from "@/store/appStore";
+import { useCalendarConfig } from "@/store/calendarConfig";
+import { useAppLogic } from "@/store/appLogic";
 import * as keymaps from '@/lib/keymaps';
-import { PageViewType } from './types/types';
-import { useKeymapsState } from "@/store/keymapStore";
-import { useThemeState } from "@/store/themeStore";
+import { useKeymapsConfig } from "@/store/keymapConfig";
+import { useThemeConfig } from "@/store/themeConfig";
 import { useActionListener } from './lib/useActionListener';
 import { useTheme } from 'next-themes';
 
@@ -44,21 +43,20 @@ function preloadFont(href: string, type = 'font/woff2') {
 */
 
 function App() {
-  const pageView = useAppState((state) => state.pageView);
-  const setPageView = useAppState((state) => state.setPageView);
-  const mainCal = useCalendarState((state) => state.mainCal);
-  const secondCalendar = useCalendarState((state) => state.secondCal);
-  const toggleTheme = useThemeState((state) => state.toggleTheme);
+  const pageView = useAppLogic((state) => state.pageView);
+  const mainCal = useCalendarConfig((state) => state.mainCal);
+  const secondCalendar = useCalendarConfig((state) => state.secondCal);
+  const toggleTheme = useThemeConfig((state) => state.toggleTheme);
   const { setTheme } = useTheme();
 
-  const theme = useThemeState((state) => state.theme);
+  const theme = useThemeConfig((state) => state.theme);
   useEffect(() => {
     console.log("setting theme to", theme.mode);
     setTheme(theme.mode);
     return;
   }, [theme]);
 
-  const keymap = useKeymapsState((state) => state.keymap);
+  const keymap = useKeymapsConfig((state) => state.keymap);
   useEffect(() => {
     if (keymap.generalShortcutsEnabled) keymaps.init("GENERAL");
     if (keymap.vimModeShortcutsEnabled) keymaps.init("VIMMODE");
@@ -124,15 +122,11 @@ function App() {
 
   const ThisYearPage = () => <div className='p-4'><h1>ThisYearPage</h1><p>Maybe in the future!</p><p>{lorem}</p></div>;
   const ProjectsPage = () => <div className='p-4'><h1>Projects/ListPage</h1><p>Maybe in the future!</p><p>{lorem}</p></div>;
-  const handleChangePageView = (page: PageViewType) => {
-    setPageView(page);
-  };
 
 
   return (
     <div className="font-global">
       <SidebarLayout
-        onMenuClick={handleChangePageView}
         activeView={pageView}
         title={pageView}
       >

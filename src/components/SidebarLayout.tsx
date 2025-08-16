@@ -7,28 +7,32 @@ import { Moon, Sun } from 'lucide-react';
 import HeaderContent from "./HeaderContent";
 import { PageViewType } from "@/types/types";
 import { cn } from "@/lib/utils";
-import { useAppState } from "@/store/appStore";
-import { useThemeState } from "@/store/themeStore";
+import { useAppLogic } from "@/store/appLogic";
+import { useThemeConfig } from "@/store/themeConfig";
+import { useOtherConfigs } from "@/store/otherConfigs";
 
 
-export function SidebarLayout({ children, onMenuClick, activeView, title }: { children: React.ReactNode, onMenuClick: (view: PageViewType) => void, activeView: PageViewType, title: string }) {
+export function SidebarLayout({ children, activeView, title }: { children: React.ReactNode, activeView: PageViewType, title: string }) {
 
   activeView; // unused variable
 
   const [open, setOpen] = useState(false); // only for sheet on mobile
-  const collapsed = useAppState((state) => state.sidebarCollapsed);
-  const setCollapsed = useAppState((state) => state.setSidebarCollapsed);
-  const toggleTheme = useThemeState((state) => state.toggleTheme);
-  const theme = useThemeState((state) => state.theme);
+  const collapsed = useOtherConfigs((state) => state.sidebarCollapsed);
+  const setCollapsed = useOtherConfigs((state) => state.setSidebarCollapsed);
+  const toggleTheme = useThemeConfig((state) => state.toggleTheme);
+  const theme = useThemeConfig((state) => state.theme);
   if (!theme) return;
+
+  const requestPageViewChange = useAppLogic((state) => state.requestPageViewChange);
+
   const ThemeIcon = (theme.mode === 'light') ? Moon : Sun;
 
   const menuItems = [
-    { icon: CheckCheck, label: "This Week", onClick: () => { onMenuClick('This Week') } },
-    // { icon: CalendarHeart, label: "Year 2025", onClick: () => { onMenuClick('This Year') } },
-    // { icon: ListTodo, label: "Projects", onClick: () => { onMenuClick('Projects') } },
+    { icon: CheckCheck, label: "This Week", onClick: () => { requestPageViewChange('This Week') } },
+    // { icon: CalendarHeart, label: "Year 2025", onClick: () => { requestPageViewChange('This Year') } },
+    // { icon: ListTodo, label: "Projects", onClick: () => { requestPageViewChange('Projects') } },
     { icon: null, label: "Spacer", onClick: () => { } },
-    { icon: Settings, label: "Settings", onClick: () => { onMenuClick('Settings') } },
+    { icon: Settings, label: "Settings", onClick: () => { requestPageViewChange('Settings') } },
     { icon: ThemeIcon, label: theme.mode === 'light' ? 'Dark' : 'Light', onClick: () => toggleTheme() },
   ]
 

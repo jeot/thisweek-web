@@ -3,14 +3,14 @@ import { Button } from "./ui/button";
 import { SettingsCalendar } from "@/components/SettingsCalendar"
 import { SettingsKeymap } from "@/components/SettingsKeymap"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { SettingPageType, useAppState } from "@/store/appStore";
+import { SettingPageType, useAppLogic } from "@/store/appLogic";
 import { SettingsAbout } from "./SettingsAbout";
 import { useMediaQuery } from "@/lib/useMediaQuery";
 import { useEffect, useRef } from "react";
 
 export function SettingsPage() {
-  const settingPage = useAppState((state) => state.settingPage);
-  const setSettingPage = useAppState((state) => state.setSettingPage);
+  const settingPage = useAppLogic((state) => state.settingPage);
+  const setSettingPage = useAppLogic((state) => state.setSettingPage);
   const isWideScreen = useMediaQuery("(min-width: 40rem)"); // tailwindcss defines 640px as 40rem
   const scrollRef = useRef<HTMLDivElement>(null);
 

@@ -9,7 +9,7 @@ import { CalendarLocaleType, LocaleType } from '@/types/types';
 
 // const calendars = ['buddhist', 'chinese', 'coptic', 'ethiopia', 'ethiopic', 'gregory', 'hebrew', 'indian', 'islamic', 'iso8601', 'japanese', 'persian', 'roc']
 
-type CalendarState = {
+type CalendarConfig = {
 	mainCal: CalendarLocaleType;
 	secondCal: CalendarLocaleType;
 	secondCalEnabled: boolean;
@@ -21,7 +21,7 @@ type CalendarState = {
 	setSecondCalEnabled: (en: boolean, save?: boolean) => void;
 };
 
-export const useCalendarState = create<CalendarState>((set, get) => ({
+export const useCalendarConfig = create<CalendarConfig>((set, get) => ({
 	mainCal: DEFAULT_MAIN_CAL_LOC,
 	secondCal: DEFAULT_SECOND_CAL_LOC,
 	secondCalEnabled: false,
