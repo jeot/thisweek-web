@@ -7,6 +7,7 @@ import { getItemsCount, insertOnboardingTasks } from './lib/items';
 import { initDeviceId } from './lib/db';
 import { useThemeConfig } from '@/store/themeConfig';
 import { useOtherConfigs } from '@/store/otherConfigs';
+import { useAppLogic } from './store/appLogic';
 
 export function AppInitializer({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false);
@@ -16,6 +17,7 @@ export function AppInitializer({ children }: { children: React.ReactNode }) {
   const setKeymap = useKeymapsConfig((state) => state.setKeymap);
   const setTheme = useThemeConfig((state) => state.setTheme);
   const setSidebarCollapsed = useOtherConfigs((state) => state.setSidebarCollapsed);
+  const requestGoToToday = useAppLogic((state) => state.requestGoToToday);
 
   async function loadConfig() {
     try {
@@ -38,6 +40,7 @@ export function AppInitializer({ children }: { children: React.ReactNode }) {
           await insertOnboardingTasks();
           await saveAppConfigToIDBPartial({ hasSeededOnboarding: true });
         }
+        requestGoToToday();
       } else {
         console.log("no config found!");
       }

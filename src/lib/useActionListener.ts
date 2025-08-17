@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { listenToActions } from '@/lib/keymaps';
-import { Action } from '@/lib/keymaps';
+import { useAppLogic } from '@/store/appLogic';
+import { Action, actions } from '@/types/types';
 
 export function useActionListener(
   match: Action | Action[],
@@ -22,3 +23,12 @@ export function useActionListener(
   }, [match]);
 }
 
+export function useAppLogicForAllActionListeners() {
+  const actionRequest = useAppLogic((state) => state.actionRequest);
+
+  actions.forEach((a) => {
+    useActionListener(a, () => {
+      actionRequest(a);
+    });
+  });
+}

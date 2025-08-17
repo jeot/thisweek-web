@@ -79,7 +79,12 @@ export function Item({ className, item, editing, editingPosition, selected, disa
         </ContextMenuSubContent>
       </ContextMenuSub>;
     } else {
-      return <ContextMenuItem key={menu.name} variant={menu.variant} onSelect={() => onItemActionCallback(menu.action, item)}>{menu.name}</ContextMenuItem>;
+      return (<ContextMenuItem key={menu.name} variant={menu.variant}
+        onSelect={() => { onItemActionCallback(menu.action, item); }}
+        onClick={(event) => { event.stopPropagation() }}
+      >
+        {menu.name}
+      </ContextMenuItem>);
     }
   }
 
@@ -92,7 +97,7 @@ export function Item({ className, item, editing, editingPosition, selected, disa
         if (editing && editingPosition === 'caret_start') el.setSelectionRange(0, 0); // Move caret to start
         else if (editing && editingPosition === 'caret_end') el.setSelectionRange(el.value.length, el.value.length); // Move caret to end
         else if (editing && editingPosition === 'caret_select_all') el.setSelectionRange(0, el.value.length); // Select all
-        else el.setSelectionRange(0, 0);
+        else el.setSelectionRange(el.value.length, el.value.length);
       });
     }
     if (!editing && el) el.setSelectionRange(0, 0);

@@ -9,7 +9,7 @@ import { useAppLogic } from "@/store/appLogic";
 import * as keymaps from '@/lib/keymaps';
 import { useKeymapsConfig } from "@/store/keymapConfig";
 import { useThemeConfig } from "@/store/themeConfig";
-import { useActionListener } from './lib/useActionListener';
+import { useAppLogicForAllActionListeners } from './lib/useActionListener';
 import { useTheme } from 'next-themes';
 import { useLocalDbSyncItems } from './lib/dexieListeners';
 
@@ -47,10 +47,11 @@ function App() {
   const pageView = useAppLogic((state) => state.pageView);
   const mainCal = useCalendarConfig((state) => state.mainCal);
   const secondCalendar = useCalendarConfig((state) => state.secondCal);
-  const toggleTheme = useThemeConfig((state) => state.toggleTheme);
   const { setTheme } = useTheme();
 
   useLocalDbSyncItems();
+
+  useAppLogicForAllActionListeners();
 
   const theme = useThemeConfig((state) => state.theme);
   useEffect(() => {
@@ -120,8 +121,6 @@ function App() {
     */
     // document.documentElement.classList.add('font-global');
   }, [mainCal, secondCalendar]);
-
-  useActionListener('toggle_theme', () => toggleTheme());
 
   const ThisYearPage = () => <div className='p-4'><h1>ThisYearPage</h1><p>Maybe in the future!</p><p>{lorem}</p></div>;
   const ProjectsPage = () => <div className='p-4'><h1>Projects/ListPage</h1><p>Maybe in the future!</p><p>{lorem}</p></div>;

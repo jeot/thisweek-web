@@ -1,6 +1,37 @@
 import { CalendarType } from "./calendarLocales";
 
+
 export type PageViewType = 'This Week' | 'This Year' | 'Projects' | 'Settings';
+
+// export type Action = 'today' | 'up' | 'down' | 'left' | 'right' | 'move_up' | 'move_down' | 'move_left' | 'move_right' | 'delete' | 'edit_start' | 'edit_end' | 'edit_select_all' | 'copy' | 'paste' | 'copy_all_items_text' | 'toggle_theme' | 'toggle_status' | 'toggle_type' | 'paste_above' | 'cancel' | 'create' | 'create_above' | 'todo';
+export const actions = [
+  'TODAY',
+  'UP',
+  'DOWN',
+  'LEFT',
+  'RIGHT',
+  'MOVE_UP',
+  'MOVE_DOWN',
+  'MOVE_LEFT',
+  'MOVE_RIGHT',
+  'DELETE',
+  'EDIT_START',
+  'EDIT_END',
+  'EDIT_SELECT_ALL',
+  'COPY',
+  'PASTE',
+  'COPY_ALL_ITEMS_TEXT',
+  'TOGGLE_THEME',
+  'TOGGLE_STATUS',
+  'TOGGLE_TYPE',
+  'PASTE_ABOVE',
+  'CANCEL',
+  'CREATE',
+  'CREATE_ABOVE',
+  'TODO',
+] as const;
+
+export type Action = typeof actions[number];
 
 export type WeekdayString = 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat';
 export type WeekdayNumbers = 0 | 1 | 2 | 3 | 4 | 5 | 6;

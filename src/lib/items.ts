@@ -233,7 +233,6 @@ export async function updateItem(item: ItemType) {
 
 export async function cancelEditingItem(item: ItemType) {
   if ((await getExistingEdit())?.id === item.id) {
-    console.log("here");
     try {
       clearExistingEdit();
     } catch (error) {
@@ -292,7 +291,6 @@ export function getNewOrderingNumber(items: ItemType[], index: number, nextIndex
   if (index >= len || nextIndex >= len) {
     return bot;
   }
-
   const x = items[index]?.order[section];
   const y = items[nextIndex]?.order[section];
   return (x + y) / 2;

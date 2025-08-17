@@ -5,7 +5,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/
 import { WeekDates } from "./weekDates";
 import { ChevronRight, ChevronLeft } from 'lucide-react';
 import { buildFullWeekView } from "@/lib/week";
-import { useActionListener } from "@/lib/useActionListener";
 import { cn } from "@/lib/utils";
 
 function WeekDatesCard() {
@@ -14,25 +13,9 @@ function WeekDatesCard() {
   const secondCalEnabled = useCalendarConfig((state) => state.secondCalEnabled);
   const weekReference = useAppLogic((state) => state.weekReference);
   const requestWeekChange = useAppLogic((state) => state.requestWeekChange);
-  const requestGoToToday = useAppLogic((state) => state.requestGoToToday);
 
   const weekView = buildFullWeekView(weekReference, mainCal, secondCal, secondCalEnabled);
   const defaultDirection = (weekView.direction === 'ltr');
-
-  // todo: all user interactions actions should be handled by app logic!
-  useActionListener('right', () => {
-    if (defaultDirection) requestWeekChange(1);
-    else requestWeekChange(-1);
-  });
-
-  useActionListener('left', () => {
-    if (defaultDirection) requestWeekChange(-1);
-    else requestWeekChange(+1);
-  });
-
-  useActionListener('today', () => {
-    requestGoToToday();
-  });
 
   const NextIcon = defaultDirection ? ChevronRight : ChevronLeft;
   const PrevIcon = defaultDirection ? ChevronLeft : ChevronRight;

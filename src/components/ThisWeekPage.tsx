@@ -9,7 +9,7 @@ import { useSwipe } from '@/lib/useSwipe';
 export function ThisWeekPage() {
   const mainCal = useCalendarConfig((state) => state.mainCal);
   const requestWeekChange = useAppLogic((state) => state.requestWeekChange);
-  const setSelectedId = useAppLogic((state) => state.setSelectedId);
+  const requestChangeSelectedItemById = useAppLogic((state) => state.requestChangeSelectedItemById);
   const items = useAppLogic((state) => state.weeklyItems);
   const editingNewItem = useAppLogic((state) => state.editingNewItem);
   const editingExistingItem = useAppLogic((state) => state.editingExistingItem);
@@ -32,7 +32,7 @@ export function ThisWeekPage() {
       onClick={(event) => {
         event.stopPropagation();
         console.log("week page click...");
-        setSelectedId(null);
+        requestChangeSelectedItemById(null);
       }}
     >
       <div className="flex w-full justify-center">

@@ -10,12 +10,12 @@ import { useEffect, useRef } from "react";
 
 export function SettingsPage() {
   const settingPage = useAppLogic((state) => state.settingPage);
-  const setSettingPage = useAppLogic((state) => state.setSettingPage);
+  const requestSettingPageChange = useAppLogic((state) => state.requestSettingPageChange);
   const isWideScreen = useMediaQuery("(min-width: 40rem)"); // tailwindcss defines 640px as 40rem
   const scrollRef = useRef<HTMLDivElement>(null);
 
   function handleTabChange(x: string) {
-    setSettingPage(x as SettingPageType)
+    requestSettingPageChange(x as SettingPageType)
   }
 
   const SettingsGeneral = () => <div><h1>General!</h1><p>{lorem}</p></div>;
