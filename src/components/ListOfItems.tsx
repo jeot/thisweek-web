@@ -45,6 +45,7 @@ interface ListOfItemsProps {
 
 export function ListOfItems({ className, items, newEdit, existingEdit, modifiable }: ListOfItemsProps) {
   const selectedId = useAppLogic((state) => state.selectedId);
+  const wiggleId = useAppLogic((state) => state.wiggleId);
   const moveItemScheduleTimeByWeeks = useAppLogic((state) => state.moveItemScheduleTimeByWeeks);
   const moveItemScheduleTimeToThisWeek = useAppLogic((state) => state.moveItemScheduleTimeToThisWeek);
   const requestBeginEditingExistingItem = useAppLogic((state) => state.requestBeginEditingExistingItem);
@@ -128,6 +129,7 @@ export function ListOfItems({ className, items, newEdit, existingEdit, modifiabl
         return (
           <Item
             key={item.id}
+            className={item.id === wiggleId ? "wiggle" : ""}
             id={`item-id-${item.id}`}
             item={displayItem}
             editing={editing}

@@ -15,6 +15,7 @@ type AppLogic = {
 	weekReference: number;
 	internalCopiedItem: ItemType | null;
 	selectedId: number | null;
+	wiggleId: number | null;
 	editingCaretPosition: 'caret_start' | 'caret_end' | 'caret_select_all' | null;
 
 	// data
@@ -27,6 +28,11 @@ type AppLogic = {
 	setEditingNewItems: (item: ItemType | null) => void;
 	setEditingExistingItems: (item: ItemType | null) => void;
 
+	// helper functions
+	rejectCheck_WiggleIfEditingSomething: () => boolean;
+	rejectCheck_CancelEditingIfPossibleWiggleIfNot: () => boolean;
+
+	// components requesting some action
 	requestPageViewChange: (page: PageViewType) => void;
 	requestSettingPageChange: (page: SettingPageType) => void;
 	requestBeginEditingNewItem: (firstIndex: number, secondIndex: number, category?: 'weekly' | 'project') => void;
@@ -58,6 +64,7 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 	weekReference: (new Date()).getTime(),
 	internalCopiedItem: null,
 	selectedId: null,
+	wiggleId: null,
 
 	weeklyItems: [],
 	projectItems: [],
@@ -75,9 +82,40 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 		if (item) set({ weekReference: item.scheduledAt });
 	},
 
-	requestPageViewChange: (page) => {
+	// helper functions
+
+	rejectCheck_WiggleIfEditingSomething: () => {
 		const logic = get();
-		if (logic.editingExistingItem || logic.editingNewItem) return;
+		setTimeout(() => set({ wiggleId: null }), 300); // same as animation duration
+		if (logic.editingExistingItem) {
+			set({ wiggleId: logic.editingExistingItem.id });
+			return true;
+		} else if (logic.editingNewItem) {
+			set({ wiggleId: logic.editingNewItem.id });
+			return true;
+		} else {
+			set({ wiggleId: null });
+			return false;
+		}
+	},
+	rejectCheck_CancelEditingIfPossibleWiggleIfNot: () => {
+		const logic = get();
+		if (logic.editingNewItem && logic.editingNewItem.title.trimEnd() === "") {
+			set({ editingNewItem: null, wiggleId: null });
+			return false;
+		}
+		const originalItemTitle = logic.weeklyItems.find((i) => (i.id === logic.editingExistingItem?.id))?.title;
+		if (logic.editingExistingItem && logic.editingExistingItem.title === originalItemTitle) {
+			set({ editingExistingItem: null, wiggleId: null });
+			return false;
+		}
+		return logic.rejectCheck_WiggleIfEditingSomething();
+	},
+
+	// components requesting some action
+
+	requestPageViewChange: (page) => {
+		if (get().rejectCheck_CancelEditingIfPossibleWiggleIfNot()) return;
 		set({ pageView: page });
 	},
 	requestSettingPageChange: (page: SettingPageType) => {
@@ -85,49 +123,48 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 		if (logic.pageView === 'Settings') set({ settingPage: page });
 	},
 	requestBeginEditingNewItem: (firstIndex, secondIndex, category = 'weekly') => {
+		if (get().rejectCheck_WiggleIfEditingSomething()) return;
 		const logic = get();
-		if (logic.editingExistingItem || logic.editingNewItem) return;
 		const ordering = getNewOrderingNumber(logic.weeklyItems, firstIndex, secondIndex, category);
 		createNewEditingItem(ordering);
 	},
 	requestBeginEditingExistingItem: (item, caretPosition = 'caret_end') => {
-		if (get().editingExistingItem || get().editingNewItem) return;
+		if (get().rejectCheck_WiggleIfEditingSomething()) return;
 		createExistingEditingItem(item);
 		set({ editingCaretPosition: caretPosition });
 	},
 	moveItemScheduleTimeByWeeks: (item, weekOffset, follow = true, select = true) => {
-		if (get().editingExistingItem || get().editingNewItem) return;
+		if (get().rejectCheck_WiggleIfEditingSomething()) return;
 		const newSchedule = item.scheduledAt + (weekOffset * MILLISECONDS_IN_WEEK);
 		updateItem({ ...item, scheduledAt: newSchedule, });
 		if (follow) set({ weekReference: newSchedule });
 		if (select) set({ selectedId: item.id });
 	},
 	moveItemScheduleTimeToThisWeek: (item, weekOffset = 0, follow = true, select = true) => {
-		if (get().editingExistingItem || get().editingNewItem) return;
+		if (get().rejectCheck_WiggleIfEditingSomething()) return;
 		const newSchedule = (new Date()).getTime() + (weekOffset * MILLISECONDS_IN_WEEK);
 		updateItem({ ...item, scheduledAt: newSchedule, });
 		if (follow) set({ weekReference: newSchedule });
 		if (select) set({ selectedId: item.id });
 	},
 	requestGoToToday: () => {
-		const logic = get();
-		if (logic.editingExistingItem || logic.editingNewItem) return;
+		if (get().rejectCheck_CancelEditingIfPossibleWiggleIfNot()) return;
 		set({ weekReference: (new Date()).getTime() });
 		return true;
 	},
 	requestWeekChange: (weekOffset) => {
+		if (get().rejectCheck_CancelEditingIfPossibleWiggleIfNot()) return;
 		const logic = get();
-		if (logic.editingExistingItem || logic.editingNewItem) return;
 		set({ weekReference: logic.weekReference + (weekOffset * MILLISECONDS_IN_WEEK) })
 		set({ selectedId: null });
 	},
 	requestChangeSelectedItemById: (id) => {
-		if (get().editingExistingItem || get().editingNewItem) return;
+		if (get().rejectCheck_WiggleIfEditingSomething()) return;
 		set({ selectedId: id });
 	},
 	requestMoveItemUpOrDown: (item: ItemType, offset: number) => {
+		if (get().rejectCheck_WiggleIfEditingSomething()) return;
 		const logic = get();
-		if (logic.editingExistingItem || logic.editingNewItem) return;
 		const itemIndex: number = logic.weeklyItems.findIndex((i) => (i.id === item.id));
 		if (itemIndex < 0) return;
 		console.log("⬆️⬇️");
@@ -136,8 +173,8 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 		updateItem({ ...item, order: { ...item.order, weekly: newOrder } });
 	},
 	requestDeleteItem: (item: ItemType) => {
+		if (get().rejectCheck_WiggleIfEditingSomething()) return;
 		const logic = get();
-		if (logic.editingExistingItem || logic.editingNewItem) return;
 		const itemIndex: number = logic.weeklyItems.findIndex((i) => (i.id === item.id));
 		if (itemIndex < 0) return;
 		deleteItem(item);
@@ -174,8 +211,8 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 		await logic.requestPasteAtIndexAsync(itemIndex);
 	},
 	requestPasteAtIndexAsync: async (index: number) => {
+		if (get().rejectCheck_WiggleIfEditingSomething()) return;
 		const logic = get();
-		if (logic.editingExistingItem || logic.editingNewItem) return;
 		try {
 			console.log("trying to get the text from clipboard...");
 			// const result = await navigator.permissions.query({ name: 'clipboard-read' as PermissionName });
