@@ -29,8 +29,10 @@ type AppLogic = {
 	setEditingExistingItems: (item: ItemType | null) => void;
 
 	// helper functions
-	rejectCheck_WiggleIfEditingSomething: () => boolean;
-	rejectCheck_CancelEditingIfPossibleWiggleIfNot: () => boolean;
+	getEditingItemId: () => number | null;
+	cancelEditingItemIfNotChanged: () => boolean;
+	easyCheckForCancellingUnchangedEditingItemOrWiggle: () => boolean;
+	wiggleEditingItem: () => void;
 
 	// components requesting some action
 	requestPageViewChange: (page: PageViewType) => void;
@@ -53,6 +55,11 @@ type AppLogic = {
 	requestToggleItemStatus: (item: ItemType) => void;
 	requestToggleItemType: (item: ItemType) => void;
 	requestCancelWhateverIsHappening: () => void;
+
+	// some events from components
+	eventWeekPageClicked: () => void;
+	eventItemWasClicked: (item: ItemType) => void;
+	eventItemContextMenuOpened: (item: ItemType) => void;
 
 	// actions (keyboard mostly or events)
 	actionRequest: (action: Action) => void,
@@ -84,87 +91,118 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 
 	// helper functions
 
-	rejectCheck_WiggleIfEditingSomething: () => {
+	getEditingItemId: () => {
 		const logic = get();
-		setTimeout(() => set({ wiggleId: null }), 300); // same as animation duration
+		if (logic.editingExistingItem) {
+			return logic.editingExistingItem.id;
+		} else if (logic.editingNewItem) {
+			return logic.editingNewItem.id;
+		} else {
+			return null;
+		}
+	},
+	wiggleEditingItem: () => {
+		const logic = get();
 		if (logic.editingExistingItem) {
 			set({ wiggleId: logic.editingExistingItem.id });
+			setTimeout(() => set({ wiggleId: null }), 300); // same as animation duration
 			return true;
 		} else if (logic.editingNewItem) {
 			set({ wiggleId: logic.editingNewItem.id });
+			setTimeout(() => set({ wiggleId: null }), 300); // same as animation duration
 			return true;
 		} else {
 			set({ wiggleId: null });
 			return false;
 		}
 	},
-	rejectCheck_CancelEditingIfPossibleWiggleIfNot: () => {
+	cancelEditingItemIfNotChanged: () => {
 		const logic = get();
 		if (logic.editingNewItem && logic.editingNewItem.title.trimEnd() === "") {
-			set({ editingNewItem: null, wiggleId: null });
-			return false;
+			cancelEditingItem(logic.editingNewItem)
+			set({ editingNewItem: null }); // this is a hack to update logic imidiately. used when right clicking other items
+			return true;
 		}
 		const originalItemTitle = logic.weeklyItems.find((i) => (i.id === logic.editingExistingItem?.id))?.title;
 		if (logic.editingExistingItem && logic.editingExistingItem.title === originalItemTitle) {
-			set({ editingExistingItem: null, wiggleId: null });
+			cancelEditingItem(logic.editingExistingItem)
+			set({ editingExistingItem: null }); // this is a hack to update logic imidiately. used when right clicking other items
+			return true;
+		}
+		if (logic.editingNewItem || logic.editingExistingItem)
+			return false;
+		else
+			return true; // tells that there is notting to cancel!
+	},
+	easyCheckForCancellingUnchangedEditingItemOrWiggle: () => {
+		const logic = get();
+		if (logic.getEditingItemId() !== null) {
+			if (!logic.cancelEditingItemIfNotChanged()) logic.wiggleEditingItem();
 			return false;
 		}
-		return logic.rejectCheck_WiggleIfEditingSomething();
+		return true;
 	},
 
 	// components requesting some action
 
 	requestPageViewChange: (page) => {
-		if (get().rejectCheck_CancelEditingIfPossibleWiggleIfNot()) return;
+		const logic = get();
+		if (!logic.easyCheckForCancellingUnchangedEditingItemOrWiggle()) return;
 		set({ pageView: page });
 	},
 	requestSettingPageChange: (page: SettingPageType) => {
 		const logic = get();
+		if (!logic.easyCheckForCancellingUnchangedEditingItemOrWiggle()) return;
 		if (logic.pageView === 'Settings') set({ settingPage: page });
 	},
 	requestBeginEditingNewItem: (firstIndex, secondIndex, category = 'weekly') => {
-		if (get().rejectCheck_WiggleIfEditingSomething()) return;
 		const logic = get();
+		if (!logic.easyCheckForCancellingUnchangedEditingItemOrWiggle()) return;
 		const ordering = getNewOrderingNumber(logic.weeklyItems, firstIndex, secondIndex, category);
 		createNewEditingItem(ordering);
 	},
 	requestBeginEditingExistingItem: (item, caretPosition = 'caret_end') => {
-		if (get().rejectCheck_WiggleIfEditingSomething()) return;
+		const logic = get();
+		if (!logic.easyCheckForCancellingUnchangedEditingItemOrWiggle()) return;
 		createExistingEditingItem(item);
 		set({ editingCaretPosition: caretPosition });
 	},
 	moveItemScheduleTimeByWeeks: (item, weekOffset, follow = true, select = true) => {
-		if (get().rejectCheck_WiggleIfEditingSomething()) return;
+		const logic = get();
+		if (!logic.easyCheckForCancellingUnchangedEditingItemOrWiggle()) return;
 		const newSchedule = item.scheduledAt + (weekOffset * MILLISECONDS_IN_WEEK);
 		updateItem({ ...item, scheduledAt: newSchedule, });
 		if (follow) set({ weekReference: newSchedule });
 		if (select) set({ selectedId: item.id });
 	},
 	moveItemScheduleTimeToThisWeek: (item, weekOffset = 0, follow = true, select = true) => {
-		if (get().rejectCheck_WiggleIfEditingSomething()) return;
+		const logic = get();
+		if (!logic.easyCheckForCancellingUnchangedEditingItemOrWiggle()) return;
 		const newSchedule = (new Date()).getTime() + (weekOffset * MILLISECONDS_IN_WEEK);
 		updateItem({ ...item, scheduledAt: newSchedule, });
 		if (follow) set({ weekReference: newSchedule });
 		if (select) set({ selectedId: item.id });
 	},
 	requestGoToToday: () => {
-		if (get().rejectCheck_CancelEditingIfPossibleWiggleIfNot()) return;
+		const logic = get();
+		if (!logic.easyCheckForCancellingUnchangedEditingItemOrWiggle()) return;
 		set({ weekReference: (new Date()).getTime() });
 		return true;
 	},
 	requestWeekChange: (weekOffset) => {
-		if (get().rejectCheck_CancelEditingIfPossibleWiggleIfNot()) return;
 		const logic = get();
+		if (!logic.easyCheckForCancellingUnchangedEditingItemOrWiggle()) return;
 		set({ weekReference: logic.weekReference + (weekOffset * MILLISECONDS_IN_WEEK) })
 		set({ selectedId: null });
 	},
 	requestChangeSelectedItemById: (id) => {
-		if (get().rejectCheck_WiggleIfEditingSomething()) return;
+		const logic = get();
+		if (!logic.easyCheckForCancellingUnchangedEditingItemOrWiggle()) return;
 		set({ selectedId: id });
 	},
 	requestMoveItemUpOrDown: (item: ItemType, offset: number) => {
-		if (get().rejectCheck_WiggleIfEditingSomething()) return;
 		const logic = get();
+		if (!logic.easyCheckForCancellingUnchangedEditingItemOrWiggle()) return;
 		const itemIndex: number = logic.weeklyItems.findIndex((i) => (i.id === item.id));
 		if (itemIndex < 0) return;
 		console.log("⬆️⬇️");
@@ -173,8 +211,8 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 		updateItem({ ...item, order: { ...item.order, weekly: newOrder } });
 	},
 	requestDeleteItem: (item: ItemType) => {
-		if (get().rejectCheck_WiggleIfEditingSomething()) return;
 		const logic = get();
+		if (!logic.easyCheckForCancellingUnchangedEditingItemOrWiggle()) return;
 		const itemIndex: number = logic.weeklyItems.findIndex((i) => (i.id === item.id));
 		if (itemIndex < 0) return;
 		deleteItem(item);
@@ -211,8 +249,8 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 		await logic.requestPasteAtIndexAsync(itemIndex);
 	},
 	requestPasteAtIndexAsync: async (index: number) => {
-		if (get().rejectCheck_WiggleIfEditingSomething()) return;
 		const logic = get();
+		if (!logic.easyCheckForCancellingUnchangedEditingItemOrWiggle()) return;
 		try {
 			console.log("trying to get the text from clipboard...");
 			// const result = await navigator.permissions.query({ name: 'clipboard-read' as PermissionName });
@@ -281,6 +319,25 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 			set({ selectedId: null });
 		} else {
 		}
+	},
+
+	// some events from components
+	eventWeekPageClicked: () => {
+		const logic = get();
+		if (!logic.easyCheckForCancellingUnchangedEditingItemOrWiggle()) return;
+		logic.requestChangeSelectedItemById(null);
+	},
+	eventItemWasClicked: (item) => {
+		const logic = get();
+		if (logic.getEditingItemId() === item.id) return;
+		logic.requestChangeSelectedItemById(item.id);
+	},
+	eventItemContextMenuOpened: (item) => {
+		const logic = get();
+		if (logic.getEditingItemId() === item.id) return;
+		if (!logic.cancelEditingItemIfNotChanged()) return logic.wiggleEditingItem();
+		logic.requestChangeSelectedItemById(item.id);
+		return; // it may be too complicated. let it be for the future!
 	},
 
 	// actions (keyboard mostly or events)

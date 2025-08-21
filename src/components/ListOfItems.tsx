@@ -56,10 +56,11 @@ export function ListOfItems({ className, items, newEdit, existingEdit, modifiabl
   const requestUpdateItem = useAppLogic((state) => state.requestUpdateItem);
   const requestApplyEditingItem = useAppLogic((state) => state.requestApplyEditingItem);
   const requestCancelEditingItem = useAppLogic((state) => state.requestCancelEditingItem);
-  const requestChangeSelectedItemById = useAppLogic((state) => state.requestChangeSelectedItemById);
   const requestMoveItemUpOrDown = useAppLogic((state) => state.requestMoveItemUpOrDown);
   const requestToggleItemType = useAppLogic((state) => state.requestToggleItemType);
   const editingCaretPosition = useAppLogic((state) => state.editingCaretPosition);
+  const eventItemWasClicked = useAppLogic((state) => state.eventItemWasClicked);
+  const eventItemContextMenuOpened = useAppLogic((state) => state.eventItemContextMenuOpened);
 
   let allItems: Array<ItemType> = [];
   allItems.push(...items);
@@ -101,7 +102,7 @@ export function ListOfItems({ className, items, newEdit, existingEdit, modifiabl
     if (action === "Update") { requestUpdateItem(item); }
     if (action === "Apply") { requestApplyEditingItem(item); }
     if (action === "Cancel") { requestCancelEditingItem(item); }
-    if (action === "ContextMenuOpened") { requestChangeSelectedItemById(item.id); }
+    if (action === "ContextMenuOpened") { eventItemContextMenuOpened(item); }
     if (action === "Move Up") { requestMoveItemUpOrDown(item, -1); }
     if (action === "Move Down") { requestMoveItemUpOrDown(item, +1); }
     if (action === "Move Next") { moveItemScheduleTimeByWeeks(item, +1) }
@@ -111,13 +112,7 @@ export function ListOfItems({ className, items, newEdit, existingEdit, modifiabl
   }
 
   function handleOnItemClick(item: ItemType): void {
-    if (!newEdit && !existingEdit) {
-      if (selectedId === item.id) {
-        requestChangeSelectedItemById(null);
-      } else {
-        requestChangeSelectedItemById(item.id);
-      }
-    }
+    eventItemWasClicked(item);
   }
 
   return (
