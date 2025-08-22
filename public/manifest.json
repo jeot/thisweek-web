@@ -1,0 +1,21 @@
+{
+  "name": "ThisWeek App",
+  "short_name": "ThisWeek",
+  "start_url": "/app/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#615fff",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
+
