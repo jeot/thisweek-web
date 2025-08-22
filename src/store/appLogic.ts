@@ -120,13 +120,13 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 		const logic = get();
 		if (logic.editingNewItem && logic.editingNewItem.title.trimEnd() === "") {
 			cancelEditingItem(logic.editingNewItem)
-			set({ editingNewItem: null }); // this is a hack to update logic imidiately. used when right clicking other items
+			// set({ editingNewItem: null }); // this is a hack to update logic imidiately. used when right clicking other items
 			return true;
 		}
 		const originalItemTitle = logic.weeklyItems.find((i) => (i.id === logic.editingExistingItem?.id))?.title;
 		if (logic.editingExistingItem && logic.editingExistingItem.title === originalItemTitle) {
 			cancelEditingItem(logic.editingExistingItem)
-			set({ editingExistingItem: null }); // this is a hack to update logic imidiately. used when right clicking other items
+			// set({ editingExistingItem: null }); // this is a hack to update logic imidiately. used when right clicking other items
 			return true;
 		}
 		if (logic.editingNewItem || logic.editingExistingItem)
