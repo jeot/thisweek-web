@@ -1,7 +1,7 @@
 {
   "name": "ThisWeek App",
   "short_name": "ThisWeek",
-  "start_url": "/app/",
+  "start_url": "/app",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#615fff",
@@ -18,4 +18,3 @@
     }
   ]
 }
-

@@ -20,13 +20,13 @@ if (import.meta.env.PROD && import.meta.env.VITE_GA_ID) {
 // Register service worker
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js')
+    navigator.serviceWorker.register('/service-worker.js', { scope: '/' })
       .then(registration => {
         console.log('Service Worker registered with scope:', registration.scope);
-        
+
         // Check for updates periodically
         registration.update();
-        
+
         // Optional: Check for updates on visibility change
         document.addEventListener('visibilitychange', () => {
           if (!document.hidden) {
