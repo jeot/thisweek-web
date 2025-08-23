@@ -1,0 +1,106 @@
+.
+├── components.json
+├── eslint.config.js
+├── git-release
+├── index.html
+├── package.json
+├── pnpm-lock.yaml
+├── public
+│   ├── fonts
+│   │   ├── Shabnam-Bold.woff
+│   │   ├── shabnam.css
+│   │   ├── Shabnam-Light.woff
+│   │   ├── Shabnam-Medium.woff
+│   │   ├── Shabnam-Thin.woff
+│   │   └── Shabnam.woff
+│   ├── icons
+│   │   ├── 128x128@2x.png
+│   │   ├── 128x128.png
+│   │   ├── 32x32.png
+│   │   ├── icon-192.png
+│   │   ├── icon.icns
+│   │   ├── icon.ico
+│   │   ├── icon.png
+│   │   ├── Square107x107Logo.png
+│   │   ├── Square142x142Logo.png
+│   │   ├── Square150x150Logo.png
+│   │   ├── Square284x284Logo.png
+│   │   ├── Square30x30Logo.png
+│   │   ├── Square310x310Logo.png
+│   │   ├── Square44x44Logo.png
+│   │   ├── Square71x71Logo.png
+│   │   ├── Square89x89Logo.png
+│   │   └── StoreLogo.png
+│   ├── manifest.json
+│   └── service-worker.js
+├── README.md
+├── src
+│   ├── App.css
+│   ├── AppInitializer.tsx
+│   ├── AppPage.tsx
+│   ├── App.tsx
+│   ├── assets
+│   │   ├── lorem.ts
+│   │   └── react.svg
+│   ├── components
+│   │   ├── HeaderContent.tsx
+│   │   ├── Item.tsx
+│   │   ├── ListOfItems.tsx
+│   │   ├── SettingsAbout.tsx
+│   │   ├── SettingsCalendar.tsx
+│   │   ├── SettingsKeymap.tsx
+│   │   ├── SettingsPage.tsx
+│   │   ├── SidebarLayout.tsx
+│   │   ├── ThisWeekPage.tsx
+│   │   ├── ui
+│   │   │   ├── badge.tsx
+│   │   │   ├── button.tsx
+│   │   │   ├── card.tsx
+│   │   │   ├── context-menu.tsx
+│   │   │   ├── select.tsx
+│   │   │   ├── separator.tsx
+│   │   │   ├── sheet.tsx
+│   │   │   ├── switch.tsx
+│   │   │   ├── table.tsx
+│   │   │   ├── tabs.tsx
+│   │   │   ├── textarea.tsx
+│   │   │   └── tooltip.tsx
+│   │   ├── weekDatesCard.tsx
+│   │   └── weekDates.tsx
+│   ├── ga.ts
+│   ├── lib
+│   │   ├── appConfigDb.ts
+│   │   ├── db.ts
+│   │   ├── dexieListeners.ts
+│   │   ├── items.ts
+│   │   ├── keymaps.ts
+│   │   ├── useActionListener.ts
+│   │   ├── useMediaQuery.ts
+│   │   ├── useSwipe.tsx
+│   │   ├── utils.ts
+│   │   └── week.ts
+│   ├── main.tsx
+│   ├── NotFoundPage.tsx
+│   ├── store
+│   │   ├── appLogic.ts
+│   │   ├── calendarConfig.ts
+│   │   ├── keymapConfig.ts
+│   │   ├── otherConfigs.ts
+│   │   └── themeConfig.ts
+│   ├── types
+│   │   ├── calendarLocales.ts
+│   │   ├── global.d.ts
+│   │   ├── localesJsonData.json
+│   │   └── types.ts
+│   ├── vite-env.d.ts
+│   └── week_test.ts
+├── tree.txt
+├── tsconfig.app.json
+├── tsconfig.app.tsbuildinfo
+├── tsconfig.json
+├── tsconfig.node.json
+├── tsconfig.node.tsbuildinfo
+├── vercel.json
+└── vite.config.ts
+
+63 directories, 121 files

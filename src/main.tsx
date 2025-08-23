@@ -17,6 +17,29 @@ if (import.meta.env.PROD && import.meta.env.VITE_GA_ID) {
   console.log("not in production or invalid GA id");
 }
 
+// Register service worker
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(registration => {
+        console.log('Service Worker registered with scope:', registration.scope);
+        
+        // Check for updates periodically
+        registration.update();
+        
+        // Optional: Check for updates on visibility change
+        document.addEventListener('visibilitychange', () => {
+          if (!document.hidden) {
+            registration.update();
+          }
+        });
+      })
+      .catch(error => {
+        console.error('Service Worker registration failed:', error);
+      });
+  });
+}
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
