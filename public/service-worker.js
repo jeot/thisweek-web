@@ -1,5 +1,5 @@
 // Change version each time the service-worker.js code is changed!
-const SW_VERSION = '1';
+const SW_VERSION = '2';
 const CACHE_NAME = `thisweek-v${SW_VERSION}`;
 const urlsToCache = [
   '/',
