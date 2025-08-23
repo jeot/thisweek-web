@@ -24,10 +24,30 @@ if ('serviceWorker' in navigator) {
       .then(registration => {
         console.log('Service Worker registered with scope:', registration.scope);
 
-        // Check for updates periodically
+        // Check for updates immediately
         registration.update();
 
-        // Optional: Check for updates on visibility change
+        // Listen for new service worker waiting
+        registration.addEventListener('updatefound', () => {
+          const newWorker = registration.installing;
+          if (newWorker) {
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                // New service worker available
+                console.log('New service worker available! Refresh to update.');
+                // Optional: Show a notification to the user
+                // You could dispatch an event or update a store to show a "Update available" banner
+              }
+            });
+          }
+        });
+
+        // Check for updates periodically (every hour)
+        setInterval(() => {
+          registration.update();
+        }, 60 * 60 * 1000);
+
+        // Check for updates on visibility change
         document.addEventListener('visibilitychange', () => {
           if (!document.hidden) {
             registration.update();
@@ -37,6 +57,12 @@ if ('serviceWorker' in navigator) {
       .catch(error => {
         console.error('Service Worker registration failed:', error);
       });
+  });
+
+  // Listen for service worker controller change (when new SW takes over)
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    console.log('Service worker updated, reloading page...');
+    window.location.reload();
   });
 }
 
