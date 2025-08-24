@@ -39,13 +39,13 @@ let cachedDeviceId: string | null = null;
 export function getDeviceId(): string {
   if (!cachedDeviceId) {
     console.log("!! no valid cachedDeviceId. should not happen! !!");
-    initDeviceId();
+    async_initDeviceId();
     return "?!?!";
   }
   return cachedDeviceId;
 }
 
-export async function initDeviceId(): Promise<string> {
+export async function async_initDeviceId(): Promise<string> {
   const dbKey = 'deviceId';
 
   // Step 1: Check IndexedDB (preferred)
@@ -72,7 +72,5 @@ export async function initDeviceId(): Promise<string> {
   cachedDeviceId = newId;
   return newId;
 }
-
-initDeviceId();
 
 export { db };

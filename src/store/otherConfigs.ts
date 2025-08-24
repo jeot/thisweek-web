@@ -1,4 +1,4 @@
-import { saveAppConfigToIDBPartial } from '@/lib/appConfigDb';
+import { async_saveAppConfigToIDBPartial } from '@/lib/appConfigDb';
 import { create } from 'zustand';
 
 type OtherConfigs = {
@@ -10,7 +10,7 @@ export const useOtherConfigs = create<OtherConfigs>((set) => ({
 	sidebarCollapsed: true,
 	setSidebarCollapsed: (v, save = true) => {
 		set({ sidebarCollapsed: v });
-		if (save) saveAppConfigToIDBPartial({ sidebarCollapsed: v });
+		if (save) async_saveAppConfigToIDBPartial({ sidebarCollapsed: v });
 	},
 }));
 

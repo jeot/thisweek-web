@@ -50,10 +50,11 @@ export function ListOfItems({ className, items, newEdit, existingEdit, modifiabl
   const moveItemScheduleTimeToThisWeek = useAppLogic((state) => state.moveItemScheduleTimeToThisWeek);
   const requestBeginEditingExistingItem = useAppLogic((state) => state.requestBeginEditingExistingItem);
   const requestBeginEditingNewItem = useAppLogic((state) => state.requestBeginEditingNewItem);
-  const requestCopyItemAsync = useAppLogic((state) => state.requestCopyItemAsync);
-  const requestPasteAtItemAsync = useAppLogic((state) => state.requestPasteAtItemAsync);
+  const requestCopyItem = useAppLogic((state) => state.requestCopyItem);
+  const requestPasteAtItem = useAppLogic((state) => state.requestPasteAtItem);
   const requestDeleteItem = useAppLogic((state) => state.requestDeleteItem);
   const requestUpdateItem = useAppLogic((state) => state.requestUpdateItem);
+  const requestUpdateEditingItem = useAppLogic((state) => state.requestUpdateEditingItem);
   const requestApplyEditingItem = useAppLogic((state) => state.requestApplyEditingItem);
   const requestCancelEditingItem = useAppLogic((state) => state.requestCancelEditingItem);
   const requestMoveItemUpOrDown = useAppLogic((state) => state.requestMoveItemUpOrDown);
@@ -91,17 +92,18 @@ export function ListOfItems({ className, items, newEdit, existingEdit, modifiabl
   }, [selectedIndex]);
 
   async function handleOnItemActionCallback(action: ItemActionType, item: ItemType) {
-    const modifyingActions: Array<ItemActionType> = ["Edit", "Paste", "Delete", "Update", "Apply", "Move Up", "Move Down", "Move Next", "Move Previous", "Move Today"];
+    const modifyingActions: Array<ItemActionType> = ["Edit", "Paste", "Delete", "Update", "UpdateEdit", "Apply", "Move Up", "Move Down", "Move Next", "Move Previous", "Move Today"];
     if (!modifiable && (modifyingActions.indexOf(action) >= 0)) return;
     // console.log("handleOnItemActionCallback:", action, item);
     if (action === "None") { /* have a tea. */ }
     if (action === "Edit") { requestBeginEditingExistingItem(item); }
-    if (action === "Copy") { requestCopyItemAsync(item); }
-    if (action === "Paste") { requestPasteAtItemAsync(item); }
+    if (action === "Copy") { requestCopyItem(item); }
+    if (action === "Paste") { requestPasteAtItem(item); }
     if (action === "Delete") { requestDeleteItem(item); }
     if (action === "Update") { requestUpdateItem(item); }
+    if (action === "UpdateEdit") { requestUpdateEditingItem(item); }
     if (action === "Apply") { requestApplyEditingItem(item); }
-    if (action === "Cancel") { requestCancelEditingItem(item); }
+    if (action === "Cancel") { requestCancelEditingItem(); }
     if (action === "ContextMenuOpened") { eventItemContextMenuOpened(item); }
     if (action === "Move Up") { requestMoveItemUpOrDown(item, -1); }
     if (action === "Move Down") { requestMoveItemUpOrDown(item, +1); }

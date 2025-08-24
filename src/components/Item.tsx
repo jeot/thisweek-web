@@ -7,7 +7,7 @@ import { CheckIcon, XIcon } from "lucide-react";
 import TextareaAutosize from 'react-textarea-autosize';
 import { useThemeConfig } from "@/store/themeConfig";
 
-export type ItemActionType = "None" | "Edit" | "Copy" | "Paste" | "Delete" | "Update" | "Apply" | "Cancel" | "ContextMenuOpened" | "Move Up" | "Move Down" | "Move Next" | "Move Previous" | "Move Today" | "Toggle Type";
+export type ItemActionType = "None" | "Edit" | "Copy" | "Paste" | "Delete" | "Update" | "UpdateEdit" | "Apply" | "Cancel" | "ContextMenuOpened" | "Move Up" | "Move Down" | "Move Next" | "Move Previous" | "Move Today" | "Toggle Type";
 
 type ContextMenuType = {
   name: string;
@@ -43,13 +43,9 @@ export function Item({ className, item, editing, editingPosition, selected, disa
   const theme = useThemeConfig((state) => state.theme);
 
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      if (editing) {
-        onItemActionCallback('Update', { ...item, title: title });
-      }
-    }, 500); // 0.5 second delay
-
-    return () => clearTimeout(timeout); // reset timer on each change
+    if (editing) {
+      onItemActionCallback('UpdateEdit', { ...item, title: title });
+    }
   }, [title, editing]);
 
   const checkedColor = theme.mode === 'dark' ? "#00aa00" : "#20aa20";
@@ -129,7 +125,7 @@ export function Item({ className, item, editing, editingPosition, selected, disa
     } else if (event.key === 'x' && event.ctrlKey) {
       const type = (item.type === 'todo') ? 'note' : 'todo';
       console.log("changing the item type to:", type);
-      onItemActionCallback('Update', { ...item, title: title, type: type });
+      onItemActionCallback('UpdateEdit', { ...item, type: type });
     } else { }
   }
 
@@ -157,7 +153,8 @@ export function Item({ className, item, editing, editingPosition, selected, disa
                 event.stopPropagation();
                 const newStatus = item.status === 'done' ? 'undone' : 'done';
                 const completedAt = newStatus === 'done' ? (new Date()).getTime() : null;
-                onItemActionCallback('Update', { ...item, title: displayTitle, status: newStatus, completedAt: completedAt });
+                if (editing) onItemActionCallback('UpdateEdit', { ...item, status: newStatus, completedAt: completedAt });
+                else onItemActionCallback('Update', { ...item, status: newStatus, completedAt: completedAt });
               }}>
               {item.status === 'done' ? <CircleCheckFilled /> : <CircleCheckEmpty />}
             </Button>}

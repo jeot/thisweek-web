@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { DEFAULT_SECOND_CAL_LOC, DEFAULT_MAIN_CAL_LOC, saveAppConfigToIDBPartial } from '@/lib/appConfigDb';
+import { DEFAULT_SECOND_CAL_LOC, DEFAULT_MAIN_CAL_LOC, async_saveAppConfigToIDBPartial } from '@/lib/appConfigDb';
 import { CalendarLocaleType, LocaleType } from '@/types/types';
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/DateTimeFormat
@@ -27,26 +27,26 @@ export const useCalendarConfig = create<CalendarConfig>((set, get) => ({
 	secondCalEnabled: false,
 	setMainCal: (cl, save = true) => {
 		set({ mainCal: cl });
-		if (save) saveAppConfigToIDBPartial({ mainCalendar: cl });
+		if (save) async_saveAppConfigToIDBPartial({ mainCalendar: cl });
 	},
 	// setMainCalCalendar: (cal) => set({ mainCal: { ...get().mainCal, calendar: cal } }),
 	setMainCalLocale: (loc, save = true) => {
 		const cl = { ...get().mainCal, locale: loc };
 		set({ mainCal: cl });
-		if (save) saveAppConfigToIDBPartial({ mainCalendar: cl });
+		if (save) async_saveAppConfigToIDBPartial({ mainCalendar: cl });
 	},
 	setSecondCal: (cl, save = true) => {
 		set({ secondCal: cl });
-		if (save) saveAppConfigToIDBPartial({ secondCalendar: cl });
+		if (save) async_saveAppConfigToIDBPartial({ secondCalendar: cl });
 	},
 	setSecondCalLocale: (loc, save = true) => {
 		const cl = { ...get().secondCal, locale: loc };
 		set({ secondCal: cl });
-		if (save) saveAppConfigToIDBPartial({ secondCalendar: cl });
+		if (save) async_saveAppConfigToIDBPartial({ secondCalendar: cl });
 	},
 	setSecondCalEnabled: (en, save = true) => {
 		set({ secondCalEnabled: en });
-		if (save) saveAppConfigToIDBPartial({ secondCalendarEnabled: en });
+		if (save) async_saveAppConfigToIDBPartial({ secondCalendarEnabled: en });
 	}
 }));
 

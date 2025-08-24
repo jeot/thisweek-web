@@ -57,6 +57,7 @@ export interface CalendarLocaleType {
 }
 
 // export type ItemContextMenuType = Array<{ name: 'Edit' | 'Copy' | 'Delete', action: (iat: ItemActionType) => void }>;
+export type CategoryType = 'weekly' | 'project';
 
 export interface ItemType {
   id: number; // sql local/server id. it can be different on different servers!
@@ -66,7 +67,7 @@ export interface ItemType {
   title: string;
   type: 'todo' | 'note'; // initially wanted to have 'event' type, but i think it's overkill!
   status: 'done' | 'undone' | 'pending' | 'blocked' | 'canceled';
-  category: 'weekly' | 'yearly' | 'project';
+  category: CategoryType;
   projectId: number | null; // future: reference the projects table.
 
   calendar: string; // the calendar system of the item

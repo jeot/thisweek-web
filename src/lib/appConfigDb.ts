@@ -91,7 +91,7 @@ const db = openDB<AppDB>(APP_CONFIG_DB, 1, {
   },
 });
 
-export async function getAppConfigFromIDB(): Promise<AppConfig | undefined> {
+export async function async_getAppConfigFromIDB(): Promise<AppConfig | undefined> {
   try {
     // console.log("geting config...");
     const result = await (await db).get(CONFIG_STORE, USER_APP_CONFIG_KEY);
@@ -103,7 +103,7 @@ export async function getAppConfigFromIDB(): Promise<AppConfig | undefined> {
   }
 }
 
-async function saveAppConfigToIDB(value: AppConfig) {
+async function async_saveAppConfigToIDB(value: AppConfig) {
   try {
     console.log("saving config... ", value);
     await (await db).put(CONFIG_STORE, value, USER_APP_CONFIG_KEY);
@@ -112,27 +112,27 @@ async function saveAppConfigToIDB(value: AppConfig) {
   }
 }
 
-export async function ensureValidAppConfig() {
+export async function async_ensureValidAppConfig() {
   try {
-    const existing = await getAppConfigFromIDB();
+    const existing = await async_getAppConfigFromIDB();
     if (!existing) {
       console.log("no config found! saving default...");
-      await saveAppConfigToIDB(DEFAULT_APP_CONFIG);
+      await async_saveAppConfigToIDB(DEFAULT_APP_CONFIG);
     }
   } catch (err) {
     console.log("catch error: ", err);
   }
 }
 
-export async function saveAppConfigToIDBPartial(partial: Partial<AppConfig>) {
+export async function async_saveAppConfigToIDBPartial(partial: Partial<AppConfig>) {
   try {
-    const current = await getAppConfigFromIDB();
+    const current = await async_getAppConfigFromIDB();
     if (current) {
       const merged = { ...current, ...partial };
-      await saveAppConfigToIDB(merged);
+      await async_saveAppConfigToIDB(merged);
     } else {
       const merged = { ...DEFAULT_APP_CONFIG, ...partial };
-      await saveAppConfigToIDB(merged);
+      await async_saveAppConfigToIDB(merged);
     }
   } catch (err) {
     console.log("catch error: ", err);

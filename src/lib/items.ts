@@ -1,58 +1,58 @@
-import { ItemType } from "@/types/types";
+import { CategoryType, ItemType } from "@/types/types";
 import { db, getDeviceId } from "@/lib/db.ts";
 import { useAppLogic } from "@/store/appLogic";
 import { useCalendarConfig } from "@/store/calendarConfig";
 import { MILLISECONDS_IN_WEEK } from '@/lib/week';
 
+type editingKeyType = 'editing_new' | 'editing_existing';
+
 // save editing item for temporary edit
-async function saveEditingItem(item: ItemType, editingKey: 'editing_new' | 'editing_existing') {
-  await db.editing.put({
-    key: editingKey,
-    item: item,
-  });
+export async function async_saveDraftItem(item: ItemType, editingKey: editingKeyType): Promise<boolean> {
+  try {
+    await db.editing.put({
+      key: editingKey,
+      item: item,
+    });
+    return true;
+  } catch (err) {
+    console.log("failed to save editing item! err:", err);
+    return false;
+  }
+}
+
+// clear editing item
+export async function async_deleteDraftItem(editingKey: editingKeyType): Promise<boolean> {
+  try {
+    await db.editing.delete(editingKey);
+    return true;
+  } catch (err) {
+    console.log("failed to delete editing item! err:", err);
+    return false;
+  }
 }
 
 // load editing item for temporary edit
-export async function getExistingEdit() { return (await db.editing.get('editing_existing'))?.item || null; }
-export async function getNewEdit() { return (await db.editing.get('editing_new'))?.item || null; }
-
-// clear temporary editing item
-const clearExistingEdit = async () => await db.editing.delete('editing_existing');
-const clearNewEdit = async () => await db.editing.delete('editing_new');
-
-export async function createExistingEditingItem(item: ItemType): Promise<void> {
+export async function async_getDraftItem(editingKey: editingKeyType): Promise<ItemType | null> {
   try {
-    const existingItem = await db.items.get(item.id);
-    if (existingItem) {
-      saveEditingItem(item, 'editing_existing');
-    } else {
-      console.log("failed to save exising item! item dont exists!");
-    }
+    const item = (await db.editing.get(editingKey))?.item || null;
+    return item;
   } catch (err) {
-    console.log("failed to save exising item:", err);
+    console.log("failed to get editing item! err:", err);
+    return null;
   }
 }
 
-export async function createNewEditingItem(orderingNumber?: number): Promise<void> {
-  const newItem = createNewItem(orderingNumber);
-  try {
-    saveEditingItem(newItem, 'editing_new');
-  } catch (error) {
-    console.log("Error creating new item. err:", error);
-  }
-}
-
-export function createNewItem(orderingNumber?: number): ItemType {
+export function createNewItem(orderingNumber?: number, category?: CategoryType): ItemType {
   // todo: use function argument for these states:
-  const category = useAppLogic.getState().pageView === 'This Week' ? 'weekly' : 'project'
   const weekTime = useAppLogic.getState().weekReference;
   const calendar = useCalendarConfig.getState().mainCal.calendar;
   const currentTime = (new Date()).getTime();
   const uuid: string = crypto.randomUUID();
   const tzOffset = new Date().getTimezoneOffset();
   const tzIANA = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Local';
+  const _category = category || 'weekly';
   let order = { weekly: 0, project: 0 };
-  if (orderingNumber !== undefined) order[category] = orderingNumber;
+  if (orderingNumber !== undefined) order[_category] = orderingNumber;
   const modifiedBy = getDeviceId();
 
   const newItem: ItemType = {
@@ -63,7 +63,7 @@ export function createNewItem(orderingNumber?: number): ItemType {
     title: "",
     type: 'todo',
     status: 'undone',
-    category: category,
+    category: category || 'weekly',
     projectId: null,
 
     calendar: calendar,
@@ -95,26 +95,41 @@ export function createNewItem(orderingNumber?: number): ItemType {
   return newItem;
 }
 
-export async function getItemsInWeeklyRange(startUtcMillis: number, endUtcMillis: number) {
-  // Query Dexie's API
+export function createNewItemFrom(item: ItemType): ItemType {
+  const currentTime = (new Date()).getTime();
+  const modifiedBy = getDeviceId();
+  item.id = -1;
+  item.uuid = crypto.randomUUID();
+  item.userId = null;
+  item.createdAt = currentTime;
+  item.modifiedAt = currentTime;
+  item.deletedAt = null;
+  item.version = 1;
+  item.syncedAt = null;
+  item.modifiedBy = modifiedBy;
+  item.iv = null;
+  item.encrypted = false;
+
+  return item;
+}
+
+export async function async_getItemsInMillisTimeRange(startUtcMillis: number, endUtcMillis: number): Promise<ItemType[]> {
   try {
     const items = await db.items
       .where('scheduledAt')
       .between(startUtcMillis, endUtcMillis, true, true)
       .and((x) => x.deletedAt === null)
       .and((x) => x.category === 'weekly')
-      .sortBy('order.weekly')
-
-    await checkAndFixOrdering(items);
-
+      .sortBy('order.weekly');
+    await async_checkAndFixOrdering(items);
     return items;
   } catch (err) {
-    console.log("error while query items:", err);
+    console.log("error getting items in time range:", err);
+    return [];
   }
-  return [];
 }
 
-export async function checkAndFixOrdering(items: ItemType[]) {
+async function async_checkAndFixOrdering(items: ItemType[]) {
   if (!items.length) return;
   let needOrderingFix = items.some(item => (item.order === null) || (item.order?.weekly) === undefined || isNaN(item.order.weekly) || (item.order.weekly >= 1000000) || (item.order.weekly <= -1000000));
   if (!needOrderingFix) {
@@ -147,137 +162,108 @@ export async function checkAndFixOrdering(items: ItemType[]) {
   }
 }
 
-export async function saveAsNewItem(item: ItemType) {
-  item.modifiedAt = (new Date()).getTime();
-  item.modifiedBy = getDeviceId();
-  console.log("trying to add new item...");
-  const { id, ...newItem } = item; // this actually removes the id
-  console.log("newItem:", newItem);
-  const insertedId = await db.items.add(newItem);
-  console.log("add successful. new id: ", insertedId);
-  return insertedId;
-}
-
-export async function applyEditingItem(item: ItemType) {
-  item.version++;
-  item.modifiedAt = (new Date()).getTime();
-  item.modifiedBy = getDeviceId();
-  let returnId: number | null = null
-  if ((await getExistingEdit())?.id === item.id) {
-    try {
-      console.log("trying to update existing item...");
-      const { id, ...modifiedItem } = item;
-      const count = await db.items.update(item.id, modifiedItem);
-      if (count) console.log(`update successful`);
-      else console.log(`update error: Item not found!`);
-      returnId = item.id;
-      await clearExistingEdit();
-    } catch (error) {
-      console.log("Error updating item. err:", error);
-    }
-  } else if ((await getNewEdit())?.id === item.id) {
-    try {
-      console.log("trying to add new item...");
-      const { id, ...newItem } = item; // this actually removes the id
-      // fix the new item date and time
-      // todo: this should be by the caller of the function!
-      const weekTime = useAppLogic.getState().weekReference;
-      newItem.scheduledAt = weekTime;
-      console.log("newItem:", newItem);
-      const insertedId = await db.items.add(newItem);
-      console.log("add successful. new id: ", insertedId);
-      returnId = insertedId;
-      await clearNewEdit();
-    } catch (error) {
-      console.log("Error updating item. err:", error);
-    }
-  } else {
-  }
-  return returnId;
-}
-
-export async function updateItem(item: ItemType) {
-  item.modifiedAt = (new Date()).getTime();
-  item.modifiedBy = getDeviceId();
-  if ((await getExistingEdit())?.id === item.id && (await getExistingEdit())?.uuid === item.uuid) {
-    try {
-      console.log("updating existingEdit...");
-      await saveEditingItem({ ...item }, 'editing_existing');
-      console.log("update successful");
-    } catch (error) {
-      console.log("Error updating. err:", error);
-    }
-  } else if ((await getNewEdit())?.id === item.id && (await getNewEdit())?.uuid === item.uuid) {
-    try {
-      console.log("updating newEdit...");
-      await saveEditingItem({ ...item }, 'editing_new');
-      console.log("update successful");
-    } catch (error) {
-      console.log("Error updating. err:", error);
-    }
-  } else { // it's a different item (like clicking a checkbox on todo item)
-    try {
-      const existingItem = await db.items.get(item.id);
-      if (existingItem?.id === item.id && existingItem?.uuid === item.uuid) {
-        item.version++;
-        console.log("updating existing item..., id: ", item.id);
-        const count = await db.items.update(item.id, { ...item });
-        if (count) console.log(`update successful`);
-        else console.log(`update error: Item not found!`);
-      } else console.log(`update error: invalid item uuid!`);
-    } catch (error) {
-      console.log("Error updating item. err:", error);
-    }
-  }
-}
-
-export async function cancelEditingItem(item: ItemType) {
-  if ((await getExistingEdit())?.id === item.id) {
-    try {
-      clearExistingEdit();
-    } catch (error) {
-      console.log("Error cancelling existing edit. err:", error);
-    }
-  } else if ((await getNewEdit())?.id === item.id) {
-    try {
-      clearNewEdit();
-    } catch (error) {
-      console.log("Error cancelling new edit. err:", error);
-    }
-  } else { // this should not happen!
-    console.log("Error! this should not happen!");
-  }
-}
-
-export async function deleteItemHard(item: ItemType) {
+export async function async_saveAsNewItem(item: ItemType): Promise<number | null> {
   try {
-    db.items.delete(item.id)
-    console.log("hard delete done");
-  } catch (error) {
-    console.log("hard delete failed");
+    console.log("save as new item...");
+    const newItemFrom = createNewItemFrom(item);
+    const { id, ...newItem } = newItemFrom; // this actually removes the id
+    // console.log("new item:", newItem);
+    const insertedId = await db.items.add(newItem);
+    console.log("add successful. new id: ", insertedId);
+    return insertedId;
+  } catch (err) {
+    console.log("error: ", err);
+    return null;
   }
 }
 
-export async function deleteItem(item: ItemType) {
-  // soft delete
-  item.deletedAt = (new Date()).getTime();
-  const msg = `Soft deleting item...`;
-  console.log(msg);
-  await updateItem(item);
+export async function async_saveItem(item: ItemType): Promise<boolean> {
+  let result = false;
+  try {
+    item.version++;
+    item.modifiedAt = (new Date()).getTime();
+    item.modifiedBy = getDeviceId();
+    const existingItem = await db.items.get(item.id);
+    // strict check of existing item (uuid) for updating
+    if (existingItem !== undefined && existingItem.id === item.id && existingItem.uuid === item.uuid) {
+      console.log("updating existing item...");
+      await db.items.put(item);
+      console.log("update successful.");
+      result = true;
+    } else {
+      console.log("error! strict existing/id/uuid check failed!");
+    }
+  } catch (err) {
+    console.log("error save editing item. err:", err);
+  }
+  return result;
 }
 
-export async function checkEditingIntegrity() {
-  const existingEdit = await getExistingEdit();
-  const newEdit = await getNewEdit();
-  if (existingEdit && newEdit) {
-    clearNewEdit();
+export async function async_deleteItemHard(item: ItemType): Promise<boolean> {
+  try {
+    await db.items.delete(item.id)
+    console.log("hard delete done. id:", item.id);
+    return true;
+  } catch (err) {
+    console.log("hard delete failed. err:", err);
+    return false;
   }
-  if (existingEdit) {
-    const existingItem = await db.items.get(existingEdit.id);
+}
+
+export async function async_deleteItemSoft(item: ItemType): Promise<boolean> {
+  try {
+    item.deletedAt = (new Date()).getTime();
+    console.log("soft deleting item...");
+    const result = await async_saveItem(item);
+    if (result !== null) return true;
+    else return false;
+  } catch (err) {
+    console.log("soft delete failed. err:", err);
+    return false;
+  }
+}
+
+export async function async_checkDraftIntegrity() {
+  const existingDraft = await async_getDraftItem('editing_existing');
+  const newDraft = await async_getDraftItem('editing_new');
+  if (existingDraft && newDraft) {
+    await async_deleteDraftItem('editing_new')
+  }
+  if (existingDraft) {
+    const existingItem = await db.items.get(existingDraft.id);
     if ((existingItem === undefined) || (existingItem.deletedAt !== null)) {
-      clearExistingEdit();
+      await async_deleteDraftItem('editing_existing')
     }
   }
+}
+
+export async function async_checkUuidIntegrity() {
+  const all = await db.items.toArray();
+
+  const seen = new Map<string, any[]>();
+  for (const item of all) {
+    if (!item.uuid) {
+      console.log("error! item has no uuid!!", item);
+      continue;
+    }
+    if (!seen.has(item.uuid)) {
+      seen.set(item.uuid, []);
+    }
+    seen.get(item.uuid)!.push(item);
+  }
+
+  // now find duplicates
+  const duplicates = Array.from(seen.values()).filter(arr => arr.length > 1);
+  if (duplicates.length === 0) return;
+  console.log("error! duplicates uuid:", duplicates);
+  const flatDuplicates = duplicates.flat();
+  const len = flatDuplicates.length;
+  for (let i = 1; i < len; i++) {
+    const item = flatDuplicates[i];
+    item.uuid = crypto.randomUUID();
+    await db.items.put(item);
+  }
+  console.log(`assigned new uuid to ${len} items with duplicate uuids!`);
 }
 
 export function getNewOrderingNumber(items: ItemType[], index: number, nextIndex: number, section: 'weekly' | 'project'): number {
@@ -296,8 +282,13 @@ export function getNewOrderingNumber(items: ItemType[], index: number, nextIndex
   return (x + y) / 2;
 }
 
-export async function getItemsCount(): Promise<number> {
-  return await db.items.count();
+export async function async_getItemsCount(): Promise<number> {
+  try {
+    return await db.items.count();
+  } catch (err) {
+    console.log("error on getting items count. err:", err);
+    return 0;
+  }
 }
 
 const list: Array<{
@@ -318,11 +309,23 @@ const list: Array<{
     { id: 0, type: 'note', status: 'undone', week: 1, title: "Visit the Keymaps section in Settings for all keyboard shortcuts. ⌨️" },
   ];
 
-export async function insertOnboardingTasks() {
-  list.forEach((item) => {
-    let newitem = createNewItem();
-    const meta = { onboarding: true }; // for later to avoid syncing! or deleting these items when logged in!
-    newitem = { ...newitem, type: item.type, status: item.status, title: item.title, meta: meta, scheduledAt: (new Date()).getTime() + (item.week * MILLISECONDS_IN_WEEK) };
-    saveAsNewItem(newitem);
-  });
+export async function async_insertOnboardingTasks() {
+  for (const item of list) {
+    try {
+      let newitem = createNewItem();
+      const meta = { onboarding: true }; // for later to avoid syncing! or deleting these items when logged in!
+      const currentTime = (new Date()).getTime();
+      newitem = {
+        ...newitem,
+        type: item.type,
+        status: item.status,
+        title: item.title,
+        meta: meta,
+        scheduledAt: (currentTime + (item.week * MILLISECONDS_IN_WEEK))
+      };
+      await async_saveAsNewItem(newitem);
+    } catch (err) {
+      console.error(`error adding onboarding item ${item.title}:`, err);
+    }
+  }
 }

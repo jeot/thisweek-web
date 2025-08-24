@@ -1,4 +1,4 @@
-import { saveAppConfigToIDBPartial } from '@/lib/appConfigDb';
+import { async_saveAppConfigToIDBPartial } from '@/lib/appConfigDb';
 import { create } from 'zustand';
 
 interface ThemeType {
@@ -20,7 +20,7 @@ export const useThemeConfig = create<ThemeConfig>((set, get) => ({
 	theme: { mode: 'dark', custom: undefined },
 	setTheme: (t, save = true) => {
 		set({ theme: t });
-		if (save) saveAppConfigToIDBPartial({ theme: t });
+		if (save) async_saveAppConfigToIDBPartial({ theme: t });
 	},
 	toggleTheme: () => {
 		const current = get().theme;
