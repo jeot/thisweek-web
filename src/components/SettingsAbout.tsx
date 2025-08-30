@@ -88,7 +88,7 @@ export function SettingsAbout() {
 
       <List className="mt-6 md:w-md" />
 
-      <p className="mt-6 text-center text-sm"><a target="_blank" href="https://app.planthisweek.com/">[Website]</a>&nbsp;<a target="_blank" href="https://github.com/jeot/thisweek-web">[GitHub]</a></p>
+      <p className="mt-6 text-center text-sm"><a target="_blank" href="https://thisweek.me/">[Website]</a>&nbsp;<a target="_blank" href="https://github.com/jeot/thisweek-web">[GitHub]</a></p>
     </div>
   );
 }
