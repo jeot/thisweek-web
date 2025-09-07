@@ -28,9 +28,24 @@ db.version(3).stores({
 
 db.version(4).upgrade((tx) => {
   return tx.table('items').toCollection().modify(item => {
-    item.encrypted = false;
+    // item.encrypted = false; // changed the name in db.version(5)
     item.iv = null;
   });
+});
+
+db.version(5).upgrade((tx) => {
+  return tx.table('items').toCollection().modify(item => {
+    item.isEncrypted = false;
+    item.ciphertext = "";
+    item.keyVersion = 1;
+  });
+});
+
+db.version(6).stores({
+  items: '++id, uuid, userId, type, status, category, projectId, scheduledAt, completedAt, pinned, modifiedAt, deletedAt, syncedAt, modifiedBy, isEncrypted, tags*',
+  editing: 'key',
+  deviceInfo: 'key',
+  encryptionKeys: 'id'
 });
 
 // use this for being fast and not async

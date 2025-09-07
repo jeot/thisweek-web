@@ -76,7 +76,6 @@ export function createNewItem(orderingNumber?: number, category?: CategoryType):
 
     parent: null,
     order: order,
-
     notification: null,
     pinned: false,
     tags: [],
@@ -90,7 +89,9 @@ export function createNewItem(orderingNumber?: number, category?: CategoryType):
     syncedAt: null,
     modifiedBy: modifiedBy,
     iv: null,
-    encrypted: false,
+    isEncrypted: false,
+    ciphertext: "",
+    keyVersion: 1,
   };
   return newItem;
 }
@@ -108,7 +109,9 @@ export function createNewItemFrom(item: ItemType): ItemType {
   item.syncedAt = null;
   item.modifiedBy = modifiedBy;
   item.iv = null;
-  item.encrypted = false;
+  item.isEncrypted = false;
+  item.ciphertext = "";
+  item.keyVersion = 1;
 
   return item;
 }

@@ -98,7 +98,9 @@ export interface ItemType {
   syncedAt: number | null; // only for debugging
   modifiedBy: string // device ID
   iv: string | null; // iv for encryption
-  encrypted: boolean;
+  isEncrypted: boolean; // for encryption
+  ciphertext: string; // for encryption
+  keyVersion: number; // for encryption
 }
 
 // future: projects table
