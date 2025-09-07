@@ -109,14 +109,13 @@ export function Item({ className, item, editing, editingPosition, selected, disa
           href={part}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-blue-500 underline inline break-all"
-        // className="text-blue-500 underline pink inline break-all"
+          className="inline break-all text-indigo-900 dark:text-indigo-200 hover:underline underline-offset-2 decoration-muted-foreground"
         >
           {part}
         </a>
       ) : (
         <span
-          className="inline"
+          className="inline text-primary"
         >
           {part}
         </span>
