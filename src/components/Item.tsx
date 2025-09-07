@@ -141,8 +141,10 @@ export function Item({ className, item, editing, editingPosition, selected, isMo
       event.preventDefault();
       onItemActionCallback('Cancel', item);
     } else if (enter && !shift) {
-      event.preventDefault();
-      if (!isMobile) onItemActionCallback('Apply', { ...item, title: title });
+      if (!isMobile) {
+        event.preventDefault();
+        onItemActionCallback('Apply', { ...item, title: title });
+      }
     } else if (escape) {
       event.stopPropagation();
       event.preventDefault();
