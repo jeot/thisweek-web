@@ -8,6 +8,9 @@
 }
 
 @theme {
+  --text-xxxxs: 0.3rem;
+  --text-xxxs: 0.5rem;
+  --text-xxs: 0.625rem;
   --font-global:
     "Open Sans",
     "Shabnam",
