@@ -16,6 +16,8 @@ type AppLogic = {
 	internalCopiedItem: ItemType | null;
 	selectedId: number | null;
 	wiggleId: number | null;
+	isMobile: boolean;
+	setIsMobile: (b: boolean) => void;
 	editingCaretPosition: 'caret_start' | 'caret_end' | 'caret_select_all' | null;
 
 	// data
@@ -75,6 +77,8 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 	internalCopiedItem: null,
 	selectedId: null,
 	wiggleId: null,
+	isMobile: false,
+	setIsMobile: (b) => set({ isMobile: b }),
 
 	weeklyItems: [],
 	projectItems: [],

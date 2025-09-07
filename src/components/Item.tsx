@@ -17,8 +17,8 @@ type ContextMenuType = {
   action: ItemActionType;
 };
 
-export function Item({ className, item, editing, editingPosition, selected, disableContextMenu, onItemActionCallback, ...props }:
-  { item: ItemType, editing: boolean, editingPosition: any, selected?: boolean, disableContextMenu?: boolean, onItemActionCallback: (action: ItemActionType, item: ItemType) => void } & React.ComponentProps<"div">) {
+export function Item({ className, item, editing, editingPosition, selected, isMobile, disableContextMenu, onItemActionCallback, ...props }:
+  { item: ItemType, editing: boolean, editingPosition: any, selected?: boolean, isMobile?: boolean, disableContextMenu?: boolean, onItemActionCallback: (action: ItemActionType, item: ItemType) => void } & React.ComponentProps<"div">) {
 
   const contextMenus: Array<ContextMenuType> = [
     { name: "Edit", variant: "default", action: 'Edit' },
@@ -115,6 +115,7 @@ export function Item({ className, item, editing, editingPosition, selected, disa
         </a>
       ) : (
         <span
+          key={i}
           className="inline text-primary"
         >
           {part}
@@ -141,7 +142,7 @@ export function Item({ className, item, editing, editingPosition, selected, disa
       onItemActionCallback('Cancel', item);
     } else if (enter && !shift) {
       event.preventDefault();
-      onItemActionCallback('Apply', { ...item, title: title });
+      if (!isMobile) onItemActionCallback('Apply', { ...item, title: title });
     } else if (escape) {
       event.stopPropagation();
       event.preventDefault();

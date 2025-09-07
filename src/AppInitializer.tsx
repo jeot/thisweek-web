@@ -8,6 +8,7 @@ import { async_initDeviceId } from './lib/db';
 import { useThemeConfig } from '@/store/themeConfig';
 import { useOtherConfigs } from '@/store/otherConfigs';
 import { useAppLogic } from './store/appLogic';
+import { useIsMobile } from './lib/useIsMobile';
 
 export function AppInitializer({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false);
@@ -20,6 +21,14 @@ export function AppInitializer({ children }: { children: React.ReactNode }) {
   const requestGoToToday = useAppLogic((state) => state.requestGoToToday);
   const setEditingExistingItemsForced = useAppLogic((state) => state.setEditingExistingItemsForced);
   const setEditingNewItemsForced = useAppLogic((state) => state.setEditingNewItemsForced);
+  const setIsMobile = useAppLogic((state) => state.setIsMobile);
+
+  const isMobile = useIsMobile();
+  useEffect(() => {
+    // console.log("setting isMobile:", isMobile);
+    setIsMobile(isMobile);
+    return () => { }
+  }, [isMobile]);
 
   async function loadConfig() {
     try {
