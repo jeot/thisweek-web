@@ -99,6 +99,31 @@ export function Item({ className, item, editing, editingPosition, selected, disa
     if (!editing && el) el.setSelectionRange(0, 0);
   }, [editing]);
 
+  // Regex to detect URLs
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  const renderWithLinks = (input: string) => {
+    return input.split(urlRegex).map((part, i) =>
+      urlRegex.test(part) ? (
+        <a
+          key={i}
+          href={part}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-500 underline inline break-all"
+        // className="text-blue-500 underline pink inline break-all"
+        >
+          {part}
+        </a>
+      ) : (
+        <span
+          className="inline"
+        >
+          {part}
+        </span>
+      )
+    );
+  };
+
   const handleKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (event: React.KeyboardEvent) => {
     if (!editing) return;
     // ignore Enter with other mod-keys
@@ -166,23 +191,37 @@ export function Item({ className, item, editing, editingPosition, selected, disa
               <NoteIconFilled />
             </Button>}
 
-          <TextareaAutosize
+          {editing && <TextareaAutosize
             // autoFocus
             ref={textareaRef}
             wrap="soft"
             dir={getSmartTextDirection(displayTitle)}
             value={displayTitle}
             className={cn(
+              // the default shadcn Textarea:
               "border-input placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 flex field-sizing-content min-h-16 w-full rounded-md border bg-transparent px-2 py-2 text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50",
+              // my stuff:
               "leading-relaxed resize-none h-auto min-h-1 flex-1 border-none overflow-hidden",
               "shadow-none dark:shadow-none bg-transparent dark:bg-transparent",
               // "hover:shadow-xs hover:bg-input/50 hover:dark:bg-input/30",
               "transition-all duration-200",
-              `${editing ? "ring-ring/30 ring-3 focus-visible:ring-ring/50" : "focus-visible:ring-0 ring-0"}`)}
+              "ring-ring/30 ring-3 focus-visible:ring-ring/50")}
             readOnly={!editing}
             onChange={(ev) => setTitle(ev.target.value)}
             onKeyDown={handleKeyDown}
-          />
+          />}
+          {!editing &&
+            <div
+              className={cn(
+                "whitespace-pre-wrap",
+                "field-sizing-content min-h-16 w-full rounded-md bg-transparent px-2 py-2 text-base shadow-xs transition-[color,box-shadow] outline-none disabled:cursor-not-allowed disabled:opacity-50",
+                "leading-relaxed resize-none h-auto min-h-1 flex-1 border-none overflow-hidden focus-visible:ring-0 ring-0",
+                "shadow-none dark:shadow-none bg-transparent dark:bg-transparent",
+                "transition-all duration-200")}
+            >
+              {renderWithLinks(displayTitle)}
+            </div>
+          }
 
           {/*
           <span className="absolute right-0 top-0 text-xs rounded-md p-1 border-1 border-red-600">{item.order.weekly}</span>
