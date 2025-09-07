@@ -81,14 +81,18 @@ export function ListOfItems({ className, items, newEdit, existingEdit, modifiabl
   const selectedIndex: number = items.findIndex((item) => (item.id === selectedId));
 
   useEffect(() => {
-    if (selectedIndex >= 0 && selectedIndex < (itemsLength - 1)) {
+    if (selectedIndex === 0) {
+      const container = document.getElementById("main-content-window");
+      if (container) {
+        container.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    } else if (selectedIndex >= 0 && selectedIndex < (itemsLength - 1)) {
       const itemRef = document.getElementById(`item-id-${selectedId}`);
       if (itemRef) scrollIntoViewIfNeeded(itemRef, "main-content-window");
-    }
-    if (selectedIndex >= 0 && selectedIndex == itemsLength - 1) {
+    } else if (selectedIndex >= 0 && selectedIndex == itemsLength - 1) {
       const itemRef = document.getElementById(`new-item-btn-id`);
       if (itemRef) scrollIntoViewIfNeeded(itemRef, "main-content-window");
-    }
+    } else { }
   }, [selectedIndex]);
 
   async function handleOnItemActionCallback(action: ItemActionType, item: ItemType) {
