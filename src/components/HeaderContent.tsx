@@ -15,8 +15,8 @@ export default function HeaderContent({ title }: { title?: string }) {
 
   return (
     <div className="h-full flex items-center justify-between px-2 py-1">
-      {title === "This Week"
-        && <h1>This<span className="font-normal">Week</span></h1>
+      {title === "This Week" &&
+        <h1 className="hover:cursor-pointer" onClick={() => requestGoToToday()}>This<span className="font-normal">Week</span></h1>
         || <h1 className="flex-none">{title}</h1>}
       <div className="h-full flex flex-wrap items-center justify-end">
         <Badge variant="ghost" className="mx-1 font-normal hover:bg-secondary hover:cursor-pointer" dir={today.direction}
