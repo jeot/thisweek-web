@@ -7,26 +7,29 @@ v0.7.0
 "The story starts with you. It ends with you.
 You take the steps that need to be taken.
 Every time you fall, you rise again.
-And with each new week, you begin again — stronger."
+And with each new week, you begin again"
 
 ✅ Open source
 ✅ Weekly planning with todos and notes
 ✅ Works offline — data is stored in your browser
-✅ Supports multiple calendars and locales
-✅ Option to view a secondary calendar
-☐ 🔄Sync across multiple devices
-☐ 🧩Headings and nested todos/notes
-- ☐ Group items under custom headings
-- ☐ Add sub-items to individual todos/notes
-☐ 🗂️Project-based organization
-☐ 🎯Yearly goals and objectives
+✅ Multiple calendars and locales 🌐
+✅ Display secondary calendar dates
+[ ] Sync across multiple devices 📱 🔄 💻
+[ ] Nested todos/notes
+  🟡 Add sub-items to individual todos/notes
+  🟡 Group items under custom headings
+[ ] 🗂️ Lists and Project-like organization
+[ ] 🎯 Yearly goals and objectives
 
-📝 Notes
+Notes 📝
 Your data stays on your device.
 Built with React, TS, and love ❤️
-Let me know what you think — feedback is welcome.
+Feedback is always welcome.
 
-[🌐 Website][🐙 GitHub]
+[🌐 Website]
+"https://thisweek.me/"
+[🐙 GitHub]
+"https://github.com/jeot/thisweek-web"
 */
 
 import { createNewItem } from "@/lib/items";
@@ -41,9 +44,9 @@ const list: Array<{
     { id: 1, type: 'todo', status: 'done', title: "Open source" },
     { id: 2, type: 'todo', status: 'done', title: "Weekly planning with todos ☑️ and notes 📝" },
     { id: 3, type: 'todo', status: 'done', title: "Works offline — data is stored in your browser" },
-    { id: 4, type: 'todo', status: 'done', title: "Supports multiple calendars 🗓 and locales 🌐" },
+    { id: 4, type: 'todo', status: 'done', title: "Multiple calendars and locales 🌐" },
     { id: 5, type: 'todo', status: 'done', title: "Display secondary calendar dates" },
-    { id: 6, type: 'todo', status: 'undone', title: "Sync across multiple devices 💻📱" },
+    { id: 6, type: 'todo', status: 'undone', title: "Sync across multiple devices 📱 🔄 💻" },
     {
       id: 7, type: 'todo', status: 'undone', title:
         `Nested todos/notes
@@ -54,7 +57,7 @@ const list: Array<{
     { id: 9, type: 'todo', status: 'undone', title: "🎯 Yearly goals and objectives" },
     {
       id: 10, type: 'note', status: 'undone', title:
-        `Some notes 📝
+        `Notes 📝
 Your data stays on your device.
 Built with React, TS, and love ❤️
 Feedback is always welcome.`

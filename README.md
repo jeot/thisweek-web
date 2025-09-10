@@ -1,21 +1,55 @@
-# React + TypeScript + Vite
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+![Version](https://img.shields.io/badge/version-0.18.1-blue.svg)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+<img style="vertical-align: middle;" width="64" alt="ThisWeek" src="./public/icons/icon.png">
+<h1 style="display:inline;font-weight:600;">&nbsp;This<span style="display:inline;font-weight:300;">Week</span></h1>
 
-While this project uses React, Vite supports many popular JS frameworks. [See all the supported frameworks](https://vitejs.dev/guide/#scaffolding-your-first-vite-project).
+&nbsp;
 
-## Deploy Your Own
+**ThisWeek** is a simple and offline-first weekly planner that helps you stay focused.  
+Plan your todos, set goals, and take notes — all in one clean interface.  
 
-Deploy your own Vite project with Vercel.
+[🌐 Try ThisWeek App](https://thisweek.me/)
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/vercel/vercel/tree/main/examples/vite-react&template=vite-react)
 
-_Live Example: https://vite-react-example.vercel.app_
+## Screenshot 🖼️
 
-### Deploying From Your Terminal
+![ThisWeek Screenshot](./public/shot.png)
 
-You can deploy your new Vite project with a single command from your terminal using [Vercel CLI](https://vercel.com/download):
+## Motivation
 
-```shell
-$ vercel
-```
+>“The story starts with you. It ends with you.  
+>You take the steps that need to be taken.  
+>Every time you fall, you rise again.  
+>And with each new week, you begin again.”  
+>— shk
+
+## Todos (Features) 📌
+
+✅ Open source  
+✅ Weekly planning with todos and notes  
+✅ Works offline — data is stored in your browser  
+✅ Multiple calendars and locales 🌐  
+✅ Display secondary calendar dates  
+🔲 Sync across multiple devices 📱 🔄 💻  
+🔲 Nested todos/notes  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;🔲 Add sub-items to individual todos/notes  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;🔲 Group items under custom headings  
+🔲 🗂️ Lists and Project-like organization  
+🔲 🎯 Yearly goals and objectives  
+
+## Notes 📝
+
+Your data stays on your device.  
+Built with React, TS, and love ❤️  
+Feedback is always welcome.  
+
+## Links 🔗
+
+[🌐 ThisWeek App](https://thisweek.me/) (https://thisweek.me)  
+[🐙 GitHub Repo](https://github.com/jeot/thisweek-web)  
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
