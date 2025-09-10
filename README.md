@@ -1,5 +1,5 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-![Version](https://img.shields.io/badge/version-0.18.1-blue.svg)
+![Version](https://img.shields.io/badge/version-0.18.3-blue.svg)
 
 <img style="vertical-align: middle;" width="64" alt="ThisWeek" src="./public/icons/icon.png">
 <h1 style="display:inline;font-weight:600;">&nbsp;This<span style="display:inline;font-weight:300;">Week</span></h1>
