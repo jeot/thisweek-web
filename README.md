@@ -4,13 +4,14 @@
 <img style="vertical-align: middle;" width="64" alt="ThisWeek" src="./public/icons/icon.png">
 <h1 style="display:inline;font-weight:600;">&nbsp;This<span style="display:inline;font-weight:300;">Week</span></h1>
 
-&nbsp;
-
 **ThisWeek** is a simple and offline-first weekly planner that helps you stay focused.  
 Plan your todos, set goals, and take notes — all in one clean interface.  
 
+> Developed by [Shamim Keshani](https://github.com/jeot). Please credit if you use or modify this project.
+
 [🌐 Try ThisWeek App](https://thisweek.me/)
 
+&nbsp;
 
 ## Screenshot 🖼️
 
@@ -22,7 +23,7 @@ Plan your todos, set goals, and take notes — all in one clean interface.
 >You take the steps that need to be taken.  
 >Every time you fall, you rise again.  
 >And with each new week, you begin again.”  
->— shk
+>— Shamim Keshani
 
 ## Todos (Features) 📌
 
@@ -51,5 +52,6 @@ Feedback is always welcome.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
+*ThisWeek* project is licensed under the MIT License. see the [LICENSE](LICENSE) file for details.  
+It is developed and maintained by [Shamim Keshani](https://github.com/jeot).  
+If you use or build upon it, please give credit. Contributions are welcome!  
