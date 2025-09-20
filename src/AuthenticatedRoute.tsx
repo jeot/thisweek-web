@@ -13,7 +13,9 @@ export default function AuthenticatedRoute() {
       setUser(u);
 
       if (error) {
-        location.href = "/login"
+        // we can redirect somewhere else like this:
+        // location.href = "/login"
+        console.log("not authenticated! error:", error);
       }
     }
     checkAuth()
