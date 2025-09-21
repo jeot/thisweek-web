@@ -65,7 +65,7 @@ export function LoginForm({ className, onLoginSuccess, ...props }: React.Compone
                 <div className="flex items-center">
                   <Label htmlFor="password">Password</Label>
                   <a
-                    href="/forgot-password"
+                    href="/app/forgot-password"
                     className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
                   >
                     Forgot your password?
@@ -86,7 +86,7 @@ export function LoginForm({ className, onLoginSuccess, ...props }: React.Compone
             </div>
             <div className="mt-4 text-center text-sm">
               Don&apos;t have an account?{' '}
-              <a href="/sign-up" className="underline underline-offset-4">
+              <a href="/app/sign-up" className="underline underline-offset-4">
                 Sign up
               </a>
             </div>

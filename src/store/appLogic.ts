@@ -7,11 +7,12 @@ import { useCalendarConfig } from './calendarConfig';
 import { useThemeConfig } from './themeConfig';
 
 export type SettingPageType = 'General' | 'Calendars' | 'Keymaps' | 'About';
+export type LoginInfoModalType = 'login' | 'sign-up' | 'forgot-password' | 'logged-in' | null;
 
 type AppLogic = {
 	// ui
-	displayLoginModal: boolean;
-	setDisplayLoginModal: (b: boolean) => void;
+	showLoginInfoModal: LoginInfoModalType;
+	setShowLoginInfoModal: (t: LoginInfoModalType) => void;
 	pageView: PageViewType;
 	settingPage: SettingPageType;
 	weekReference: number;
@@ -73,8 +74,8 @@ type AppLogic = {
 };
 
 export const useAppLogic = create<AppLogic>((set, get) => ({
-	displayLoginModal: false,
-	setDisplayLoginModal: (b) => set({ displayLoginModal: b }),
+	showLoginInfoModal: null,
+	setShowLoginInfoModal: (t) => set({ showLoginInfoModal: t }),
 	pageView: 'This Week',
 	settingPage: 'Calendars',
 	weekReference: (new Date()).getTime(),

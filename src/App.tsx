@@ -5,7 +5,7 @@ import { ThisWeekPage } from '@/components/ThisWeekPage';
 import { SettingsPage } from '@/components/SettingsPage';
 import { lorem } from '@/assets/lorem'
 import { useCalendarConfig } from "@/store/calendarConfig";
-import { useAppLogic } from "@/store/appLogic";
+import { LoginInfoModalType, useAppLogic } from "@/store/appLogic";
 import * as keymaps from '@/lib/keymaps';
 import { useKeymapsConfig } from "@/store/keymapConfig";
 import { useThemeConfig } from "@/store/themeConfig";
@@ -48,7 +48,7 @@ function preloadFont(href: string, type = 'font/woff2') {
 
 function App() {
   const location = useLocation();
-  const setShowLogin = useAppLogic((state) => state.setDisplayLoginModal);
+  const setShowLoginInfoModal = useAppLogic((state) => state.setShowLoginInfoModal);
   const pageView = useAppLogic((state) => state.pageView);
   const mainCal = useCalendarConfig((state) => state.mainCal);
   const secondCalendar = useCalendarConfig((state) => state.secondCal);
@@ -69,8 +69,10 @@ function App() {
 
   // Open login modal if navigation passed "openLogin"
   useEffect(() => {
-    if (location.state?.openLogin || false) {
-      setShowLogin(true);
+    if (location.state?.openLogin) {
+      setShowLoginInfoModal(location.state?.openLogin as LoginInfoModalType);
+    } else {
+      setShowLoginInfoModal(null);
     }
   }, [location.state]);
 

@@ -11,7 +11,9 @@ export function AppPage() {
       <Route path="/" element={<App />} />
       {/* these are like: thisweek.me/app/test */}
       <Route path="/test" element={"test"} />
-      <Route path="/login" element={<Navigate to="/app" state={{ openLogin: true }} replace />} />
+      <Route path="/login" element={<Navigate to="/app" state={{ openLogin: 'login' }} replace />} />
+      <Route path="/sign-up" element={<Navigate to="/app" state={{ openLogin: 'sign-up' }} replace />} />
+      <Route path="/forgot-password" element={<Navigate to="/app" state={{ openLogin: 'forgot-password' }} replace />} />
       <Route path="/auth" element={<AuthenticatedRouteOnlineCheck />} />
       <Route path="/authinfo" element={<AuthInfo />} />
 
