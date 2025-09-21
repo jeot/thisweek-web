@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { createClient } from '@/lib/supabase/client'
+import { supabase_client } from '@/lib/supabase/client'
 import { AuthError, JwtHeader, JwtPayload, Session } from '@supabase/supabase-js'
 
 type AuthDataType = {
@@ -25,13 +25,13 @@ export const useAuthStore = create<AuthStore>((set) => ({
 		const start = Date.now();
 		set({ loading: true })
 		try {
-			const result = await createClient().auth.getSession();
+			const result = await supabase_client.auth.getSession();
 			if (!result.error) {
 				set({ session: result.data.session })
 			} else {
 				set({ session: null })
 			}
-			const { data, error } = await createClient().auth.getClaims()
+			const { data, error } = await supabase_client.auth.getClaims()
 			console.log("got claims: ", { data, error });
 			set({ data, error })
 		} catch (err) {

@@ -12,6 +12,9 @@ import { useThemeConfig } from "@/store/themeConfig";
 import { useAppLogicForAllActionListeners } from './lib/useActionListener';
 import { useTheme } from 'next-themes';
 import { useLocalDbSyncItems } from './lib/dexieListeners';
+import { useLocation } from 'react-router-dom';
+import { supabase_client } from "@/lib/supabase/client";
+import { useAuthStore } from "@/store/authStore";
 
 const loadedCSS = new Set<string>();
 
@@ -44,10 +47,33 @@ function preloadFont(href: string, type = 'font/woff2') {
 */
 
 function App() {
+  const location = useLocation();
+  const setShowLogin = useAppLogic((state) => state.setDisplayLoginModal);
   const pageView = useAppLogic((state) => state.pageView);
   const mainCal = useCalendarConfig((state) => state.mainCal);
   const secondCalendar = useCalendarConfig((state) => state.secondCal);
   const { setTheme } = useTheme();
+
+  const fetchClaims = useAuthStore((state) => state.fetchClaims);
+
+  // Authentication
+  useEffect(() => {
+    fetchClaims();
+    const { data: listener } = supabase_client.auth.onAuthStateChange((_event, _session) => {
+      fetchClaims();
+    });
+    return () => {
+      listener.subscription.unsubscribe();
+    };
+  }, []);
+
+  // Open login modal if navigation passed "openLogin"
+  useEffect(() => {
+    if (location.state?.openLogin || false) {
+      setShowLogin(true);
+    }
+  }, [location.state]);
+
 
   useLocalDbSyncItems();
 

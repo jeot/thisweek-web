@@ -3,6 +3,7 @@ import { getDateViewInLocaleCalendar } from "@/lib/week";
 import { useCalendarConfig } from "@/store/calendarConfig";
 import { useAppLogic } from "@/store/appLogic";
 import { DateTime } from "luxon";
+import { LoginSheet } from "./LoginSheet";
 
 export default function HeaderContent({ title }: { title?: string }) {
   const mainCal = useCalendarConfig((state) => state.mainCal);
@@ -24,6 +25,8 @@ export default function HeaderContent({ title }: { title?: string }) {
         >
           {today.localeDisplay}
         </Badge>
+        &nbsp;
+        <LoginSheet />
         {/*
         {secondCalEnabled &&
           <Badge variant="secondary" className="mx-1 font-normal text-primary/75 bg-primary/10"

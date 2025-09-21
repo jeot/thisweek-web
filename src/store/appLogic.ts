@@ -10,6 +10,8 @@ export type SettingPageType = 'General' | 'Calendars' | 'Keymaps' | 'About';
 
 type AppLogic = {
 	// ui
+	displayLoginModal: boolean;
+	setDisplayLoginModal: (b: boolean) => void;
 	pageView: PageViewType;
 	settingPage: SettingPageType;
 	weekReference: number;
@@ -71,6 +73,8 @@ type AppLogic = {
 };
 
 export const useAppLogic = create<AppLogic>((set, get) => ({
+	displayLoginModal: false,
+	setDisplayLoginModal: (b) => set({ displayLoginModal: b }),
 	pageView: 'This Week',
 	settingPage: 'Calendars',
 	weekReference: (new Date()).getTime(),
