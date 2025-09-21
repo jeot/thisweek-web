@@ -22,8 +22,8 @@ export default function AuthInfo() {
   return <div>
     <p>AuthInfo</p>
     {loading && <p className="text-xs">"Loading..."</p>}
-    {session && <div><p>Session: </p><pre className="text-xxs">{prettySession}</pre></div>}
-    {error && <div><p>Error: </p><pre className="text-xxs">{prettyError}</pre></div>}
-    {data && <div><p>Data: </p><pre className="text-xxs">{prettyData}</pre></div>}
+    {<div><p>Session: </p><pre className="text-xxs">{prettySession}</pre></div>}
+    {<div><p>Data: </p><pre className="text-xxs">{prettyData}</pre></div>}
+    {<div><p>Error: </p><pre className="text-xxs">{prettyError}</pre></div>}
   </div>;
 }
