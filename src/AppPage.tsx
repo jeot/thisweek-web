@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import App from '@/App'
 import AuthenticatedRoute from './AuthenticatedRoute'
+import AuthInfo from './AuthInfo'
 
 export function AppPage() {
   return (
@@ -11,6 +12,7 @@ export function AppPage() {
       <Route path="/test" element={"test"} />
       <Route path="/login" element={"login"} />
       <Route path="/auth" element={<AuthenticatedRoute />} />
+      <Route path="/authinfo" element={<AuthInfo />} />
 
       {/* Optional real subroutes here */}
       {/* <Route path="dashboard" element={<Dashboard />} /> */}
