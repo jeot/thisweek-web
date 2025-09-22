@@ -30,7 +30,6 @@ export function LoginSheet() {
   }
 
   const open = showLoginInfoModal !== null;
-  if (open) console.log(showLoginInfoModal);
 
   return (
     <Sheet open={open} onOpenChange={(o) => { if (!o) setShowLoginInfoModal(null); }}>

@@ -15,6 +15,7 @@ import { useLocalDbSyncItems } from './lib/dexieListeners';
 import { useLocation } from 'react-router-dom';
 import { supabase_client } from "@/lib/supabase/client";
 import { useAuthStore } from "@/store/authStore";
+import { async_newUserInfoUuid, getUserInfoUuid } from './lib/db';
 
 const loadedCSS = new Set<string>();
 
@@ -55,6 +56,7 @@ function App() {
   const { setTheme } = useTheme();
 
   const fetchClaims = useAuthStore((state) => state.fetchClaims);
+  const session = useAuthStore((state) => state.session);
 
   // Authentication
   useEffect(() => {
@@ -66,6 +68,26 @@ function App() {
       listener.subscription.unsubscribe();
     };
   }, []);
+
+  // On session change
+  useEffect(() => {
+    const lastUserId = getUserInfoUuid();
+    const loggedInUserId = session?.user.id || null;
+    if (loggedInUserId !== null && lastUserId === null) {
+      console.log("new user info id:", loggedInUserId)
+      async_newUserInfoUuid(loggedInUserId).then(() => console.log("done")).catch((e) => console.log("error: ", e));
+    } else if (loggedInUserId !== null && lastUserId !== null && loggedInUserId !== lastUserId) {
+      console.log("!!!! TODO !!!! new user info id changed! ", lastUserId, " -> ", loggedInUserId)
+      console.log("should clear old user stuff first!")
+      async_newUserInfoUuid(loggedInUserId).then(() => console.log("done")).catch((e) => console.log("error: ", e));
+    } else if (loggedInUserId !== null && lastUserId !== null && loggedInUserId === lastUserId) {
+      console.log("welcome same old user!");
+    } else {
+      console.log("no session.");
+    }
+
+    return () => { };
+  }, [session]);
 
   // Open login modal if navigation passed "openLogin"
   useEffect(() => {

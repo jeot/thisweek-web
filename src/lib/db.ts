@@ -97,4 +97,33 @@ export async function async_initDeviceId(): Promise<string> {
   return newId;
 }
 
+// use this for being fast and not async
+let cachedUserInfoUuid: string | null = null;
+
+export function getUserInfoUuid(): string | null {
+  return cachedUserInfoUuid;
+}
+
+export async function async_initUserInfoUuid(): Promise<string | null> {
+  const stored = await db.userInfo.get('uuid');
+  if (stored?.value) {
+    cachedUserInfoUuid = stored.value;
+    return stored.value;
+  } else {
+    cachedUserInfoUuid = null;
+    return null;
+  }
+}
+
+export async function async_newUserInfoUuid(newUuid: string): Promise<void> {
+  let oldUserUuid = await async_initUserInfoUuid();
+  if (oldUserUuid === newUuid) {
+    console.log("!! same user info !!");
+  } else {
+    console.log("!! creating new user info with logged-in user uuid !!");
+  }
+  await db.userInfo.put({ key: 'uuid', value: newUuid });
+  cachedUserInfoUuid = newUuid;
+}
+
 export { db };
