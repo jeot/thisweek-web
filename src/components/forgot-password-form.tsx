@@ -11,8 +11,9 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useState } from 'react'
+import { LoginInfoModalType } from '@/store/appLogic'
 
-export function ForgotPasswordForm({ className, ...props }: React.ComponentPropsWithoutRef<'div'>) {
+export function ForgotPasswordForm({ className, onSwitch, ...props }: React.ComponentPropsWithoutRef<'div'> & { onLoginSuccess?: () => void, onSwitch: (l: LoginInfoModalType) => void }) {
   const [email, setEmail] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
@@ -52,9 +53,18 @@ export function ForgotPasswordForm({ className, ...props }: React.ComponentProps
               email.
             </p>
             <div className="mt-4 text-center text-sm">
+              <button
+                type="button"
+                onClick={() => onSwitch("login")}
+                className="ml-auto inline-block text-sm underline-offset-4 hover:underline text-left"
+              >
+                Go to Login
+              </button>
+              {/*
               <a href="/app/login" className="underline underline-offset-4">
                 Go to Login
               </a>
+              */}
             </div>
           </CardContent>
         </Card>
@@ -87,9 +97,18 @@ export function ForgotPasswordForm({ className, ...props }: React.ComponentProps
               </div>
               <div className="mt-4 text-center text-sm">
                 Already have an account?{' '}
+                <button
+                  type="button"
+                  onClick={() => onSwitch("login")}
+                  className="ml-auto inline-block text-sm underline-offset-4 hover:underline text-left"
+                >
+                  Login
+                </button>
+                {/*
                 <a href="/app/login" className="underline underline-offset-4">
                   Login
                 </a>
+                */}
               </div>
             </form>
           </CardContent>

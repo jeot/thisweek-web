@@ -10,13 +10,15 @@ import {
 } from "@/components/ui/sheet"
 // import { cn } from "@/lib/utils";
 // import { Badge } from "./ui/badge";
+// import { Card } from "./ui/card";
 import { CloudIcon, CloudOffIcon } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
-import { useAppLogic } from "@/store/appLogic";
+import { LoginInfoModalType, useAppLogic } from "@/store/appLogic";
 import { LoginForm } from "./login-form";
 import { LoggedinForm } from "./logged-in-from";
 import { SignUpForm } from "./sign-up-form";
 import { ForgotPasswordForm } from "./forgot-password-form";
+import { UpdatePasswordForm } from "./update-password-form";
 
 export function LoginSheet() {
   const showLoginInfoModal = useAppLogic((state) => state.showLoginInfoModal);
@@ -24,7 +26,12 @@ export function LoginSheet() {
   const session = useAuthStore((state) => state.session);
   const fetchClaims = useAuthStore((state) => state.fetchClaims);
 
+  function handleOnSwitch(l: LoginInfoModalType) {
+    setShowLoginInfoModal(l);
+  }
+
   const open = showLoginInfoModal !== null;
+  if (open) console.log(showLoginInfoModal);
 
   return (
     <Sheet open={open} onOpenChange={(o) => { if (!o) setShowLoginInfoModal(null); }}>
@@ -45,11 +52,13 @@ export function LoginSheet() {
           </SheetDescription>
         </SheetHeader>
         <div className="">
-          {!session && showLoginInfoModal === null && <LoginForm />}
-          {!session && showLoginInfoModal === "login" && <LoginForm />}
-          {!session && showLoginInfoModal === "sign-up" && <SignUpForm />}
-          {!session && showLoginInfoModal === "forgot-password" && <ForgotPasswordForm />}
-          {session && <LoggedinForm user={session.user} onLogOut={() => fetchClaims()} />}
+          {session && showLoginInfoModal === 'update-password' && <UpdatePasswordForm onSwitch={handleOnSwitch} />}
+          {session && showLoginInfoModal !== 'update-password' && <LoggedinForm user={session.user} onSwitch={handleOnSwitch} />}
+          {!session && showLoginInfoModal === null && <LoginForm onSwitch={handleOnSwitch} />}
+          {!session && showLoginInfoModal === "login" && <LoginForm onSwitch={handleOnSwitch} />}
+          {!session && showLoginInfoModal === "sign-up" && <SignUpForm onSwitch={handleOnSwitch} />}
+          {!session && showLoginInfoModal === "forgot-password" && <ForgotPasswordForm onSwitch={handleOnSwitch} />}
+          {!session && showLoginInfoModal === "update-password" && <ForgotPasswordForm onSwitch={handleOnSwitch} />}
         </div>
       </SheetContent>
     </Sheet >

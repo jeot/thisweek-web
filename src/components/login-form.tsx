@@ -11,8 +11,9 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useState } from 'react'
+import { LoginInfoModalType } from '@/store/appLogic'
 
-export function LoginForm({ className, onLoginSuccess, ...props }: React.ComponentPropsWithoutRef<'div'> & { onLoginSuccess?: () => void }) {
+export function LoginForm({ className, onSwitch, ...props }: React.ComponentPropsWithoutRef<'div'> & { onSwitch?: (l: LoginInfoModalType) => void }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -31,8 +32,8 @@ export function LoginForm({ className, onLoginSuccess, ...props }: React.Compone
       if (error) throw error
       // Update this route to redirect to an authenticated route. The user already has an active session.
       // todo:
-      // location.href = '/protected'
-      if (onLoginSuccess) onLoginSuccess();
+      if (onSwitch) onSwitch('login')
+      else location.href = '/protected'
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : 'An error occurred')
     } finally {
@@ -64,12 +65,21 @@ export function LoginForm({ className, onLoginSuccess, ...props }: React.Compone
               <div className="grid gap-2">
                 <div className="flex items-center">
                   <Label htmlFor="password">Password</Label>
+                  <button
+                    type="button"
+                    onClick={() => onSwitch("forgot-password")}
+                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline text-left"
+                  >
+                    Forgot your password?
+                  </button>
+                  {/*
                   <a
                     href="/app/forgot-password"
                     className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
                   >
                     Forgot your password?
                   </a>
+                  */}
                 </div>
                 <Input
                   id="password"
@@ -86,9 +96,18 @@ export function LoginForm({ className, onLoginSuccess, ...props }: React.Compone
             </div>
             <div className="mt-4 text-center text-sm">
               Don&apos;t have an account?{' '}
+              <button
+                type="button"
+                onClick={() => onSwitch("sign-up")}
+                className="ml-auto inline-block text-sm underline-offset-4 hover:underline text-left"
+              >
+                Sign up
+              </button>
+              {/*
               <a href="/app/sign-up" className="underline underline-offset-4">
                 Sign up
               </a>
+              */}
             </div>
           </form>
         </CardContent>

@@ -6,6 +6,7 @@ import { AppInitializer } from '@/AppInitializer.tsx';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { NotFoundPage } from '@/NotFoundPage.tsx'
 import { AppPage } from '@/AppPage'
+import { UpdatePasswordForm } from './components/update-password-form';
 
 console.log(`* ThisWeek App v${__APP_VERSION__}`);
 
@@ -76,6 +77,8 @@ createRoot(document.getElementById('root')!).render(
             <Route path="/" element={<Navigate to="/app" replace />} />
             {/* use this when your landing page gets ready: */}
             {/* <Route path="/" element={<LandingPage />} /> */}
+
+            <Route path="/update-password" element={<div className='w-md m-auto p-3 justify-center'><UpdatePasswordForm /></div>} />
 
             {/* Your main app route */}
             <Route path="/app/*" element={<AppPage />} />

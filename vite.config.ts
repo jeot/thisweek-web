@@ -8,6 +8,9 @@ import packageJson from './package.json'
 export default defineConfig({
   base: '/',
   plugins: [react(), tailwindcss()],
+  // server: {
+  //   port: 3000,
+  // },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

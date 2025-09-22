@@ -7,7 +7,7 @@ import { useCalendarConfig } from './calendarConfig';
 import { useThemeConfig } from './themeConfig';
 
 export type SettingPageType = 'General' | 'Calendars' | 'Keymaps' | 'About';
-export type LoginInfoModalType = 'login' | 'sign-up' | 'forgot-password' | 'logged-in' | null;
+export type LoginInfoModalType = 'login' | 'sign-up' | 'forgot-password' | 'logged-in' | 'update-password' | null;
 
 type AppLogic = {
 	// ui
