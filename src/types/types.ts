@@ -86,21 +86,22 @@ export interface ItemType {
     offset: number; // e.g., 900 = 15 mins before
   } | null;
   pinned: boolean; // future
-  tags: string[]; // future
   meta: Record<string, any> | null; // future: for rare/experimental fields, e.g., colors
-  recurrence: null; // future
+  recurrence: Record<string, any> | null; // future
 
-  // future: syncing & encryption
+  // future: encryption
+  iv: string | null; // iv for encryption
+  isEncrypted: boolean; // for encryption
+  ciphertext: string; // for encryption
+  keyVersion: number; // for encryption
+
+  // future: syncing
   createdAt: number;
   modifiedAt: number;
   deletedAt: number | null; // future: for deleting items with syncing
   version: number; // future: for syncing, conflict resolution, versioning, colaboration.
   syncedAt: number | null; // only for debugging
   modifiedBy: string // device ID
-  iv: string | null; // iv for encryption
-  isEncrypted: boolean; // for encryption
-  ciphertext: string; // for encryption
-  keyVersion: number; // for encryption
 }
 
 // future: projects table
@@ -119,6 +120,12 @@ interface ProjectType {
 export interface DeviceInfo {
   key: string;     // always "deviceId" (you could use enum too)
   value: string;   // the UUID
+}
+
+// temporary values to fill when user login first time
+export interface UserInfo {
+  key: string;     // user_flag, uuid, email, ...
+  value: string;   // the UUID of the logged-in user
 }
 
 export interface EncryptionKeyEntry {

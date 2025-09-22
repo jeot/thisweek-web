@@ -67,7 +67,7 @@ export function LoginForm({ className, onSwitch, ...props }: React.ComponentProp
                   <Label htmlFor="password">Password</Label>
                   <button
                     type="button"
-                    onClick={() => onSwitch("forgot-password")}
+                    onClick={() => { if (onSwitch) onSwitch("forgot-password"); }}
                     className="ml-auto inline-block text-sm underline-offset-4 hover:underline text-left"
                   >
                     Forgot your password?
@@ -98,7 +98,7 @@ export function LoginForm({ className, onSwitch, ...props }: React.ComponentProp
               Don&apos;t have an account?{' '}
               <button
                 type="button"
-                onClick={() => onSwitch("sign-up")}
+                onClick={() => { if (onSwitch) onSwitch("sign-up"); }}
                 className="ml-auto inline-block text-sm underline-offset-4 hover:underline text-left"
               >
                 Sign up

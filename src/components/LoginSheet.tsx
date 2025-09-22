@@ -24,7 +24,6 @@ export function LoginSheet() {
   const showLoginInfoModal = useAppLogic((state) => state.showLoginInfoModal);
   const setShowLoginInfoModal = useAppLogic((state) => state.setShowLoginInfoModal);
   const session = useAuthStore((state) => state.session);
-  const fetchClaims = useAuthStore((state) => state.fetchClaims);
 
   function handleOnSwitch(l: LoginInfoModalType) {
     setShowLoginInfoModal(l);

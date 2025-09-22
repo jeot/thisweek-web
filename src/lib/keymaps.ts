@@ -74,7 +74,7 @@ export function listenToActions(cb: (action: Action) => void) {
 }
 
 function broadcastAction(action: Action) {
-  console.log("broadcasting action:", action);
+  // console.log("broadcasting action:", action);
   listeners.forEach((c) => c(action));
 }
 

@@ -78,9 +78,13 @@ export function createNewItem(orderingNumber?: number, category?: CategoryType):
     order: order,
     notification: null,
     pinned: false,
-    tags: [],
     meta: null,
     recurrence: null,
+
+    iv: null,
+    isEncrypted: false,
+    ciphertext: "",
+    keyVersion: 1,
 
     createdAt: currentTime,
     modifiedAt: currentTime,
@@ -88,10 +92,6 @@ export function createNewItem(orderingNumber?: number, category?: CategoryType):
     version: 1,
     syncedAt: null,
     modifiedBy: modifiedBy,
-    iv: null,
-    isEncrypted: false,
-    ciphertext: "",
-    keyVersion: 1,
   };
   return newItem;
 }

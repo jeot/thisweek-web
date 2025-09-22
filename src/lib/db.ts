@@ -1,5 +1,5 @@
 import Dexie, { type EntityTable } from 'dexie';
-import { DeviceInfo, EncryptionKeyEntry, ItemType } from "@/types/types"
+import { DeviceInfo, EncryptionKeyEntry, ItemType, UserInfo } from "@/types/types"
 
 const db = new Dexie('ThisWeekDatabase') as Dexie & {
   items: EntityTable<
@@ -11,6 +11,7 @@ const db = new Dexie('ThisWeekDatabase') as Dexie & {
     'key'
   >;
   deviceInfo: EntityTable<DeviceInfo, 'key'>;
+  userInfo: EntityTable<UserInfo, 'key'>;
   encryptionKeys: EntityTable<EncryptionKeyEntry, 'id'>;
 };
 
@@ -45,6 +46,14 @@ db.version(6).stores({
   items: '++id, uuid, userId, type, status, category, projectId, scheduledAt, completedAt, pinned, modifiedAt, deletedAt, syncedAt, modifiedBy, isEncrypted, tags*',
   editing: 'key',
   deviceInfo: 'key',
+  encryptionKeys: 'id'
+});
+
+db.version(7).stores({
+  items: '++id, uuid, userId, type, status, category, projectId, scheduledAt, completedAt, pinned, version, modifiedAt, deletedAt, syncedAt, modifiedBy, isEncrypted',
+  editing: 'key',
+  deviceInfo: 'key',
+  userInfo: 'key',
   encryptionKeys: 'id'
 });
 
