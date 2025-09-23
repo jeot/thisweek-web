@@ -16,6 +16,9 @@ import { useLocation } from 'react-router-dom';
 import { supabase_client } from "@/lib/supabase/client";
 import { useAuthStore } from "@/store/authStore";
 import { async_newUserInfoUuid, getUserInfoUuid } from './lib/db';
+import { useSyncManager } from './lib/sync';
+import { Button } from './components/ui/button';
+import { Tables } from './lib/supabase/database.types';
 
 const loadedCSS = new Set<string>();
 
@@ -98,6 +101,28 @@ function App() {
     }
   }, [location.state]);
 
+  const { syncNow, syncState } = useSyncManager();
+
+  const test_fetch = async () => {
+    try {
+      console.log("insert data to supabase: test_me_table");
+      const response = await supabase_client
+        .from('test_me_table')
+        .insert({ name: "hot" })
+      console.log("response:", response);
+
+      console.log("fetch data form supabase: test_me_table");
+      let test: Tables<'test_me_table'>;
+      const { data, error } = await supabase_client
+        .from('test_me_table')
+        .select()
+      console.log("data:", data);
+      console.log("error:", error);
+      if (!data) return;
+    } catch (e) {
+      console.log("err: ", e);
+    }
+  }
 
   useLocalDbSyncItems();
 
@@ -178,6 +203,11 @@ function App() {
 
   return (
     <div className="font-global">
+      <div className="grid grid-cols-5">
+        <Button onClick={syncNow}>Sync Now</Button>
+        <p>Sync State: {syncState}</p>
+        <Button onClick={() => test_fetch()}>test_me_table fetch</Button>
+      </div>
       <SidebarLayout
         activeView={pageView}
         title={pageView}
