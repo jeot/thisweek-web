@@ -1,7 +1,7 @@
 import { useLiveQuery } from "dexie-react-hooks";
 import { useAppLogic } from "@/store/appLogic";
 import { useCalendarConfig } from "@/store/calendarConfig";
-import { async_getItemsInMillisTimeRange } from "./items";
+import { async_checkAndFixOrdering, async_getItemsInMillisTimeRange } from "./items";
 import { getUtcRangeForLocalWeekByRefMillis } from "./week";
 import { useEffect } from "react";
 
@@ -23,10 +23,16 @@ export function useLocalDbSyncItems() {
 
   // Update zustand when Dexie emits new results
   useEffect(() => {
+    // check if it needs reordering
+    async_checkAndFixOrdering(weeklyItems).then(() => {
+      console.log("ordering done");
+    }).catch((e) => {
+      console.log("ordering error:", e);
+    });
+
     // Only skip when items === undefined (initial/loading state)
     if (weeklyItems === undefined || setWeeklyItemsForced === undefined) return;
     setWeeklyItemsForced(weeklyItems);
     setProjectItemsForced([]);
   }, [weeklyItems, setWeeklyItemsForced]);
 }
-

@@ -1,21 +1,22 @@
 import { useEffect, useRef, useState } from "react";
-import { db } from "./db"; // your Dexie instance
+import { db, getUserInfoUuid } from "./db"; // your Dexie instance
 import { ItemType } from "@/types/types";
 import { supabase_client } from "./supabase/client";
+import { mapDbToItem } from "./supabase/mapper";
+import { UNKNOWN } from "./items";
 
 // ---- sync functions ----
 
 // pull items from server
 async function fetchServerItemsSince(since: number | null): Promise<ItemType[]> {
-  since;
+  const userId = getUserInfoUuid() || UNKNOWN;
   const { data: remoteItems, error } = await supabase_client
     .from('items')
     .select()
-    // .eq('userId', userId)
-    .gt('modifiedAt', since);
+    .eq('user_id', userId) // should not need because of the RLS
+    .gt('modified_at', since);
   if (error !== null) throw error;
-  if (remoteItems !== null) return remoteItems;
-  else return [];
+  return (remoteItems ?? []).map(mapDbToItem);
 }
 
 // push local changes
@@ -62,6 +63,7 @@ async function runSync() {
   console.log("sync 2. pull from server.");
   const serverUpdates = await fetchServerItemsSince(lastSync);
   console.log("remote change count: ", serverUpdates.length);
+  console.log("serverUpdates: ", serverUpdates);
 
   // 3. Apply server updates locally (conflict resolution: last-modified-wins)
   console.log("sync 3. reconcile with local.");
@@ -81,12 +83,14 @@ async function runSync() {
   const pushSuccess = await pushLocalChangesToServer(localChanges);
 
   // 6. Update syncedAt locally for pushed items
-  console.log("sync 6. update local sync timestamp.");
   if (pushSuccess) {
+    console.log("sync 6. update local sync timestamp.");
     const now = Date.now(); // todo: user server time
     await db.items.bulkPut(
       localChanges.map(item => ({ ...item, syncedAt: now }))
     );
+  } else {
+    console.log("push to server failed");
   }
 }
 

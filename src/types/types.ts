@@ -1,3 +1,4 @@
+import { Json } from "@/lib/supabase/database.types";
 import { CalendarType } from "./calendarLocales";
 
 
@@ -56,17 +57,22 @@ export interface CalendarLocaleType {
   weekStartsOn: WeekdayType;
 }
 
+// Narrow only the fields you care about
+export type OrderType = Partial<Record<CategoryType | 'pinned', number>> | null;
+
 // export type ItemContextMenuType = Array<{ name: 'Edit' | 'Copy' | 'Delete', action: (iat: ItemActionType) => void }>;
-export type CategoryType = 'weekly' | 'project';
+export type CategoryType = 'daily' | 'weekly' | 'monthly' | 'yearly' | 'project' | 'personal' | 'work' | 'goal' | 'life';
+export type StatusType = 'undone' | 'done' | 'pending' | 'blocked' | 'canceled' | 'delegated' | 'snoozed' | 'inprogress';
+
 
 export interface ItemType {
   id: number; // sql local/server id. it can be different on different servers!
   uuid: string; // the actual unique id of an item to work with!
-  userId: string | null; // future: e.g., 'local', or real user UID when logged in
+  userId: string; // future: e.g., 'local', or real user UID when logged in
 
   title: string;
-  type: 'todo' | 'note'; // initially wanted to have 'event' type, but i think it's overkill!
-  status: 'done' | 'undone' | 'pending' | 'blocked' | 'canceled';
+  type: 'todo' | 'note' | 'event' | 'habit' | 'journal' | 'reminder'; // most of them is overkill but we included here for database safty!
+  status: StatusType;
   category: CategoryType;
   projectId: number | null; // future: reference the projects table.
 
@@ -75,19 +81,16 @@ export interface ItemType {
   completedAt: number | null; // to keep track of when a task is finished, useful for sorting
   tzOffset: number; // the timezone shift of local time
   tzIANA: string; // the timezone city/country name (for display only)
-  dueType: 'allday' | 'fixed' | null; // future: a fixed date&time is assigned to the item or not?
+  dueType: 'allday' | 'fixed' | 'range' | 'floating' | null; // future: a fixed date&time is assigned to the item or not?
   duration: number; // future: the duration of the item
 
   parent: string | null; // future: reference to uuid. is this item a child (sub item) of another item?
-  order: Record<string, number>;    // future: per-view order (weekly, project)
+  ordering: OrderType;    // future: per-view order (weekly, project, pinned)
   // future: when and how to send notification? PostgreSQL: Store as JSONB
-  notification: {
-    method: 'popup' | 'email' | 'sound';
-    offset: number; // e.g., 900 = 15 mins before
-  } | null;
+  notification: Json | null; // future
   pinned: boolean; // future
-  meta: Record<string, any> | null; // future: for rare/experimental fields, e.g., colors
-  recurrence: Record<string, any> | null; // future
+  meta: Json | null; // future: for rare/experimental fields, e.g., colors
+  recurrence: Json | null; // future
 
   // future: encryption
   iv: string | null; // iv for encryption

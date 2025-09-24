@@ -57,6 +57,14 @@ db.version(7).stores({
   encryptionKeys: 'id'
 });
 
+db.version(8).stores({
+  items: '++id, uuid, userId, type, status, category, projectId, scheduledAt, completedAt, pinned, version, modifiedAt, deletedAt, syncedAt, modifiedBy, isEncrypted',
+  editing: 'key',
+  deviceInfo: 'key',
+  userInfo: 'key',
+  encryptionKeys: 'id'
+});
+
 // use this for being fast and not async
 let cachedDeviceId: string | null = null;
 

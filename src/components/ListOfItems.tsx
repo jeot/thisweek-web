@@ -76,7 +76,7 @@ export function ListOfItems({ className, items, newEdit, existingEdit, modifiabl
       item.id === existingEdit?.id ? existingEdit : item
     );
   }
-  allItems.sort((a, b) => a?.order.weekly - b?.order.weekly);
+  allItems.sort((a, b) => ((a?.ordering?.weekly || 0) - (b?.ordering?.weekly || 0)));
 
   const itemsLength = items.length || 0;
   const selectedIndex: number = items.findIndex((item) => (item.id === selectedId));

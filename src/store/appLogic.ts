@@ -241,7 +241,7 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 		console.log("⬆️⬇️");
 		const nextOffset = offset >= 0 ? offset + 1 : offset - 1;
 		const newOrder = getNewOrderingNumber(logic.weeklyItems, index + offset, index + nextOffset, "weekly")
-		item.order = { ...item.order, weekly: newOrder }
+		item.ordering = { ...item.ordering, weekly: newOrder };
 		async_saveItem(item)
 			.then(() => { })
 			.catch((err) => console.log("err:", err));
@@ -368,7 +368,7 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 				if (internalCopy && logic.internalCopiedItem) {
 					let newItem = logic.internalCopiedItem;
 					newItem.category = "weekly";
-					newItem.order["weekly"] = newItemPosition;
+					newItem.ordering = { ...newItem.ordering, weekly: newItemPosition };
 					newItem.scheduledAt = logic.weekReference;
 					async_saveAsNewItem(newItem)
 						.then((id) => {
@@ -380,7 +380,7 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 					let newItem = createNewItem();
 					newItem.title = text;
 					newItem.category = "weekly";
-					newItem.order["weekly"] = newItemPosition;
+					newItem.ordering = { ...newItem.ordering, weekly: newItemPosition };
 					newItem.scheduledAt = logic.weekReference;
 					async_saveAsNewItem(newItem)
 						.then((id) => {

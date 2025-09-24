@@ -18,7 +18,6 @@ import { useAuthStore } from "@/store/authStore";
 import { async_newUserInfoUuid, getUserInfoUuid } from './lib/db';
 import { useSyncManager } from './lib/sync';
 import { Button } from './components/ui/button';
-import { Tables } from './lib/supabase/database.types';
 
 const loadedCSS = new Set<string>();
 
@@ -112,7 +111,6 @@ function App() {
       console.log("response:", response);
 
       console.log("fetch data form supabase: test_me_table");
-      let test: Tables<'test_me_table'>;
       const { data, error } = await supabase_client
         .from('test_me_table')
         .select()

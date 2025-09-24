@@ -1,8 +1,10 @@
-import { CategoryType, ItemType } from "@/types/types";
+import { CategoryType, ItemType, OrderType } from "@/types/types";
 import { db, getDeviceId } from "@/lib/db.ts";
 import { useAppLogic } from "@/store/appLogic";
 import { useCalendarConfig } from "@/store/calendarConfig";
 import { MILLISECONDS_IN_WEEK } from '@/lib/week';
+
+export const UNKNOWN = 'unknown';
 
 type editingKeyType = 'editing_new' | 'editing_existing';
 
@@ -50,15 +52,15 @@ export function createNewItem(orderingNumber?: number, category?: CategoryType):
   const uuid: string = crypto.randomUUID();
   const tzOffset = new Date().getTimezoneOffset();
   const tzIANA = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Local';
-  const _category = category || 'weekly';
-  let order = { weekly: 0, project: 0 };
-  if (orderingNumber !== undefined) order[_category] = orderingNumber;
+  const _category = category ?? 'weekly';
+  let ordering: OrderType = {};
+  if (orderingNumber !== undefined) ordering[_category] = orderingNumber;
   const modifiedBy = getDeviceId();
 
   const newItem: ItemType = {
     id: -1,
     uuid: uuid,
-    userId: null,
+    userId: UNKNOWN,
 
     title: "",
     type: 'todo',
@@ -75,7 +77,7 @@ export function createNewItem(orderingNumber?: number, category?: CategoryType):
     duration: 0,
 
     parent: null,
-    order: order,
+    ordering: ordering,
     notification: null,
     pinned: false,
     meta: null,
@@ -101,7 +103,7 @@ export function createNewItemFrom(item: ItemType): ItemType {
   const modifiedBy = getDeviceId();
   item.id = -1;
   item.uuid = crypto.randomUUID();
-  item.userId = null;
+  item.userId = UNKNOWN;
   item.createdAt = currentTime;
   item.modifiedAt = currentTime;
   item.deletedAt = null;
@@ -123,8 +125,7 @@ export async function async_getItemsInMillisTimeRange(startUtcMillis: number, en
       .between(startUtcMillis, endUtcMillis, true, true)
       .and((x) => x.deletedAt === null)
       .and((x) => x.category === 'weekly')
-      .sortBy('order.weekly');
-    await async_checkAndFixOrdering(items);
+      .sortBy('ordering.weekly');
     return items;
   } catch (err) {
     console.log("error getting items in time range:", err);
@@ -132,13 +133,13 @@ export async function async_getItemsInMillisTimeRange(startUtcMillis: number, en
   }
 }
 
-async function async_checkAndFixOrdering(items: ItemType[]) {
+export async function async_checkAndFixOrdering(items: ItemType[]) {
   if (!items.length) return;
-  let needOrderingFix = items.some(item => (item.order === null) || (item.order?.weekly) === undefined || isNaN(item.order.weekly) || (item.order.weekly >= 1000000) || (item.order.weekly <= -1000000));
+  let needOrderingFix = items.some(item => (item.ordering === null) || (item.ordering?.weekly) === undefined || isNaN(item.ordering.weekly) || (item.ordering.weekly >= 1000000) || (item.ordering.weekly <= -1000000));
   if (!needOrderingFix) {
     // check for duplicates
     items.forEach((item, i) => {
-      const xi = items.findIndex(x => x.order.weekly === item.order.weekly)
+      const xi = items.findIndex(x => x.ordering?.weekly === item.ordering?.weekly)
       if (xi != i) {
         console.log("duplicate ordering found!");
         needOrderingFix = true;
@@ -150,11 +151,8 @@ async function async_checkAndFixOrdering(items: ItemType[]) {
   try {
     const updated = items
       .map((item, index) => {
-        let newOrder = item.order;
-        newOrder.weekly = (index + 1) * 1000.0;
         return {
-          ...item,
-          order: newOrder
+          ...item, ordering: { ...item.ordering, weekly: (index + 1) * 1000.0 }
         };
       });
 
@@ -272,16 +270,16 @@ export async function async_checkUuidIntegrity() {
 export function getNewOrderingNumber(items: ItemType[], index: number, nextIndex: number, section: 'weekly' | 'project'): number {
   const len = items.length;
   if (len === 0) return 1000;
-  const top = items[0]?.order[section] - 1000;
-  const bot = items[len - 1]?.order[section] + 1000;
+  const top = (items[0]?.ordering?.[section] || 0) - 1000;
+  const bot = (items[len - 1]?.ordering?.[section] || 0) + 1000;
   if (index < 0 || nextIndex < 0) {
     return top;
   }
   if (index >= len || nextIndex >= len) {
     return bot;
   }
-  const x = items[index]?.order[section];
-  const y = items[nextIndex]?.order[section];
+  const x = items[index]?.ordering?.[section] || 0;
+  const y = items[nextIndex]?.ordering?.[section] || 1000;
   return (x + y) / 2;
 }
 
