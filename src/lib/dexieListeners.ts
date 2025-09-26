@@ -1,29 +1,30 @@
 import { useLiveQuery } from "dexie-react-hooks";
 import { useAppLogic } from "@/store/appLogic";
 import { useCalendarConfig } from "@/store/calendarConfig";
-import { async_checkAndFixOrdering, async_getItemsInMillisTimeRange } from "./items";
-import { getUtcRangeForLocalWeekByRefMillis } from "./week";
+import { async_checkAndFixOrdering, async_getItemsInUtcIsoTimeRange } from "./items";
+import { getUtcIsoRangeForLocalWeekByRefUtcIso } from "./week";
 import { useEffect } from "react";
 
 export function useLocalDbSyncItems() {
   const mainCal = useCalendarConfig((state) => state.mainCal);
   const weekReference = useAppLogic((state) => state.weekReference);
-  const [startUtcMillis, endUtcMillis] = getUtcRangeForLocalWeekByRefMillis(mainCal.weekStartsOn, weekReference);
+  const [startUtcIso, endUtcIso] = getUtcIsoRangeForLocalWeekByRefUtcIso(mainCal.weekStartsOn, weekReference);
   const setWeeklyItemsForced = useAppLogic((state) => state.setWeeklyItemsForced);
   const setProjectItemsForced = useAppLogic((state) => state.setProjectItemsForced);
 
   // This will re-run whenever the table changes
   const weeklyItems = useLiveQuery(
     async () => {
-      return (await async_getItemsInMillisTimeRange(startUtcMillis, endUtcMillis));
+      return (await async_getItemsInUtcIsoTimeRange(startUtcIso, endUtcIso));
     },
     // specify vars that affect query:
-    [startUtcMillis, endUtcMillis]
+    [startUtcIso, endUtcIso]
   ) || [];
 
   // Update zustand when Dexie emits new results
   useEffect(() => {
     // check if it needs reordering
+    // todo: this should not happen inbetween the syncs!
     async_checkAndFixOrdering(weeklyItems).then(() => {
       console.log("ordering done");
     }).catch((e) => {

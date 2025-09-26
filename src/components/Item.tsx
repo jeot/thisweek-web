@@ -1,4 +1,4 @@
-import { cn, getSmartTextDirection } from "@/lib/utils";
+import { cn, getSmartTextDirection, timeToISO } from "@/lib/utils";
 import { ItemType } from "@/types/types";
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuSub, ContextMenuSubContent, ContextMenuSubTrigger, ContextMenuTrigger } from "@/components/ui/context-menu";
 import { useEffect, useRef, useState } from "react";
@@ -179,7 +179,7 @@ export function Item({ className, item, editing, editingPosition, selected, isMo
               onClick={(event) => {
                 event.stopPropagation();
                 const newStatus = item.status === 'done' ? 'undone' : 'done';
-                const completedAt = newStatus === 'done' ? (new Date()).getTime() : null;
+                const completedAt = newStatus === 'done' ? timeToISO() : null;
                 if (editing) onItemActionCallback('UpdateEdit', { ...item, status: newStatus, completedAt: completedAt });
                 else onItemActionCallback('Update', { ...item, status: newStatus, completedAt: completedAt });
               }}>
@@ -222,6 +222,7 @@ export function Item({ className, item, editing, editingPosition, selected, isMo
                 "shadow-none dark:shadow-none bg-transparent dark:bg-transparent",
                 "transition-all duration-200")}
             >
+              <span className="text-xxs text-green-500 font-semibold">{item.id}</span>
               {renderWithLinks(displayTitle)}
             </div>
           }

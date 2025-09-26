@@ -30,6 +30,15 @@ export function getUtcRangeForLocalWeek(
   ];
 }
 
+
+export function getUtcIsoRangeForLocalWeekByRefUtcIso(
+  weekStartsOn: WeekdayType,
+  refUTCIso: string,
+): [string, string] {
+  const [x, y] = getUtcRangeForLocalWeekByRefMillis(weekStartsOn, new Date(refUTCIso).getTime());
+  return [new Date(x).toISOString(), new Date(y).toISOString()];
+}
+
 export function getUtcRangeForLocalWeekByRefMillis(
   weekStartsOn: WeekdayType,
   refMillisUTC: number,

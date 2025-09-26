@@ -12,9 +12,10 @@ function WeekDatesCard() {
   const secondCal = useCalendarConfig((state) => state.secondCal);
   const secondCalEnabled = useCalendarConfig((state) => state.secondCalEnabled);
   const weekReference = useAppLogic((state) => state.weekReference);
+  const weekRefUtcMillis = new Date(weekReference).getTime();
   const requestWeekChange = useAppLogic((state) => state.requestWeekChange);
 
-  const weekView = buildFullWeekView(weekReference, mainCal, secondCal, secondCalEnabled);
+  const weekView = buildFullWeekView(weekRefUtcMillis, mainCal, secondCal, secondCalEnabled);
   const defaultDirection = (weekView.direction === 'ltr');
 
   const NextIcon = defaultDirection ? ChevronRight : ChevronLeft;

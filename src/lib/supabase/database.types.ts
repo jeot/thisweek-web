@@ -12,41 +12,16 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "13.0.5"
   }
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
       items: {
         Row: {
           calendar: string
           category: Database["public"]["Enums"]["item_category"]
-          ciphertext: string
-          completed_at: number | null
-          created_at: number
-          deleted_at: number | null
+          ciphertext: string | null
+          completed_at: string | null
+          created_at: string
+          deleted_at: string | null
           due_type: Database["public"]["Enums"]["item_due_type"] | null
           duration: number
           id: number
@@ -54,88 +29,88 @@ export type Database = {
           iv: string | null
           key_version: number
           meta: Json | null
-          modified_at: number
+          modified_at: string
           modified_by: string
           notification: Json | null
           ordering: Json | null
           parent: string | null
           pinned: boolean
-          project_id: number | null
+          project_id: string | null
           recurrence: Json | null
-          scheduled_at: number
+          scheduled_at: string
           status: Database["public"]["Enums"]["item_status"]
-          synced_at: number | null
+          synced_at: string
           title: string
           type: Database["public"]["Enums"]["item_type"]
           tz_iana: string
           tz_offset: number
-          user_id: string
+          user_id: string | null
           uuid: string
           version: number
         }
         Insert: {
           calendar: string
           category: Database["public"]["Enums"]["item_category"]
-          ciphertext: string
-          completed_at?: number | null
-          created_at: number
-          deleted_at?: number | null
+          ciphertext?: string | null
+          completed_at?: string | null
+          created_at?: string
+          deleted_at?: string | null
           due_type?: Database["public"]["Enums"]["item_due_type"] | null
           duration: number
-          id?: number
+          id?: never
           is_encrypted?: boolean
           iv?: string | null
           key_version: number
           meta?: Json | null
-          modified_at: number
+          modified_at?: string
           modified_by: string
           notification?: Json | null
           ordering?: Json | null
           parent?: string | null
           pinned?: boolean
-          project_id?: number | null
+          project_id?: string | null
           recurrence?: Json | null
-          scheduled_at: number
+          scheduled_at: string
           status: Database["public"]["Enums"]["item_status"]
-          synced_at?: number | null
+          synced_at?: string
           title: string
           type: Database["public"]["Enums"]["item_type"]
           tz_iana: string
           tz_offset: number
-          user_id: string
+          user_id?: string | null
           uuid: string
           version?: number
         }
         Update: {
           calendar?: string
           category?: Database["public"]["Enums"]["item_category"]
-          ciphertext?: string
-          completed_at?: number | null
-          created_at?: number
-          deleted_at?: number | null
+          ciphertext?: string | null
+          completed_at?: string | null
+          created_at?: string
+          deleted_at?: string | null
           due_type?: Database["public"]["Enums"]["item_due_type"] | null
           duration?: number
-          id?: number
+          id?: never
           is_encrypted?: boolean
           iv?: string | null
           key_version?: number
           meta?: Json | null
-          modified_at?: number
+          modified_at?: string
           modified_by?: string
           notification?: Json | null
           ordering?: Json | null
           parent?: string | null
           pinned?: boolean
-          project_id?: number | null
+          project_id?: string | null
           recurrence?: Json | null
-          scheduled_at?: number
+          scheduled_at?: string
           status?: Database["public"]["Enums"]["item_status"]
-          synced_at?: number | null
+          synced_at?: string
           title?: string
           type?: Database["public"]["Enums"]["item_type"]
           tz_iana?: string
           tz_offset?: number
-          user_id?: string
+          user_id?: string | null
           uuid?: string
           version?: number
         }
@@ -172,7 +147,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_server_time: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
     }
     Enums: {
       item_category:
@@ -321,9 +299,6 @@ export type CompositeTypes<
   : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {
       item_category: [

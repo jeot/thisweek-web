@@ -59,26 +59,23 @@ export interface CalendarLocaleType {
 
 // Narrow only the fields you care about
 export type OrderType = Partial<Record<CategoryType | 'pinned', number>> | null;
-
-// export type ItemContextMenuType = Array<{ name: 'Edit' | 'Copy' | 'Delete', action: (iat: ItemActionType) => void }>;
 export type CategoryType = 'daily' | 'weekly' | 'monthly' | 'yearly' | 'project' | 'personal' | 'work' | 'goal' | 'life';
 export type StatusType = 'undone' | 'done' | 'pending' | 'blocked' | 'canceled' | 'delegated' | 'snoozed' | 'inprogress';
-
 
 export interface ItemType {
   id: number; // sql local/server id. it can be different on different servers!
   uuid: string; // the actual unique id of an item to work with!
-  userId: string; // future: e.g., 'local', or real user UID when logged in
+  userId: string | null; // null if local, or real user UID when logged in
 
   title: string;
   type: 'todo' | 'note' | 'event' | 'habit' | 'journal' | 'reminder'; // most of them is overkill but we included here for database safty!
   status: StatusType;
   category: CategoryType;
-  projectId: number | null; // future: reference the projects table.
+  projectId: string | null; // future: reference the projects table.
 
   calendar: string; // the calendar system of the item
-  scheduledAt: number; // the utc time that is assigned to the item
-  completedAt: number | null; // to keep track of when a task is finished, useful for sorting
+  scheduledAt: string; // the iso utc time that is assigned to the item
+  completedAt: string | null; // to keep track of when a task is finished, useful for sorting
   tzOffset: number; // the timezone shift of local time
   tzIANA: string; // the timezone city/country name (for display only)
   dueType: 'allday' | 'fixed' | 'range' | 'floating' | null; // future: a fixed date&time is assigned to the item or not?
@@ -95,15 +92,15 @@ export interface ItemType {
   // future: encryption
   iv: string | null; // iv for encryption
   isEncrypted: boolean; // for encryption
-  ciphertext: string; // for encryption
+  ciphertext: string | null; // for encryption
   keyVersion: number; // for encryption
 
   // future: syncing
-  createdAt: number;
-  modifiedAt: number;
-  deletedAt: number | null; // future: for deleting items with syncing
+  createdAt: string;
+  modifiedAt: string;
+  deletedAt: string | null; // future: for deleting items with syncing
   version: number; // future: for syncing, conflict resolution, versioning, colaboration.
-  syncedAt: number | null; // only for debugging
+  syncedAt: string | null; // only for debugging
   modifiedBy: string // device ID
 }
 
@@ -134,7 +131,7 @@ export interface UserInfo {
 // to hold sync parameters (for incremental sync)
 export interface SyncInfo {
   key: 'syncinfo';
-  lastFetchedItemSyncTime: number;
+  lastRemoteSyncIsoTime: string;
 }
 
 

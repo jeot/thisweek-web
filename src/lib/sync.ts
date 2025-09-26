@@ -3,27 +3,28 @@ import { async_getSyncInfo, async_updatePartialSyncInfo, db, getUserInfoUuid } f
 import { ItemType } from "@/types/types";
 import { supabase_client } from "./supabase/client";
 import { DbInsertItemType, DbItemType, mapDbToItem, mapItemToDbInsert } from "./supabase/mapper";
+import { oneSecondLess } from "./utils";
 
 // ---- sync functions ----
 
 // pull items from server (pagination by number and ordered by oldest syncedAt time)
-async function fetchServerItemsSinceInOrder(since: number, limit: number): Promise<ItemType[]> {
+async function fetchServerItemsSinceInOrder(since: string, limit: number): Promise<DbItemType[]> {
   const { data: remoteItems, error } = await supabase_client
     .from("items")
     .select()
-    .gt("modified_at", since)
+    .gte("synced_at", since)
     .order("synced_at", { ascending: true })
     .limit(limit);
   if (error !== null) throw error;
-  return (remoteItems ?? []).map(mapDbToItem);
+  return (remoteItems ?? []);
 }
 
 // push local changes
 async function pushLocalChangesToServer(changes: ItemType[]): Promise<DbItemType[]> {
   if (changes.length === 0) return [];
-  const currentTime = (new Date()).getTime(); // utc ms
-  // modify some parameters for the server
-  const newChanges = changes.map((v) => ({ ...v, userId: getUserInfoUuid(), syncedAt: currentTime }));
+  // modify some parameters for the server (like userId)
+  // note the syncedAt will be update by the server
+  const newChanges = changes.map((v) => ({ ...v, userId: getUserInfoUuid() }));
   // Strip local-only fields like Dexie id
   const payload: DbInsertItemType[] = newChanges.map(mapItemToDbInsert);
   const { data, error } = await supabase_client
@@ -50,9 +51,10 @@ async function markLocalWithAppliedChanges(changes: DbItemType[]) {
 }
 
 // reconcile items
-async function reconcile(serverUpdates: ItemType[]) {
+async function reconcile(serverUpdates: DbItemType[]) {
+  const updatesToApply = serverUpdates.map(mapDbToItem);
   await db.transaction("rw", db.items, async () => {
-    for (const remote of serverUpdates) {
+    for (const remote of updatesToApply) {
       // todo: change the modifiedAt to syncedAt
       const { id: _remoteId, ...safeRemote } = remote;
       const local = await db.items.where("uuid").equals(safeRemote.uuid).first();
@@ -66,7 +68,7 @@ async function reconcile(serverUpdates: ItemType[]) {
         console.log("overwriting one remote item on local: ", local.title, " -> ", safeRemote.title);
         await db.items.put({ ...local, ...safeRemote });
       } else if (local.modifiedAt > safeRemote.modifiedAt) {
-        // Local is newer → keep local (will be pushed later)
+        // Local is newer → keep local (will be pushed later) // fix: but how?! we should check also synced_at value
         // make sure to set the flag for pushing later
         console.log("ignoring one remote item: ", safeRemote.title);
         await db.items.put({ ...local, syncedAt: null });
@@ -102,6 +104,20 @@ async function getLocalUnsyncedItemsWithLimit(limit: number) {
   return localChanges;
 }
 
+async function getServerTime() {
+  const { data, error } = await supabase_client.rpc('get_server_time');
+  const mytime = new Date().toISOString();
+  if (error) {
+    console.log("error: ", error);
+    throw new Error("couldn't get server time");
+  } else if (data) {
+    console.log("local :", mytime);
+    console.log("server:", data);
+    return data;
+  } else {
+    throw new Error("couldn't get server time");
+  }
+}
 
 // run one full sync cycle
 async function runSync() {
@@ -109,10 +125,13 @@ async function runSync() {
   const clientOk = await checkClientIsValid();
   if (!clientOk) return;
 
-  // 1. Get the last successful remote fetched item sync time
+  // 0. Get the last successful remote fetched item sync time
   const syncInfo = await async_getSyncInfo(); // 0 if first time!
-  let lastSync = syncInfo.lastFetchedItemSyncTime;
-  console.log("sync 1. last fetched item sync timestamp: ", lastSync);
+  let lastSync = syncInfo.lastRemoteSyncIsoTime;
+  console.log("sync: last sync timestamp: ", lastSync);
+  // 1. Get the server time (to use as a limit for fetching items)
+  const serverTime = getServerTime();
+  console.log("sync: current server time: ", serverTime);
 
   // --- Remote → Local loop ---
   console.log("SYNC --- Remote → Local loop ---");
@@ -122,7 +141,7 @@ async function runSync() {
     const LIMIT = 100;
     // 2. Pull new/updated items from server since last sync
     console.log("sync 2. pull 100 items from server.");
-    const remoteBatch = await fetchServerItemsSinceInOrder(lastSync, LIMIT);
+    const remoteBatch = await fetchServerItemsSinceInOrder(oneSecondLess(lastSync), LIMIT);
     console.log("remote batch count: ", remoteBatch.length);
     console.log("remote batch: ", remoteBatch);
 
@@ -135,10 +154,8 @@ async function runSync() {
     console.log("sync 3. reconcile with local.");
     await reconcile(remoteBatch);
 
-    // Advance cursor: highest modifiedAt seen
-    const s = remoteBatch[remoteBatch.length - 1].syncedAt;
-    if (s !== null) lastSync = s;
-    else console.log("FATAL! synced_at value from server is null.");
+    // Advance cursor: highest synced_at seen
+    lastSync = remoteBatch[remoteBatch.length - 1].synced_at;
 
     // If fewer than limit → finished
     if (remoteBatch.length < LIMIT) {
@@ -146,10 +163,8 @@ async function runSync() {
     }
   }
 
-  // Save last successful remote fetched item sync timestamp (watermark)
-  // todo: if the lastSync time is in the future,
-  // we probably should save it at current time.
-  await async_updatePartialSyncInfo({ lastFetchedItemSyncTime: lastSync });
+  // Save the server time as last sync time (safe because time was sent from server)
+  await async_updatePartialSyncInfo({ lastRemoteSyncIsoTime: lastSync });
 
   // --- Local → Remote loop ---
   console.log("SYNC --- Local → Remote loop ---");

@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
+import { MILLISECONDS_IN_WEEK } from '@/lib/week';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -43,3 +44,14 @@ export function getSmartTextDirection(text: string): 'ltr' | 'rtl' {
   return 'ltr';
 }
 
+export function timeToISO(time?: number | string, weekOffset: number = 0) {
+  const base = time !== undefined ? new Date(time).getTime() : Date.now();
+  const ts = base + weekOffset * MILLISECONDS_IN_WEEK;
+  return new Date(ts).toISOString();
+}
+
+export function oneSecondLess(isoTime: string) {
+  const ms = new Date(isoTime).getTime();
+  const newIso = new Date(ms - 1000).toISOString();
+  return newIso;
+}

@@ -1,10 +1,10 @@
 import { ItemType, PageViewType } from '@/types/types';
 import { create } from 'zustand';
-import { MILLISECONDS_IN_WEEK } from '@/lib/week';
 import { async_saveDraftItem, async_deleteDraftItem, async_deleteItemSoft, async_saveAsNewItem, async_saveItem, createNewItem, getNewOrderingNumber } from '@/lib/items';
 import { Action } from '@/types/types';
 import { useCalendarConfig } from './calendarConfig';
 import { useThemeConfig } from './themeConfig';
+import { timeToISO } from '@/lib/utils';
 
 export type SettingPageType = 'General' | 'Calendars' | 'Keymaps' | 'About';
 export type LoginInfoModalType = 'login' | 'sign-up' | 'forgot-password' | 'logged-in' | 'update-password' | null;
@@ -15,7 +15,7 @@ type AppLogic = {
 	setShowLoginInfoModal: (t: LoginInfoModalType) => void;
 	pageView: PageViewType;
 	settingPage: SettingPageType;
-	weekReference: number;
+	weekReference: string;
 	internalCopiedItem: ItemType | null;
 	selectedId: number | null;
 	wiggleId: number | null;
@@ -78,7 +78,7 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 	setShowLoginInfoModal: (t) => set({ showLoginInfoModal: t }),
 	pageView: 'This Week',
 	settingPage: 'Calendars',
-	weekReference: (new Date()).getTime(),
+	weekReference: timeToISO(),
 	internalCopiedItem: null,
 	selectedId: null,
 	wiggleId: null,
@@ -193,7 +193,7 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 		const logic = get();
 		if (!logic.findItemInList(item)) return;
 		if (!logic.easyCheckForCancelingUnchangedEditingItemOrWiggle()) return;
-		const newSchedule = item.scheduledAt + (weekOffset * MILLISECONDS_IN_WEEK);
+		const newSchedule = timeToISO(item.scheduledAt, weekOffset);
 		item.scheduledAt = newSchedule;
 		async_saveItem(item)
 			.then((count) => {
@@ -207,7 +207,7 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 		const logic = get();
 		if (!logic.findItemInList(item)) return;
 		if (!logic.easyCheckForCancelingUnchangedEditingItemOrWiggle()) return;
-		const newSchedule = (new Date()).getTime() + (weekOffset * MILLISECONDS_IN_WEEK);
+		const newSchedule = timeToISO(undefined, weekOffset);
 		item.scheduledAt = newSchedule;
 		async_saveItem(item)
 			.then((count) => {
@@ -220,12 +220,12 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 	requestGoToToday: () => {
 		const logic = get();
 		if (!logic.easyCheckForCancelingUnchangedEditingItemOrWiggle()) return;
-		set({ weekReference: (new Date()).getTime() });
+		set({ weekReference: timeToISO() });
 	},
 	requestWeekChange: (weekOffset) => {
 		const logic = get();
 		if (!logic.easyCheckForCancelingUnchangedEditingItemOrWiggle()) return;
-		set({ weekReference: logic.weekReference + (weekOffset * MILLISECONDS_IN_WEEK) })
+		set({ weekReference: timeToISO(logic.weekReference, weekOffset) })
 		set({ selectedId: null });
 	},
 	requestChangeSelectedItemById: (id) => {

@@ -1,6 +1,5 @@
 import Dexie, { type EntityTable } from 'dexie';
 import { DeviceInfo, EncryptionKeyEntry, ItemType, SyncInfo, UserInfo } from "@/types/types"
-import { UNKNOWN } from './items';
 
 const db = new Dexie('ThisWeekDatabase') as Dexie & {
   items: EntityTable<
@@ -73,6 +72,29 @@ db.version(9).stores({
   syncInfo: 'key'
 });
 
+db.version(10).upgrade((tx) => {
+  console.log("dexie upgrade to v10...");
+  return tx.table('items').toCollection().modify(item => {
+    item.userId = null;
+    item.projectId = null;
+    item.ciphertext = null;
+    item.ordering = item.order ? { ...item.order } : { weekly: 0, project: 0 };
+    delete item.order; // remove the 'order' key if it exists
+    const convertToISO = (value: number | string | null | undefined) => {
+      if (value == null) return null; // preserve null
+      if (typeof value === 'number') return new Date(value).toISOString();
+      if (typeof value === 'string') return value; // already ISO string
+      return null;
+    };
+    item.scheduledAt = convertToISO(item.scheduledAt);
+    item.completedAt = convertToISO(item.completedAt);
+    item.createdAt = convertToISO(item.createdAt);
+    item.modifiedAt = convertToISO(item.modifiedAt);
+    item.deletedAt = convertToISO(item.deletedAt);
+    item.syncedAt = convertToISO(item.syncedAt);
+  });
+});
+
 // use this for being fast and not async
 let cachedDeviceId: string | null = null;
 
@@ -116,8 +138,8 @@ export async function async_initDeviceId(): Promise<string> {
 // use this for being fast and not async
 let cachedUserInfoUuid: string | null = null;
 
-export function getUserInfoUuid(): string {
-  return cachedUserInfoUuid || UNKNOWN;
+export function getUserInfoUuid(): string | null {
+  return cachedUserInfoUuid;
 }
 
 export async function async_initUserInfoUuid(): Promise<string | null> {
@@ -144,7 +166,7 @@ export async function async_newUserInfoUuid(newUuid: string): Promise<void> {
 
 const DEFAULT_SYNCINFO: SyncInfo = {
   key: 'syncinfo',
-  lastFetchedItemSyncTime: 0,
+  lastRemoteSyncIsoTime: '1985-10-26T08:21:00.000Z'
 }
 
 export async function async_getSyncInfo(): Promise<SyncInfo> {

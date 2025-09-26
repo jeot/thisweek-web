@@ -2,9 +2,7 @@ import { CategoryType, ItemType, OrderType } from "@/types/types";
 import { db, getDeviceId } from "@/lib/db.ts";
 import { useAppLogic } from "@/store/appLogic";
 import { useCalendarConfig } from "@/store/calendarConfig";
-import { MILLISECONDS_IN_WEEK } from '@/lib/week';
-
-export const UNKNOWN = 'unknown';
+import { timeToISO } from "./utils";
 
 type editingKeyType = 'editing_new' | 'editing_existing';
 
@@ -46,9 +44,9 @@ export async function async_getDraftItem(editingKey: editingKeyType): Promise<It
 
 export function createNewItem(orderingNumber?: number, category?: CategoryType): ItemType {
   // todo: use function argument for these states:
-  const weekTime = useAppLogic.getState().weekReference;
+  const schedule = useAppLogic.getState().weekReference;
   const calendar = useCalendarConfig.getState().mainCal.calendar;
-  const currentTime = (new Date()).getTime();
+  const currentTime = timeToISO();
   const uuid: string = crypto.randomUUID();
   const tzOffset = new Date().getTimezoneOffset();
   const tzIANA = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Local';
@@ -60,16 +58,16 @@ export function createNewItem(orderingNumber?: number, category?: CategoryType):
   const newItem: ItemType = {
     id: -1,
     uuid: uuid,
-    userId: UNKNOWN,
+    userId: null,
 
     title: "",
     type: 'todo',
     status: 'undone',
-    category: category || 'weekly',
+    category: _category,
     projectId: null,
 
     calendar: calendar,
-    scheduledAt: weekTime,
+    scheduledAt: schedule,
     completedAt: null,
     tzOffset: tzOffset,
     tzIANA: tzIANA,
@@ -85,7 +83,7 @@ export function createNewItem(orderingNumber?: number, category?: CategoryType):
 
     iv: null,
     isEncrypted: false,
-    ciphertext: "",
+    ciphertext: null,
     keyVersion: 1,
 
     createdAt: currentTime,
@@ -99,11 +97,11 @@ export function createNewItem(orderingNumber?: number, category?: CategoryType):
 }
 
 export function createNewItemFrom(item: ItemType): ItemType {
-  const currentTime = (new Date()).getTime();
+  const currentTime = timeToISO();
   const modifiedBy = getDeviceId();
   item.id = -1;
   item.uuid = crypto.randomUUID();
-  item.userId = UNKNOWN;
+  item.userId = null;
   item.createdAt = currentTime;
   item.modifiedAt = currentTime;
   item.deletedAt = null;
@@ -112,21 +110,28 @@ export function createNewItemFrom(item: ItemType): ItemType {
   item.modifiedBy = modifiedBy;
   item.iv = null;
   item.isEncrypted = false;
-  item.ciphertext = "";
+  item.ciphertext = null;
   item.keyVersion = 1;
 
   return item;
 }
 
-export async function async_getItemsInMillisTimeRange(startUtcMillis: number, endUtcMillis: number): Promise<ItemType[]> {
+export async function async_getItemsInUtcIsoTimeRange(startUtcIso: string, endUtcIso: string): Promise<ItemType[]> {
   try {
     const items = await db.items
       .where('scheduledAt')
-      .between(startUtcMillis, endUtcMillis, true, true)
+      .between(startUtcIso, endUtcIso, true, true)
       .and((x) => x.deletedAt === null)
       .and((x) => x.category === 'weekly')
-      .sortBy('ordering.weekly');
-    return items;
+      .toArray(); // pull array first
+
+    const sortedItems = items.sort((a, b) => {
+      const aVal = a.ordering?.weekly ?? 0;
+      const bVal = b.ordering?.weekly ?? 0;
+      return aVal - bVal;
+    });
+
+    return sortedItems;
   } catch (err) {
     console.log("error getting items in time range:", err);
     return [];
@@ -152,7 +157,9 @@ export async function async_checkAndFixOrdering(items: ItemType[]) {
     const updated = items
       .map((item, index) => {
         return {
-          ...item, ordering: { ...item.ordering, weekly: (index + 1) * 1000.0 }
+          ...item,
+          ordering: { ...item.ordering, weekly: (index + 1) * 1000.0 },
+          syncedAt: null, // would sync in next run
         };
       });
 
@@ -182,8 +189,9 @@ export async function async_saveItem(item: ItemType): Promise<boolean> {
   let result = false;
   try {
     item.version++;
-    item.modifiedAt = (new Date()).getTime();
+    item.modifiedAt = timeToISO();
     item.modifiedBy = getDeviceId();
+    item.syncedAt = null;
     const existingItem = await db.items.get(item.id);
     // strict check of existing item (uuid) for updating
     if (existingItem !== undefined && existingItem.id === item.id && existingItem.uuid === item.uuid) {
@@ -213,7 +221,7 @@ export async function async_deleteItemHard(item: ItemType): Promise<boolean> {
 
 export async function async_deleteItemSoft(item: ItemType): Promise<boolean> {
   try {
-    item.deletedAt = (new Date()).getTime();
+    item.deletedAt = timeToISO();
     console.log("soft deleting item...");
     const result = await async_saveItem(item);
     if (result !== null) return true;
@@ -315,14 +323,15 @@ export async function async_insertOnboardingTasks() {
     try {
       let newitem = createNewItem();
       const meta = { onboarding: true }; // for later to avoid syncing! or deleting these items when logged in!
-      const currentTime = (new Date()).getTime();
+      const currentTime = timeToISO();
+      const schedule = timeToISO(currentTime, item.week);
       newitem = {
         ...newitem,
         type: item.type,
         status: item.status,
         title: item.title,
         meta: meta,
-        scheduledAt: (currentTime + (item.week * MILLISECONDS_IN_WEEK))
+        scheduledAt: schedule,
       };
       await async_saveAsNewItem(newitem);
     } catch (err) {
