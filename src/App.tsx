@@ -20,6 +20,7 @@ import { useSyncManager } from './lib/sync';
 import { Button } from './components/ui/button';
 import { createNewItem } from './lib/items';
 import { mapItemToDbInsert, DbInsertItemType } from './lib/supabase/mapper';
+import DevDbTools from './components/DevDbTools';
 
 const loadedCSS = new Set<string>();
 
@@ -226,10 +227,12 @@ function App() {
   return (
     <div className="font-global">
       <div className="flex gap-2">
+        <DevDbTools />
         <Button onClick={syncNow}>Sync Now</Button>
         <p>Sync State: {syncState}</p>
         <Button onClick={() => test_fetch()}>test table</Button>
         <Button onClick={() => test_insert_item()}>insert new item in cloud!</Button>
+        {/*
         <Button onClick={() => {
           supabase_client.rpc('get_server_time')
             .then(({ data, error }) => {
@@ -242,6 +245,7 @@ function App() {
             })
         }}
         >get server time</Button>
+        */}
       </div>
       <SidebarLayout
         activeView={pageView}
