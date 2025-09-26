@@ -21,12 +21,12 @@ export function LoggedinForm({ className, user, onSwitch, ...props }: React.Comp
     setIsLoggingOut(true);
     // todo: this is global (kills all sessions), make it local in the future.
     supabase_client.auth.signOut()
-      .then((err) => {
-        if (err === null) {
+      .then(({ error }) => {
+        if (error === null) {
           console.log("loged out successful!");
         } else {
-          console.log("log out failed! err:", err);
-          if (err?.error?.name === "AuthSessionMissingError") {
+          console.log("log out failed! error:", error);
+          if (error?.name === "AuthSessionMissingError") {
             console.log("session is already terminated in supabase. good!");
           }
         }
@@ -34,7 +34,7 @@ export function LoggedinForm({ className, user, onSwitch, ...props }: React.Comp
         if (onSwitch) onSwitch('login');
       })
       .catch((err) => {
-        console.log("log out failed! err:", err);
+        console.log("log out failed! catched err:", err);
         setIsLoggingOut(false);
       })
   }
