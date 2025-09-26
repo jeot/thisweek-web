@@ -131,6 +131,13 @@ export interface UserInfo {
   value: string;   // the UUID of the logged-in user
 }
 
+// to hold sync parameters (for incremental sync)
+export interface SyncInfo {
+  key: 'syncinfo';
+  lastFetchedItemSyncTime: number;
+}
+
+
 export interface EncryptionKeyEntry {
   id: string;         // e.g., "local_dek"
   encryptedKey: string; // base64 string

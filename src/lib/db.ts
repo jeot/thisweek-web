@@ -1,5 +1,6 @@
 import Dexie, { type EntityTable } from 'dexie';
-import { DeviceInfo, EncryptionKeyEntry, ItemType, UserInfo } from "@/types/types"
+import { DeviceInfo, EncryptionKeyEntry, ItemType, SyncInfo, UserInfo } from "@/types/types"
+import { UNKNOWN } from './items';
 
 const db = new Dexie('ThisWeekDatabase') as Dexie & {
   items: EntityTable<
@@ -12,6 +13,7 @@ const db = new Dexie('ThisWeekDatabase') as Dexie & {
   >;
   deviceInfo: EntityTable<DeviceInfo, 'key'>;
   userInfo: EntityTable<UserInfo, 'key'>;
+  syncInfo: EntityTable<SyncInfo, 'key'>;
   encryptionKeys: EntityTable<EncryptionKeyEntry, 'id'>;
 };
 
@@ -65,6 +67,12 @@ db.version(8).stores({
   encryptionKeys: 'id'
 });
 
+// ChatGPT: Dexie will keep all the previous definitions (items, editing, deviceInfo, userInfo, encryptionKeys)
+// from v8 and just add syncInfo.
+db.version(9).stores({
+  syncInfo: 'key'
+});
+
 // use this for being fast and not async
 let cachedDeviceId: string | null = null;
 
@@ -108,8 +116,8 @@ export async function async_initDeviceId(): Promise<string> {
 // use this for being fast and not async
 let cachedUserInfoUuid: string | null = null;
 
-export function getUserInfoUuid(): string | null {
-  return cachedUserInfoUuid;
+export function getUserInfoUuid(): string {
+  return cachedUserInfoUuid || UNKNOWN;
 }
 
 export async function async_initUserInfoUuid(): Promise<string | null> {
@@ -132,6 +140,30 @@ export async function async_newUserInfoUuid(newUuid: string): Promise<void> {
   }
   await db.userInfo.put({ key: 'uuid', value: newUuid });
   cachedUserInfoUuid = newUuid;
+}
+
+const DEFAULT_SYNCINFO: SyncInfo = {
+  key: 'syncinfo',
+  lastFetchedItemSyncTime: 0,
+}
+
+export async function async_getSyncInfo(): Promise<SyncInfo> {
+  try {
+    const stored = await db.syncInfo.get('syncinfo');
+    if (stored) {
+      return { ...DEFAULT_SYNCINFO, ...stored };
+    } else {
+      await db.syncInfo.put(DEFAULT_SYNCINFO);
+      return DEFAULT_SYNCINFO;
+    }
+  } catch (err) {
+    console.log("catch error: ", err);
+    return DEFAULT_SYNCINFO;
+  }
+}
+
+export async function async_updatePartialSyncInfo(update: Partial<Omit<SyncInfo, 'key'>>) {
+  await db.syncInfo.update('syncinfo', update);
 }
 
 export { db };

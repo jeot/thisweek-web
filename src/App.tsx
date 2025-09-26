@@ -18,6 +18,8 @@ import { useAuthStore } from "@/store/authStore";
 import { async_newUserInfoUuid, getUserInfoUuid } from './lib/db';
 import { useSyncManager } from './lib/sync';
 import { Button } from './components/ui/button';
+import { createNewItem } from './lib/items';
+import { mapItemToDbInsert, DbInsertItemType } from './lib/supabase/mapper';
 
 const loadedCSS = new Set<string>();
 
@@ -60,6 +62,8 @@ function App() {
   const fetchClaims = useAuthStore((state) => state.fetchClaims);
   const session = useAuthStore((state) => state.session);
 
+  const { syncNow, syncState } = useSyncManager();
+
   // Authentication
   useEffect(() => {
     fetchClaims();
@@ -84,6 +88,7 @@ function App() {
       async_newUserInfoUuid(loggedInUserId).then(() => console.log("done")).catch((e) => console.log("error: ", e));
     } else if (loggedInUserId !== null && lastUserId !== null && loggedInUserId === lastUserId) {
       console.log("welcome same old user!");
+      syncNow();
     } else {
       console.log("no session.");
     }
@@ -100,8 +105,6 @@ function App() {
     }
   }, [location.state]);
 
-  const { syncNow, syncState } = useSyncManager();
-
   const test_fetch = async () => {
     try {
       console.log("insert data to supabase: test_me_table");
@@ -109,7 +112,6 @@ function App() {
         .from('test_me_table')
         .insert({ name: "hot" })
       console.log("response:", response);
-
       console.log("fetch data form supabase: test_me_table");
       const { data, error } = await supabase_client
         .from('test_me_table')
@@ -117,6 +119,28 @@ function App() {
       console.log("data:", data);
       console.log("error:", error);
       if (!data) return;
+    } catch (e) {
+      console.log("err: ", e);
+    }
+  }
+
+  const test_insert_item = async () => {
+    try {
+      console.log("test: create and insert new item to supabase items table:");
+      const newItem = createNewItem(1000, 'weekly');
+      newItem.title = "hello world!"
+      newItem.userId = getUserInfoUuid();
+      const newDbItem: DbInsertItemType = mapItemToDbInsert(newItem);
+      const response = await supabase_client
+        .from('items')
+        .insert(newDbItem);
+      console.log("response:", response);
+      console.log("fetch data form supabase items table");
+      const { data, error } = await supabase_client
+        .from('items')
+        .select()
+      console.log("data:", data);
+      console.log("error:", error);
     } catch (e) {
       console.log("err: ", e);
     }
@@ -201,10 +225,23 @@ function App() {
 
   return (
     <div className="font-global">
-      <div className="grid grid-cols-5">
+      <div className="flex gap-2">
         <Button onClick={syncNow}>Sync Now</Button>
         <p>Sync State: {syncState}</p>
-        <Button onClick={() => test_fetch()}>test_me_table fetch</Button>
+        <Button onClick={() => test_fetch()}>test table</Button>
+        <Button onClick={() => test_insert_item()}>insert new item in cloud!</Button>
+        <Button onClick={() => {
+          supabase_client.rpc('get_server_time')
+            .then(({ data, error }) => {
+              if (error) console.log(data);
+              if (data) {
+                const mytime = new Date().toISOString();
+                console.log("local :", mytime);
+                console.log("server:", data);
+              }
+            })
+        }}
+        >get server time</Button>
       </div>
       <SidebarLayout
         activeView={pageView}
@@ -216,7 +253,7 @@ function App() {
         {pageView === 'Settings' && <SettingsPage />}
         {/* and so on */}
       </SidebarLayout>
-    </div>
+    </div >
   )
 }
 
