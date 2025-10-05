@@ -222,7 +222,11 @@ export function Item({ className, item, editing, editingPosition, selected, isMo
                 "shadow-none dark:shadow-none bg-transparent dark:bg-transparent",
                 "transition-all duration-200")}
             >
-              <span className="text-xxs text-green-500 font-semibold">{item.id}</span>
+              <span className={cn(
+                item.syncedAt && "text-green-500" || "text-orange-500",
+                "text-xs font-semibold",
+
+              )} >{item.id}</span>
               {renderWithLinks(displayTitle)}
             </div>
           }

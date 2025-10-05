@@ -55,3 +55,17 @@ export function oneSecondLess(isoTime: string) {
   const newIso = new Date(ms - 1000).toISOString();
   return newIso;
 }
+
+export function decreaseIsoTime(isoTime: string, reduce_ms: number) {
+  const ms = new Date(isoTime).getTime();
+  const newIso = new Date(ms - reduce_ms).toISOString();
+  return newIso;
+}
+
+export function minIsoTime(a: string, b: string): string {
+  return new Date(a).getTime() < new Date(b).getTime() ? a : b;
+}
+
+export function maxIsoTime(a: string, b: string): string {
+  return new Date(a).getTime() > new Date(b).getTime() ? a : b;
+}

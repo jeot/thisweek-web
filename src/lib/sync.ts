@@ -3,7 +3,7 @@ import { async_getSyncInfo, async_updatePartialSyncInfo, db, getUserInfoUuid } f
 import { ItemType } from "@/types/types";
 import { supabase_client } from "./supabase/client";
 import { DbInsertItemType, DbItemType, mapDbToItem, mapItemToDbInsert } from "./supabase/mapper";
-import { oneSecondLess } from "./utils";
+import { decreaseIsoTime } from "./utils";
 
 // ---- sync functions ----
 
@@ -58,22 +58,24 @@ async function reconcile(serverUpdates: DbItemType[]) {
       // todo: change the modifiedAt to syncedAt
       const { id: _remoteId, ...safeRemote } = remote;
       const local = await db.items.where("uuid").equals(safeRemote.uuid).first();
+      const localTime = new Date(local?.modifiedAt || 0).getTime();
+      const remoteTime = new Date(safeRemote.modifiedAt).getTime();
+
       if (!local) {
         // New item from server → add it
         console.log("adding one new remote item to local: ", safeRemote.title);
-        const insertedId = await db.items.add(safeRemote); // todo: flash the newly added item?
-        insertedId;
-      } else if (safeRemote.modifiedAt > local.modifiedAt) {
+        await db.items.add(safeRemote); // todo: flash the newly added item?
+      } else if (remoteTime > localTime) {
         // Server is newer → overwrite local
         console.log("overwriting one remote item on local: ", local.title, " -> ", safeRemote.title);
         await db.items.put({ ...local, ...safeRemote });
-      } else if (local.modifiedAt > safeRemote.modifiedAt) {
-        // Local is newer → keep local (will be pushed later) // fix: but how?! we should check also synced_at value
-        // make sure to set the flag for pushing later
-        console.log("ignoring one remote item: ", safeRemote.title);
+      } else if (localTime > remoteTime) {
+        // Local is newer → keep local (will be pushed later)
+        // todo: but how?! we should check also synced_at value
+        console.log("local is newer, ignoring remote item, marking to be pushed later: ", safeRemote.title);
         await db.items.put({ ...local, syncedAt: null });
       } else {
-        // console.log("items are in sync! nothing to do!");
+        console.log("items are in sync! nothing to do!");
       }
     }
   });
@@ -93,12 +95,12 @@ async function checkClientIsValid() {
   return true;
 }
 
+// note: coudn't wrap my head around this!
+// .or("modifiedAt") // note: this should be redundant! the syncedAt === null should be enough
+// .above(since)   // changed since last sync
 async function getLocalUnsyncedItemsWithLimit(limit: number) {
   const localChanges = await db.items
     .filter(item => item.syncedAt === null) // means never synced or new modification
-    // note: coudn't wrap my head around this!
-    // .or("modifiedAt") // note: this should be redundant! the syncedAt === null should be enough
-    // .above(since)   // changed since last sync
     .limit(limit)
     .toArray();
   return localChanges;
@@ -130,7 +132,7 @@ async function runSync() {
   let lastSync = syncInfo.lastRemoteSyncIsoTime;
   console.log("sync: last sync timestamp: ", lastSync);
   // 1. Get the server time (to use as a limit for fetching items)
-  const serverTime = getServerTime();
+  const serverTime = await getServerTime();
   console.log("sync: current server time: ", serverTime);
 
   // --- Remote → Local loop ---
@@ -140,10 +142,10 @@ async function runSync() {
   while (moreRemote) {
     const LIMIT = 100;
     // 2. Pull new/updated items from server since last sync
-    console.log("sync 2. pull 100 items from server.");
-    const remoteBatch = await fetchServerItemsSinceInOrder(oneSecondLess(lastSync), LIMIT);
-    console.log("remote batch count: ", remoteBatch.length);
-    console.log("remote batch: ", remoteBatch);
+    const since = decreaseIsoTime(lastSync, 2); // reducing 2ms for lastSync uncertainty. local is ms, server is us
+    console.log("fetching server items since: ", since, ", limit: ", LIMIT);
+    const remoteBatch = await fetchServerItemsSinceInOrder(since, LIMIT);
+    console.log("fetched remote batch count: ", remoteBatch.length);
 
     if (remoteBatch.length === 0) {
       moreRemote = false;
@@ -151,11 +153,14 @@ async function runSync() {
     }
 
     // Apply this batch locally with conflict resolution
-    console.log("sync 3. reconcile with local.");
     await reconcile(remoteBatch);
 
     // Advance cursor: highest synced_at seen
     lastSync = remoteBatch[remoteBatch.length - 1].synced_at;
+    if (new Date(lastSync).getTime() < new Date(serverTime).getTime())
+      await async_updatePartialSyncInfo({ lastRemoteSyncIsoTime: lastSync });
+    else
+      await async_updatePartialSyncInfo({ lastRemoteSyncIsoTime: serverTime });
 
     // If fewer than limit → finished
     if (remoteBatch.length < LIMIT) {
@@ -164,7 +169,7 @@ async function runSync() {
   }
 
   // Save the server time as last sync time (safe because time was sent from server)
-  await async_updatePartialSyncInfo({ lastRemoteSyncIsoTime: lastSync });
+  await async_updatePartialSyncInfo({ lastRemoteSyncIsoTime: serverTime });
 
   // --- Local → Remote loop ---
   console.log("SYNC --- Local → Remote loop ---");
@@ -173,9 +178,9 @@ async function runSync() {
   while (moreLocal) {
 
     // 4. Gather local unsynced or updated items
-    console.log("sync 4. get local changes.");
-    const localBatch = await getLocalUnsyncedItemsWithLimit(20);
-    console.log("local batch count: ", localBatch.length);
+    const LIMIT = 50;
+    const localBatch = await getLocalUnsyncedItemsWithLimit(LIMIT);
+    console.log("local batch count to push: ", localBatch.length);
 
 
     if (localBatch.length === 0) {
@@ -186,12 +191,11 @@ async function runSync() {
     try {
       // Push to server (upsert)
       // 5. Push local changes to server (upsert)
-      console.log("sync 5. push to server.");
       const applied = await pushLocalChangesToServer(localBatch);
       console.log("returned data (applied changes: ", applied.length, "): ", applied);
 
       // 6. Update syncedAt and userId locally for pushed items
-      console.log("sync 6. push successful. marking local items.");
+      console.log("push successful. marking local items.");
       await markLocalWithAppliedChanges(applied);
     } catch (err) {
       console.error("Failed pushing local batch:", err);
@@ -209,10 +213,8 @@ export function useSyncManager() {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const syncingRef = useRef(false); // lock to prevent parallel syncs
 
-
   // manual trigger with state update
   async function syncNow() {
-    return;
     if (syncingRef.current) {
       console.log("Sync already in progress, skipping...");
       return;

@@ -75,7 +75,7 @@ export function mapItemToDbInsert(item: ItemType): DbInsertItemType {
     modified_at: item.modifiedAt,
     deleted_at: item.deletedAt,
     version: item.version,
-    synced_at: item.syncedAt || "",
+    synced_at: item.syncedAt || undefined,
     modified_by: item.modifiedBy,
   };
 }
@@ -111,7 +111,7 @@ export function mapItemToDbUpdate(item: ItemType): DbUpdateItemType {
     modified_at: item.modifiedAt,
     deleted_at: item.deletedAt,
     version: item.version,
-    synced_at: item.syncedAt || "",
+    synced_at: item.syncedAt || undefined,
     modified_by: item.modifiedBy,
   };
 }

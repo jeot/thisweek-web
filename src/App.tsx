@@ -15,7 +15,7 @@ import { useLocalDbSyncItems } from './lib/dexieListeners';
 import { useLocation } from 'react-router-dom';
 import { supabase_client } from "@/lib/supabase/client";
 import { useAuthStore } from "@/store/authStore";
-import { async_newUserInfoUuid, getUserInfoUuid } from './lib/db';
+import { async_newUserInfoUuid, getUserInfoUuid, db, DEFAULT_SYNCINFO, async_updatePartialSyncInfo } from './lib/db';
 import { useSyncManager } from './lib/sync';
 import { Button } from './components/ui/button';
 import { createNewItem } from './lib/items';
@@ -89,7 +89,7 @@ function App() {
       async_newUserInfoUuid(loggedInUserId).then(() => console.log("done")).catch((e) => console.log("error: ", e));
     } else if (loggedInUserId !== null && lastUserId !== null && loggedInUserId === lastUserId) {
       console.log("welcome same old user!");
-      syncNow();
+      // syncNow();
     } else {
       console.log("no session.");
     }
@@ -105,6 +105,13 @@ function App() {
       setShowLoginInfoModal(null);
     }
   }, [location.state]);
+
+  const unsync_all_local_items = async () => {
+    await async_updatePartialSyncInfo({ ...DEFAULT_SYNCINFO });
+    await db.items.toCollection().modify(item => {
+      item.syncedAt = null;
+    });
+  }
 
   const test_fetch = async () => {
     try {
@@ -231,6 +238,7 @@ function App() {
         <Button onClick={syncNow}>Sync Now</Button>
         <p>Sync State: {syncState}</p>
         <Button onClick={() => test_fetch()}>test table</Button>
+        <Button onClick={() => unsync_all_local_items()}>unsync all local items</Button>
         <Button onClick={() => test_insert_item()}>insert new item in cloud!</Button>
         {/*
         <Button onClick={() => {

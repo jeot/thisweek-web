@@ -164,7 +164,7 @@ export async function async_newUserInfoUuid(newUuid: string): Promise<void> {
   cachedUserInfoUuid = newUuid;
 }
 
-const DEFAULT_SYNCINFO: SyncInfo = {
+export const DEFAULT_SYNCINFO: SyncInfo = {
   key: 'syncinfo',
   lastRemoteSyncIsoTime: '1985-10-26T08:21:00.000Z'
 }
@@ -186,6 +186,7 @@ export async function async_getSyncInfo(): Promise<SyncInfo> {
 
 export async function async_updatePartialSyncInfo(update: Partial<Omit<SyncInfo, 'key'>>) {
   await db.syncInfo.update('syncinfo', update);
+  console.log("updated syncInfo.lastRemoteSyncIsoTime to: ", update.lastRemoteSyncIsoTime);
 }
 
 export { db };
