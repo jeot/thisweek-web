@@ -34,7 +34,7 @@ export function UpdatePasswordForm({ className, onSwitch, ...props }: React.Comp
       // Update this route to redirect to an authenticated route. The user already has an active session.
       // the parrent probably will show the loggedin page because of an active session
       if (onSwitch) onSwitch('login');
-      else location.href = '/app'
+      else location.href = '/app/login'
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : 'An error occurred')
     } finally {
@@ -81,6 +81,16 @@ export function UpdatePasswordForm({ className, onSwitch, ...props }: React.Comp
               <Button type="submit" className="w-full" disabled={isLoading || !allowSubmit}>
                 {isLoading ? 'Saving...' : 'Save new password'}
               </Button>
+              <div className="mt-4 text-center text-sm">
+                Don&apos;t want to? {' '}
+                <button
+                  type="button"
+                  onClick={() => { if (onSwitch) onSwitch("login"); else location.href = '/app/login'; }}
+                  className="text-center text-sm ml-auto inline-block text-sm underline-offset-4 hover:underline"
+                >
+                  Login
+                </button>
+              </div>
             </div>
           </form>
         </CardContent>

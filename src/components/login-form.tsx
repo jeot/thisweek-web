@@ -33,7 +33,7 @@ export function LoginForm({ className, onSwitch, ...props }: React.ComponentProp
       // Update this route to redirect to an authenticated route. The user already has an active session.
       // todo:
       if (onSwitch) onSwitch('login')
-      else location.href = '/protected'
+      else location.href = '/app'
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : 'An error occurred')
     } finally {
