@@ -15,12 +15,10 @@ import { useLocalDbSyncItems } from './lib/dexieListeners';
 import { useLocation } from 'react-router-dom';
 import { supabase_client } from "@/lib/supabase/client";
 import { useAuthStore } from "@/store/authStore";
-import { async_newUserInfoUuid, getUserInfoUuid, db, DEFAULT_SYNCINFO, async_updatePartialSyncInfo } from './lib/db';
-import { useSyncManager } from './lib/sync';
-import { Button } from './components/ui/button';
-import { createNewItem } from './lib/items';
-import { mapItemToDbInsert, DbInsertItemType } from './lib/supabase/mapper';
-import DevDbTools from './components/DevDbTools';
+import { async_newUserInfoUuid, getUserInfoUuid } from './lib/db';
+import { useDataSyncStore } from './store/dataSyncStore';
+// import { Button } from './components/ui/button';
+// import DevDbTools from './components/DevDbTools';
 
 const loadedCSS = new Set<string>();
 
@@ -52,6 +50,15 @@ function preloadFont(href: string, type = 'font/woff2') {
 }
 */
 
+// mini hook for running sync each minute in the background
+function useSyncLoop() {
+  const startSync = useDataSyncStore((s) => s.startSync);
+  useEffect(() => {
+    const id = setInterval(startSync, 60_000);
+    return () => clearInterval(id);
+  }, [startSync]);
+}
+
 function App() {
   const location = useLocation();
   const setShowLoginInfoModal = useAppLogic((state) => state.setShowLoginInfoModal);
@@ -63,7 +70,7 @@ function App() {
   const fetchClaims = useAuthStore((state) => state.fetchClaims);
   const session = useAuthStore((state) => state.session);
 
-  const { syncNow, syncState } = useSyncManager();
+  useSyncLoop();
 
   // Authentication
   useEffect(() => {
@@ -105,54 +112,6 @@ function App() {
       setShowLoginInfoModal(null);
     }
   }, [location.state]);
-
-  const unsync_all_local_items = async () => {
-    await async_updatePartialSyncInfo({ ...DEFAULT_SYNCINFO });
-    await db.items.toCollection().modify(item => {
-      item.syncedAt = null;
-    });
-  }
-
-  const test_fetch = async () => {
-    try {
-      console.log("insert data to supabase: test_me_table");
-      const response = await supabase_client
-        .from('test_me_table')
-        .insert({ name: "hot" })
-      console.log("response:", response);
-      console.log("fetch data form supabase: test_me_table");
-      const { data, error } = await supabase_client
-        .from('test_me_table')
-        .select()
-      console.log("data:", data);
-      console.log("error:", error);
-      if (!data) return;
-    } catch (e) {
-      console.log("err: ", e);
-    }
-  }
-
-  const test_insert_item = async () => {
-    try {
-      console.log("test: create and insert new item to supabase items table:");
-      const newItem = createNewItem(1000, 'weekly');
-      newItem.title = "hello world!"
-      newItem.userId = getUserInfoUuid();
-      const newDbItem: DbInsertItemType = mapItemToDbInsert(newItem);
-      const response = await supabase_client
-        .from('items')
-        .insert(newDbItem);
-      console.log("response:", response);
-      console.log("fetch data form supabase items table");
-      const { data, error } = await supabase_client
-        .from('items')
-        .select()
-      console.log("data:", data);
-      console.log("error:", error);
-    } catch (e) {
-      console.log("err: ", e);
-    }
-  }
 
   useLocalDbSyncItems();
 
@@ -234,26 +193,7 @@ function App() {
   return (
     <div className="font-global">
       <div className="flex gap-2">
-        <DevDbTools />
-        <Button onClick={syncNow}>Sync Now</Button>
-        <p>Sync State: {syncState}</p>
-        <Button onClick={() => test_fetch()}>test table</Button>
-        <Button onClick={() => unsync_all_local_items()}>unsync all local items</Button>
-        <Button onClick={() => test_insert_item()}>insert new item in cloud!</Button>
-        {/*
-        <Button onClick={() => {
-          supabase_client.rpc('get_server_time')
-            .then(({ data, error }) => {
-              if (error) console.log(data);
-              if (data) {
-                const mytime = new Date().toISOString();
-                console.log("local :", mytime);
-                console.log("server:", data);
-              }
-            })
-        }}
-        >get server time</Button>
-        */}
+        {/*<DevDbTools />*/}
       </div>
       <SidebarLayout
         activeView={pageView}

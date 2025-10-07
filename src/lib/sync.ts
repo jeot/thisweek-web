@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from "react";
 import { async_getSyncInfo, async_updatePartialSyncInfo, db, getUserInfoUuid } from "./db"; // your Dexie instance
 import { ItemType } from "@/types/types";
 import { supabase_client } from "./supabase/client";
 import { DbInsertItemType, DbItemType, mapDbToItem, mapItemToDbInsert } from "./supabase/mapper";
 import { decreaseIsoTime } from "./utils";
+import { useDataSyncStore } from "@/store/dataSyncStore";
 
 // ---- sync functions ----
 
@@ -85,12 +85,13 @@ async function reconcile(serverUpdates: DbItemType[]) {
 async function checkClientIsValid() {
   const { data, error } = await supabase_client.auth.getSession();
   if (data === null || error !== null) {
-    throw new Error("sync canceled. no auth session.");
-  } else if (data !== null && data.session === null) {
+    throw new Error("sync canceled. no auth data or auth error.");
+  }
+  if (data !== null && data.session === null) {
     throw new Error("ERROR!! sync canceled. no session.");
-  } else if (data !== null && data.session !== null && data.session.user.id !== getUserInfoUuid()) {
+  }
+  if (data !== null && data.session !== null && data.session.user.id !== getUserInfoUuid()) {
     throw new Error("FATAL ERROR!! sync canceled. invalid user id.");
-  } else {
   }
   return true;
 }
@@ -122,11 +123,12 @@ async function getServerTime() {
 }
 
 // run one full sync cycle
-async function runSync() {
+export async function runSync() {
   // double check the client id
   const clientOk = await checkClientIsValid();
-  if (!clientOk) return;
+  if (!clientOk) throw new Error("bad client!");
 
+  useDataSyncStore.getState().setSyncState("fetching");
   // 0. Get the last successful remote fetched item sync time
   const syncInfo = await async_getSyncInfo(); // 0 if first time!
   let lastSync = syncInfo.lastRemoteSyncIsoTime;
@@ -135,6 +137,7 @@ async function runSync() {
   const serverTime = await getServerTime();
   console.log("sync: current server time: ", serverTime);
 
+  useDataSyncStore.getState().setSyncState("fetching");
   // --- Remote → Local loop ---
   console.log("SYNC --- Remote → Local loop ---");
   let moreRemote = true;
@@ -171,6 +174,7 @@ async function runSync() {
   // Save the server time as last sync time (safe because time was sent from server)
   await async_updatePartialSyncInfo({ lastRemoteSyncIsoTime: serverTime });
 
+  useDataSyncStore.getState().setSyncState("pushing");
   // --- Local → Remote loop ---
   console.log("SYNC --- Local → Remote loop ---");
   let moreLocal = true;
@@ -204,50 +208,7 @@ async function runSync() {
     }
   }
 
+  useDataSyncStore.getState().setSyncState("success");
   console.log("sync done.");
 }
-
-// ---- hook ----
-export function useSyncManager() {
-  const [syncState, setSyncState] = useState<"idle" | "running" | "error" | "success">("idle");
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const syncingRef = useRef(false); // lock to prevent parallel syncs
-
-  // manual trigger with state update
-  async function syncNow() {
-    if (syncingRef.current) {
-      console.log("Sync already in progress, skipping...");
-      return;
-    }
-    syncingRef.current = true;
-    try {
-      setSyncState("running");
-      await runSync();
-      setSyncState("success");
-    } catch (err) {
-      setSyncState("error");
-      console.log("runSync() throw error: ", err);
-    } finally {
-      syncingRef.current = false; // release lock
-    }
-  }
-
-  useEffect(() => {
-    // start background loop
-    console.log("setting the sync timer...");
-    timerRef.current = setInterval(() => {
-      runSync().catch(err => console.error("Sync error:", err));
-    }, 9_000_000); // every 60s: 60_000
-
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-        console.log("sync timer cleared.");
-      }
-    };
-  }, []);
-
-  return { syncNow, syncState };
-}
-
 
