@@ -25,6 +25,7 @@ export const actions = [
   'TOGGLE_THEME',
   'TOGGLE_STATUS',
   'TOGGLE_TYPE',
+  'RUN_SYNC_ONCE',
   'PASTE_ABOVE',
   'CANCEL',
   'CREATE',

@@ -166,13 +166,13 @@
     @apply bg-background text-foreground;
   }
   h1 {
-    @apply text-xl font-extrabold tracking-tight sm:text-2xl lg:text-3xl scroll-m-20;
+    @apply text-xl font-extrabold tracking-tight sm:text-2xl scroll-m-20;
   }
   h2 {
-    @apply text-xl font-bold tracking-tight sm:text-2xl lg:text-3xl scroll-m-20;
+    @apply text-xl font-bold tracking-tight sm:text-2xl scroll-m-20;
   }
   h3 {
-    @apply text-lg font-semibold tracking-tight sm:text-lg lg:text-xl scroll-m-20;
+    @apply text-lg font-semibold tracking-tight sm:text-xl scroll-m-20;
   }
 }
 

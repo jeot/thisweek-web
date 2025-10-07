@@ -5,6 +5,7 @@ import { Action } from '@/types/types';
 import { useCalendarConfig } from './calendarConfig';
 import { useThemeConfig } from './themeConfig';
 import { timeToISO } from '@/lib/utils';
+import { useDataSyncStore } from './dataSyncStore';
 
 export type SettingPageType = 'General' | 'Calendars' | 'Keymaps' | 'About';
 export type LoginInfoModalType = 'login' | 'sign-up' | 'forgot-password' | 'logged-in' | 'update-password' | null;
@@ -500,6 +501,8 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 			if (selectedItem) logic.requestToggleItemStatus(selectedItem);
 		} else if (action === "TOGGLE_TYPE") {
 			if (selectedItem) logic.requestToggleItemType(selectedItem);
+		} else if (action === "RUN_SYNC_ONCE") {
+			useDataSyncStore.getState().startSync();
 		} else if (action === "CANCEL") {
 			logic.requestCancelWhateverIsHappening();
 		} else if (action === "CREATE") {

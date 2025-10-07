@@ -41,7 +41,7 @@ export function LoginSheet() {
         <CloudSyncIcon />
       </Button>
     </SheetTrigger>
-    <SheetContent className="w-md max-w-md sm:max-w-md p-4 overflow-auto" side="right">
+    <SheetContent className="w-sm max-w-full p-4 overflow-auto" side="right">
       <SheetHeader>
         <SheetTitle>Cloud Sync ☁️</SheetTitle>
         <SheetDescription>

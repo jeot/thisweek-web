@@ -53,6 +53,7 @@ export const KEYMAPS: Array<KeyMap> = [
   { group: "VIMMODE", key: "shift+o", fastTyping: [], action: 'CREATE_ABOVE', desc: "Create New Item (above selected item)" },
   { group: "VIMMODE", sequence: ["space", "t"], fastTyping: ["", "space+t"], action: 'TOGGLE_THEME', desc: "Toggle Theme (Dark/Light)" },
   { group: "VIMMODE", sequence: ["space", "x"], fastTyping: ["", "space+x"], action: 'TOGGLE_TYPE', desc: "Toggle Item Type (Todo/Note)" },
+  { group: "VIMMODE", sequence: ["space", "s"], fastTyping: ["", "space+s"], action: 'RUN_SYNC_ONCE', desc: "Run Sync Once" },
   { group: "VIMMODE", sequence: ["space", "space"], fastTyping: [], action: 'TOGGLE_STATUS', desc: "Toggle Item Complete Status" },
   { group: "VIMMODE", sequence: ["d", "d"], fastTyping: [], action: 'DELETE', desc: "Delete Selected Item" },
   { group: "VIMMODE", sequence: ["y", "y"], fastTyping: [], action: 'COPY', desc: "Copy Selected Item" },
