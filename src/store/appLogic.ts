@@ -439,8 +439,15 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 	// actions (keyboard mostly or events)
 	// most of the actions is performed on selectedItem
 	actionRequest: (action: Action) => {
-		console.log("new action: ", action);
+		// console.log("new action: ", action);
+		// allowed actions dispite of model being open
+		if (action === "TOGGLE_THEME") return useThemeConfig.getState().toggleTheme();
+		if (action === "RUN_SYNC_ONCE") return useDataSyncStore.getState().startSync();
 		const logic = get();
+		// other actions are not allowed if modal is open
+		if (logic.showLoginInfoModal) {
+			return;
+		}
 		const ltr = (useCalendarConfig.getState().mainCal.locale.direction === 'ltr');
 		const itemsLength = logic.weeklyItems.length || 0;
 		const selectedIndex: number = logic.weeklyItems.findIndex((item) => (item.id === logic.selectedId));
@@ -495,14 +502,10 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 		} else if (action === "COPY_ALL_ITEMS_TEXT") {
 			// todo: copy all the items in the list as a single text to clipboard
 			console.log("todo! not implemented yet!");
-		} else if (action === "TOGGLE_THEME") {
-			useThemeConfig.getState().toggleTheme();
 		} else if (action === "TOGGLE_STATUS") {
 			if (selectedItem) logic.requestToggleItemStatus(selectedItem);
 		} else if (action === "TOGGLE_TYPE") {
 			if (selectedItem) logic.requestToggleItemType(selectedItem);
-		} else if (action === "RUN_SYNC_ONCE") {
-			useDataSyncStore.getState().startSync();
 		} else if (action === "CANCEL") {
 			logic.requestCancelWhateverIsHappening();
 		} else if (action === "CREATE") {
