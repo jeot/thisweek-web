@@ -2,8 +2,9 @@ import { async_getSyncInfo, async_updatePartialSyncInfo, db, getUserInfoUuid } f
 import { ItemType } from "@/types/types";
 import { supabase_client } from "./supabase/client";
 import { DbInsertItemType, DbItemType, mapDbToItem, mapItemToDbInsert } from "./supabase/mapper";
-import { decreaseIsoTime } from "./utils";
+import { decreaseIsoTime, withTimeout } from "./utils";
 import { useDataSyncStore } from "@/store/dataSyncStore";
+import { PostgrestSingleResponse } from "@supabase/supabase-js";
 
 // ---- sync functions ----
 
@@ -85,13 +86,13 @@ async function reconcile(serverUpdates: DbItemType[]) {
 async function checkClientIsValid() {
   const { data, error } = await supabase_client.auth.getSession();
   if (data === null || error !== null) {
-    throw new Error("sync canceled. no auth data or auth error.");
+    throw new Error("Auth error! sync canceled. no auth data or auth error.");
   }
   if (data !== null && data.session === null) {
-    throw new Error("ERROR!! sync canceled. no session.");
+    throw new Error("Auth error! sync canceled. no session.");
   }
   if (data !== null && data.session !== null && data.session.user.id !== getUserInfoUuid()) {
-    throw new Error("FATAL ERROR!! sync canceled. invalid user id.");
+    throw new Error("FATAL! Auth error! sync canceled. invalid user id.");
   }
   return true;
 }
@@ -108,17 +109,26 @@ async function getLocalUnsyncedItemsWithLimit(limit: number) {
 }
 
 async function getServerTime() {
-  const { data, error } = await supabase_client.rpc('get_server_time');
-  const mytime = new Date().toISOString();
+  // hack! wrap in real Promise
+  const rpcPromise = new Promise<PostgrestSingleResponse<string>>((resolve, reject) => {
+    supabase_client.rpc("get_server_time")
+      .then(resolve, reject)  // resolves the wrapped promise
+  });
+  const { data, error } = await withTimeout(
+    rpcPromise,
+    5000 // 5 seconds
+  );
+
   if (error) {
     console.log("error: ", error);
-    throw new Error("couldn't get server time");
+    throw new Error("Failed to fetch. couldn't get server time");
   } else if (data) {
+    const mytime = new Date().toISOString();
     console.log("local :", mytime);
     console.log("server:", data);
     return data;
   } else {
-    throw new Error("couldn't get server time");
+    throw new Error("Failed to fetch. couldn't get server time");
   }
 }
 
@@ -128,7 +138,7 @@ export async function runSync() {
   const clientOk = await checkClientIsValid();
   if (!clientOk) throw new Error("bad client!");
 
-  useDataSyncStore.getState().setSyncState("fetching");
+  useDataSyncStore.getState().setSyncState("idle");
   // 0. Get the last successful remote fetched item sync time
   const syncInfo = await async_getSyncInfo(); // 0 if first time!
   let lastSync = syncInfo.lastRemoteSyncIsoTime;

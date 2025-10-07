@@ -1,11 +1,12 @@
 import { runSync } from '@/lib/sync';
 import { create } from 'zustand'
 
-type SyncStateType = 'idle' | 'fetching' | 'pushing' | 'success' | 'error' | null;
+export type SyncStateType = 'idle' | 'fetching' | 'pushing' | 'success' | 'error';
 
 type DataSyncState = {
 	syncing: boolean;
 	syncState: SyncStateType;
+	errorMessage: string | null;
 	setSyncState: (syncState: SyncStateType) => void;
 	startSync: () => void;
 	/* for future realtime fetching...
@@ -16,23 +17,40 @@ type DataSyncState = {
 
 export const useDataSyncStore = create<DataSyncState>((set, get) => ({
 	syncing: false,
-	syncState: null,
-	setSyncState: (syncState: SyncStateType) => {
-		set({ syncState });
+	syncState: 'idle',
+	errorMessage: null,
+	setSyncState: (syncState: SyncStateType, errorMessage?: string | null) => {
+		const e = errorMessage ? errorMessage : null;
+		set({ syncState, errorMessage: e });
 	},
 	startSync: () => {
 		if (get().syncing) {
 			console.log("Sync already in progress, skipping...");
 			return;
 		}
-		set({ syncing: true });
+		set({ syncing: true, errorMessage: null });
 		runSync()
 			.then(() => {
-				set({ syncing: false });
+				set({ syncing: false, errorMessage: null });
 			})
-			.catch((e) => {
-				console.error("sync err: ", e);
-				set({ syncing: false });
+			.catch((err) => {
+				console.error("sync err: ", err);
+				let reason = "Unknown error";
+
+				if (!navigator.onLine) {
+					reason = "No network connection";
+				} else if (err?.message?.includes("Failed to fetch")) {
+					reason = "No network connection";
+				} else if (err?.message?.includes("Auth error!")) {
+					reason = "Authentication failed";
+				} else if (err?.message?.includes("timeout")) {
+					reason = "Connection timed out";
+				} else if (err?.message?.includes("Unauthorized")) {
+					reason = "Authentication failed";
+				} else if (err?.message) {
+					reason = err.message;
+				}
+				set({ syncing: false, syncState: 'error', errorMessage: reason });
 			})
 			.finally(() => {
 				set({ syncing: false });

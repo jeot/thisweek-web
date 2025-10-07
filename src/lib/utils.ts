@@ -69,3 +69,11 @@ export function minIsoTime(a: string, b: string): string {
 export function maxIsoTime(a: string, b: string): string {
   return new Date(a).getTime() > new Date(b).getTime() ? a : b;
 }
+
+// timeout helper
+export function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  const timeout = new Promise<never>((_, reject) =>
+    setTimeout(() => reject(new Error("timeout")), ms)
+  );
+  return Promise.race([promise, timeout]) as Promise<T>;
+}

@@ -52,11 +52,22 @@ function preloadFont(href: string, type = 'font/woff2') {
 
 // mini hook for running sync each minute in the background
 function useSyncLoop() {
+  const session = useAuthStore((s) => s.session);
   const startSync = useDataSyncStore((s) => s.startSync);
   useEffect(() => {
+    // no active session? stop syncing
+    if (!session) return;
+    // run once immediately
+    startSync();
+    // start periodic sync
     const id = setInterval(startSync, 60_000);
-    return () => clearInterval(id);
-  }, [startSync]);
+    console.log("Started background sync loop");
+    // cleanup on sign-out or unmount
+    return () => {
+      clearInterval(id);
+      console.log("Stopped background sync loop");
+    };
+  }, [session, startSync]);
 }
 
 function App() {

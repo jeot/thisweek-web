@@ -4,12 +4,8 @@ import { useCalendarConfig } from "@/store/calendarConfig";
 import { useAppLogic } from "@/store/appLogic";
 import { DateTime } from "luxon";
 import { LoginSheet } from "./LoginSheet";
-import { Button } from "./ui/button";
-import { useDataSyncStore } from "@/store/dataSyncStore";
-import { RefreshCw } from "lucide-react";
 
 export default function HeaderContent({ title }: { title?: string }) {
-  const startSync = useDataSyncStore((state) => state.startSync);
   const mainCal = useCalendarConfig((state) => state.mainCal);
   const requestGoToToday = useAppLogic((state) => state.requestGoToToday);
   // const secondCal = useCalendarState((state) => state.secondCal);
@@ -31,7 +27,6 @@ export default function HeaderContent({ title }: { title?: string }) {
         </Badge>
         &nbsp;
         <LoginSheet />
-        <Button variant={"ghost"} onClick={startSync}><RefreshCw className="text-muted-foreground" /></Button>
         {/*
         {secondCalEnabled &&
           <Badge variant="secondary" className="mx-1 font-normal text-primary/75 bg-primary/10"
