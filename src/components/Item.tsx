@@ -231,8 +231,8 @@ export function Item({ className, item, editing, editingPosition, selected, isMo
             </div>
           }
 
+          <span className="absolute right-0 top-0 text-xs rounded-md p-1 border-1 border-red-600">{item.ordering?.weekly}</span>
           {/*
-          <span className="absolute right-0 top-0 text-xs rounded-md p-1 border-1 border-red-600">{item.order.weekly}</span>
           */}
           {editing && <Button
             className="m-0.5 ms-1" size="shk" variant="outline"
