@@ -12,14 +12,12 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useState } from 'react'
 import { LoginInfoModalType } from '@/store/appLogic'
-import { useIsMobile } from '@/lib/useIsMobile'
 
 export function LoginForm({ className, onSwitch, ...props }: React.ComponentPropsWithoutRef<'div'> & { onSwitch?: (l: LoginInfoModalType) => void }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
-  const isMobile = useIsMobile();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -62,7 +60,6 @@ export function LoginForm({ className, onSwitch, ...props }: React.ComponentProp
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  autoFocus={!isMobile}
                 />
               </div>
               <div className="grid gap-2">
@@ -90,7 +87,6 @@ export function LoginForm({ className, onSwitch, ...props }: React.ComponentProp
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  autoFocus={!isMobile}
                 />
               </div>
               {error && <p className="text-sm text-red-500">{error}</p>}

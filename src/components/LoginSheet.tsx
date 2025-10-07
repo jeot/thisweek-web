@@ -17,11 +17,13 @@ import { ForgotPasswordForm } from "./forgot-password-form";
 import { UpdatePasswordForm } from "./update-password-form";
 import { SyncProgressCard } from "./SyncProgressCard";
 import { CloudSyncIcon } from "./CloudSyncIcon";
+import { useIsMobile } from '@/lib/useIsMobile'
 
 export function LoginSheet() {
   const showLoginInfoModal = useAppLogic((state) => state.showLoginInfoModal);
   const setShowLoginInfoModal = useAppLogic((state) => state.setShowLoginInfoModal);
   const session = useAuthStore((state) => state.session);
+  const isMobile = useIsMobile();
 
   function handleOnSwitch(l: LoginInfoModalType) {
     setShowLoginInfoModal(l);
@@ -41,7 +43,12 @@ export function LoginSheet() {
         <CloudSyncIcon />
       </Button>
     </SheetTrigger>
-    <SheetContent className="w-sm max-w-full p-4 overflow-auto" side="right">
+    <SheetContent
+      className="w-sm max-w-full p-4 overflow-auto" side="right"
+      onOpenAutoFocus={(e) => {
+        if (isMobile) e.preventDefault(); // stop sheet from auto-focusing the first focusable element
+      }}
+    >
       <SheetHeader>
         <SheetTitle>Cloud Sync ☁️</SheetTitle>
         <SheetDescription>
