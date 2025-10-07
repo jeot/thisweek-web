@@ -159,6 +159,9 @@ export async function async_checkAndFixOrdering(items: ItemType[]) {
         return {
           ...item,
           ordering: { ...item.ordering, weekly: (index + 1) * 1000.0 },
+          version: item.version + 1,
+          modifiedBy: getDeviceId(),
+          modifiedAt: timeToISO(), // this is a must for between device syncing
           syncedAt: null, // would sync in next run
         };
       });
