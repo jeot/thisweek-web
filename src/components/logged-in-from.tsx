@@ -17,26 +17,48 @@ export function LoggedinForm({ className, user, onSwitch, ...props }: React.Comp
   const username: string = email.split("@", 1).at(0) || "---";
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  const handleLogout = async () => {
+  // Use your existing supabase_client variable
+  async function forceLogoutClientSide() {
     setIsLoggingOut(true);
-    // todo: this is global (kills all sessions), make it local in the future.
-    supabase_client.auth.signOut()
-      .then(({ error }) => {
-        if (error === null) {
-          console.log("loged out successful!");
-        } else {
-          console.log("log out failed! error:", error);
-          if (error?.name === "AuthSessionMissingError") {
-            console.log("session is already terminated in supabase. good!");
-          }
+    // 1) Try to sign out (server-side revoke refresh token). Treat 403/session_not_found as OK.
+    try {
+      const { error } = await supabase_client.auth.signOut();
+      if (error && error.status !== 403) {
+        // real failure: forward or log
+        console.error('Sign out error:', error);
+        throw error;
+      }
+    } catch (err: any) {
+      // network / unexpected error -> still continue to clear client session
+      console.warn('signOut() threw, continuing to clear local session:', err?.message ?? err);
+    }
+
+    // 2) Best-effort clear of localStorage keys that hold supabase auth
+    if (typeof window !== 'undefined' && window.localStorage) {
+      Object.keys(localStorage).forEach((k) => {
+        // heuristics: remove obvious supabase/auth keys (v1 used "supabase.auth.token", v2 uses "<ref>-auth-token")
+        if (/supabase|supabase\.auth\.token|-auth-token|auth/i.test(k)) {
+          localStorage.removeItem(k);
         }
-        setIsLoggingOut(false);
-        if (onSwitch) onSwitch('login');
-      })
-      .catch((err) => {
-        console.log("log out failed! catched err:", err);
-        setIsLoggingOut(false);
-      })
+      });
+    }
+
+    // 3) Best-effort clear cookies that might carry tokens
+    if (typeof document !== 'undefined') {
+      document.cookie.split(';').forEach((c) => {
+        const name = c.split('=')[0]?.trim();
+        if (!name) return;
+        if (/supabase|sb:|session|auth/i.test(name)) {
+          // expire cookie (path/domain may vary in your app)
+          document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;`;
+        }
+      });
+    }
+
+    // 4) Your app: reset auth state / redirect
+    // e.g. setUser(null); router.push('/login');
+
+    setIsLoggingOut(false);
   }
 
   return (
@@ -59,7 +81,7 @@ export function LoggedinForm({ className, user, onSwitch, ...props }: React.Comp
                 Change your password
               </button>
             </div>
-            <Button variant="outline" className="flex items-center gap-2 disabled:opacity-50" disabled={isLoggingOut} onClick={() => handleLogout()}>
+            <Button variant="outline" className="flex items-center gap-2 disabled:opacity-50" disabled={isLoggingOut} onClick={() => forceLogoutClientSide()}>
               {isLoggingOut && <Loader2 className="h-4 w-4 animate-spin" />}
               {isLoggingOut ? "Logout..." : "Logout"}
             </Button>
