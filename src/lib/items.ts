@@ -116,6 +116,18 @@ export function createNewItemFrom(item: ItemType): ItemType {
   return item;
 }
 
+export async function async_getUnsyncedItemsCount(): Promise<number> {
+  try {
+    const unsyncedCount = await db.items
+      .filter(item => item.syncedAt === null) // means never synced or new modification
+      .count();
+    return unsyncedCount;
+  } catch (err) {
+    console.log("error getting unsynced items count:", err);
+    return 0;
+  }
+}
+
 export async function async_getItemsInUtcIsoTimeRange(startUtcIso: string, endUtcIso: string): Promise<ItemType[]> {
   try {
     const items = await db.items

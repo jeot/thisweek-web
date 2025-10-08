@@ -34,6 +34,7 @@ export const KEYMAPS: Array<KeyMap> = [
   { group: "GENERAL", key: ["ctrl+v"], fastTyping: [], action: 'PASTE', desc: "Paste Copied Item or Text from Clipboard" },
   { group: "GENERAL", key: ["ctrl+g"], fastTyping: [], action: 'CREATE', desc: "Create New Item (Todo/Note)" },
   { group: "GENERAL", key: ["ctrl+x"], fastTyping: [], action: 'TOGGLE_TYPE', desc: "Toggle Item Type (Todo/Note)" },
+  { group: "GENERAL", key: ["ctrl+i"], fastTyping: [], action: 'TOGGLE_DEBUG_INFO', desc: "Toggle Debugging Information" },
   { group: "GENERAL", key: "t", fastTyping: [], action: 'TODAY', desc: "Go to Today" },
 
   { group: "VIMMODE", key: "k", fastTyping: ["j+k"], action: 'UP', desc: "Select Previous Item" },

@@ -17,13 +17,12 @@ import { ForgotPasswordForm } from "./forgot-password-form";
 import { UpdatePasswordForm } from "./update-password-form";
 import { SyncProgressCard } from "./SyncProgressCard";
 import { CloudSyncIcon } from "./CloudSyncIcon";
-import { useIsMobile } from '@/lib/useIsMobile'
 
 export function LoginSheet() {
   const showLoginInfoModal = useAppLogic((state) => state.showLoginInfoModal);
   const setShowLoginInfoModal = useAppLogic((state) => state.setShowLoginInfoModal);
   const session = useAuthStore((state) => state.session);
-  const isMobile = useIsMobile();
+  const isMobile = useAppLogic((s) => s.isMobile);
 
   function handleOnSwitch(l: LoginInfoModalType) {
     setShowLoginInfoModal(l);

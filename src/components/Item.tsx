@@ -6,6 +6,7 @@ import { Button } from "./ui/button";
 import { CheckIcon, XIcon } from "lucide-react";
 import TextareaAutosize from 'react-textarea-autosize';
 import { useThemeConfig } from "@/store/themeConfig";
+import { useAppLogic } from "@/store/appLogic";
 
 export type ItemActionType = "None" | "Edit" | "Copy" | "Paste" | "Delete" | "Update" | "UpdateEdit" | "Apply" | "Cancel" | "ContextMenuOpened" | "Move Up" | "Move Down" | "Move Next" | "Move Previous" | "Move Today" | "Toggle Type";
 
@@ -41,6 +42,7 @@ export function Item({ className, item, editing, editingPosition, selected, isMo
   const [title, setTitle] = useState<string>(item.title);
   const displayTitle = editing ? title : item.title;
   const theme = useThemeConfig((state) => state.theme);
+  const toggleDebugInfo = useAppLogic((s) => s.toggleDebugInfo);
 
   useEffect(() => {
     if (editing) {
@@ -222,18 +224,20 @@ export function Item({ className, item, editing, editingPosition, selected, isMo
                 "shadow-none dark:shadow-none bg-transparent dark:bg-transparent",
                 "transition-all duration-200")}
             >
-              <span className={cn(
-                item.syncedAt && "text-green-500" || "text-orange-500",
-                "text-xs font-semibold",
-
-              )} >{item.id}</span>
               {renderWithLinks(displayTitle)}
             </div>
           }
 
-          <span className="absolute right-0 top-0 text-xs rounded-md p-1 border-1 border-red-600">{item.ordering?.weekly}</span>
-          {/*
-          */}
+          {toggleDebugInfo && <div dir="ltr" className="flex absolute right-0 top-0 text-xxs px-1 border-1 border-border">
+            <span className="right-0 top-0 rounded-md">{item.ordering?.weekly}</span>
+            &nbsp;
+            <span className={cn(
+              item.syncedAt && "text-green-500" || "text-orange-500",
+              "font-semibold",
+
+            )} >{item.id}</span>
+          </div>}
+
           {editing && <Button
             className="m-0.5 ms-1" size="shk" variant="outline"
             onClick={(event) => {

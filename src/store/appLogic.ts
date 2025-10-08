@@ -23,16 +23,19 @@ type AppLogic = {
 	isMobile: boolean;
 	setIsMobile: (b: boolean) => void;
 	editingCaretPosition: 'caret_start' | 'caret_end' | 'caret_select_all' | null;
+	toggleDebugInfo: boolean;
 
 	// data
 	weeklyItems: ItemType[];
 	projectItems: ItemType[];
 	editingNewItem: ItemType | null;
 	editingExistingItem: ItemType | null;
+	unsyncedItemsCount: number;
 	setWeeklyItemsForced: (items: ItemType[]) => void;
 	setProjectItemsForced: (items: ItemType[]) => void;
 	setEditingNewItemsForced: (item: ItemType | null) => void;
 	setEditingExistingItemsForced: (item: ItemType | null) => void;
+	setUnsyncedItemsCount: (count: number) => void;
 
 	// helper functions
 	findItemInList: (item: ItemType) => ItemType | null;
@@ -85,12 +88,14 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 	wiggleId: null,
 	isMobile: false,
 	setIsMobile: (b) => set({ isMobile: b }),
+	toggleDebugInfo: false,
 
 	weeklyItems: [],
 	projectItems: [],
 	editingNewItem: null,
 	editingExistingItem: null,
 	editingCaretPosition: null,
+	unsyncedItemsCount: 0,
 	setWeeklyItemsForced: (items) => set({ weeklyItems: items }),
 	setProjectItemsForced: (items) => set({ projectItems: items }),
 	setEditingNewItemsForced: (item) => {
@@ -101,6 +106,7 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 		set({ editingExistingItem: item });
 		if (item) set({ weekReference: item.scheduledAt });
 	},
+	setUnsyncedItemsCount: (count: number) => set({ unsyncedItemsCount: count }),
 
 	// helper functions
 
@@ -443,6 +449,7 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 		// allowed actions dispite of model being open
 		if (action === "TOGGLE_THEME") return useThemeConfig.getState().toggleTheme();
 		if (action === "RUN_SYNC_ONCE") return useDataSyncStore.getState().startSync();
+		if (action === "TOGGLE_DEBUG_INFO") return set({ toggleDebugInfo: !get().toggleDebugInfo })
 		const logic = get();
 		// other actions are not allowed if modal is open
 		if (logic.showLoginInfoModal) {

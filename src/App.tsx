@@ -72,14 +72,19 @@ function useSyncLoop() {
 
 function App() {
   const location = useLocation();
+  const { setTheme } = useTheme();
+
   const setShowLoginInfoModal = useAppLogic((state) => state.setShowLoginInfoModal);
   const pageView = useAppLogic((state) => state.pageView);
+  const unsyncedItemsCount = useAppLogic((state) => state.unsyncedItemsCount);
+  const toggleDebugInfo = useAppLogic((s) => s.toggleDebugInfo);
+
   const mainCal = useCalendarConfig((state) => state.mainCal);
   const secondCalendar = useCalendarConfig((state) => state.secondCal);
-  const { setTheme } = useTheme();
 
   const fetchClaims = useAuthStore((state) => state.fetchClaims);
   const session = useAuthStore((state) => state.session);
+
 
   useSyncLoop();
 
@@ -216,6 +221,10 @@ function App() {
         {pageView === 'Settings' && <SettingsPage />}
         {/* and so on */}
       </SidebarLayout>
+      {toggleDebugInfo &&
+        <div className="absolute bottom-1 right-1 px-1 text-xs border border-border">
+          Unsynced: <span className="text-orange-600">{unsyncedItemsCount}</span>
+        </div>}
     </div >
   )
 }
