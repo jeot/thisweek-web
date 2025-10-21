@@ -4,7 +4,7 @@ import { async_ensureValidAppConfig, async_getAppConfigFromIDB, async_saveAppCon
 import { useCalendarConfig } from "@/store/calendarConfig";
 import { useKeymapsConfig } from "@/store/keymapConfig";
 import { async_checkDraftIntegrity, async_checkUuidIntegrity, async_getDraftItem, async_getItemsCount, async_insertOnboardingTasks } from './lib/items';
-import { async_initDeviceId, async_initUserInfoUuid } from './lib/db';
+import { async_initDeviceId } from './lib/db';
 import { useThemeConfig } from '@/store/themeConfig';
 import { useOtherConfigs } from '@/store/otherConfigs';
 import { useAppLogic } from './store/appLogic';
@@ -34,7 +34,6 @@ export function AppInitializer({ children }: { children: React.ReactNode }) {
     try {
       console.log("loading config from disk...");
       await async_initDeviceId();
-      await async_initUserInfoUuid();
       await async_ensureValidAppConfig();
       await async_checkDraftIntegrity();
       await async_checkUuidIntegrity();

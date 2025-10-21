@@ -15,7 +15,7 @@ import { useLocalDbSyncItems } from './lib/dexieListeners';
 import { useLocation } from 'react-router-dom';
 import { supabase_client } from "@/lib/supabase/client";
 import { useAuthStore } from "@/store/authStore";
-import { async_newUserInfoUuid, getUserInfoUuid } from './lib/db';
+import { async_getUserInfo, async_updatePartialUserInfo } from './lib/db';
 import { useDataSyncStore } from './store/dataSyncStore';
 // import { Button } from './components/ui/button';
 // import DevDbTools from './components/DevDbTools';
@@ -50,22 +50,60 @@ function preloadFont(href: string, type = 'font/woff2') {
 }
 */
 
-// mini hook for running sync each minute in the background
+// mini hook for managing user login and running sync each minute in the background
 function useSyncLoop() {
   const session = useAuthStore((s) => s.session);
   const startSync = useDataSyncStore((s) => s.startSync);
   useEffect(() => {
-    // no active session? stop syncing
     if (!session) return;
-    // run once immediately
-    startSync();
-    // start periodic sync
-    const id = setInterval(startSync, 60_000);
-    console.log("Started background sync loop");
-    // cleanup on sign-out or unmount
+    let intervalId: NodeJS.Timeout | null = null;
+    let shouldContinue = false;
+
+    const async_doYourMagic = async () => {
+      try {
+        const userInfo = await async_getUserInfo();
+        const lastUserId = userInfo.uuid;
+        // check if it is new user or not
+        const loggedInUserId = session?.user.id || null;
+        if (loggedInUserId !== null && lastUserId === null) {
+          console.log("new user info id:", loggedInUserId)
+          await async_updatePartialUserInfo({ uuid: loggedInUserId });
+          // continue to sync...
+          shouldContinue = true;
+          startSync(); // normal funtion (not async)!
+        } else if (loggedInUserId !== null && lastUserId !== null && loggedInUserId !== lastUserId) {
+          console.log("!!!! TODO !!!! new user! uuid changed! ", lastUserId, " -> ", loggedInUserId)
+          console.log("should clear old user stuff first!")
+          // await async_updatePartialUserInfo({ uuid: loggedInUserId });
+          shouldContinue = false;
+          return; // todo: don't sync for now. this section will be implemented in the future!
+        } else if (loggedInUserId !== null && lastUserId !== null && loggedInUserId === lastUserId) {
+          console.log("welcome same old user!");
+          // continue to sync...
+          shouldContinue = true;
+          startSync(); // normal funtion (not async)!
+        } else {
+          shouldContinue = false;
+          return; // don't sync. also no timer!
+        }
+
+        // only start periodic sync if syncing is active
+        if (shouldContinue) {
+          intervalId = setInterval(startSync, 60_000);
+          console.log("Started background sync loop");
+        }
+      } catch (err) {
+        console.error("Error in sync loop:", err);
+      }
+    };
+
+    async_doYourMagic(); // async function!
+
     return () => {
-      clearInterval(id);
-      console.log("Stopped background sync loop");
+      if (intervalId) {
+        clearInterval(intervalId);
+        console.log("Stopped background sync loop");
+      }
     };
   }, [session, startSync]);
 }
@@ -83,8 +121,6 @@ function App() {
   const secondCalendar = useCalendarConfig((state) => state.secondCal);
 
   const fetchClaims = useAuthStore((state) => state.fetchClaims);
-  const session = useAuthStore((state) => state.session);
-
 
   useSyncLoop();
 
@@ -98,27 +134,6 @@ function App() {
       listener.subscription.unsubscribe();
     };
   }, []);
-
-  // On session change
-  useEffect(() => {
-    const lastUserId = getUserInfoUuid();
-    const loggedInUserId = session?.user.id || null;
-    if (loggedInUserId !== null && lastUserId === null) {
-      console.log("new user info id:", loggedInUserId)
-      async_newUserInfoUuid(loggedInUserId).then(() => console.log("done")).catch((e) => console.log("error: ", e));
-    } else if (loggedInUserId !== null && lastUserId !== null && loggedInUserId !== lastUserId) {
-      console.log("!!!! TODO !!!! new user info id changed! ", lastUserId, " -> ", loggedInUserId)
-      console.log("should clear old user stuff first!")
-      async_newUserInfoUuid(loggedInUserId).then(() => console.log("done")).catch((e) => console.log("error: ", e));
-    } else if (loggedInUserId !== null && lastUserId !== null && loggedInUserId === lastUserId) {
-      console.log("welcome same old user!");
-      // syncNow();
-    } else {
-      console.log("no session.");
-    }
-
-    return () => { };
-  }, [session]);
 
   // Open login modal if navigation passed "openLogin"
   useEffect(() => {
@@ -221,10 +236,9 @@ function App() {
         {pageView === 'Settings' && <SettingsPage />}
         {/* and so on */}
       </SidebarLayout>
-      {toggleDebugInfo &&
-        <div className="absolute bottom-1 right-1 px-1 text-xs border border-border">
-          Unsynced: <span className="text-orange-600">{unsyncedItemsCount}</span>
-        </div>}
+      {toggleDebugInfo && <div className="absolute bottom-1 right-1 px-1 text-xs border border-border">
+        Unsynced: {unsyncedItemsCount > 0 && <span className="text-orange-600">{unsyncedItemsCount}</span> || "0"}
+      </div>}
     </div >
   )
 }

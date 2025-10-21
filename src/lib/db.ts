@@ -135,33 +135,33 @@ export async function async_initDeviceId(): Promise<string> {
   return newId;
 }
 
-// use this for being fast and not async
-let cachedUserInfoUuid: string | null = null;
-
-export function getUserInfoUuid(): string | null {
-  return cachedUserInfoUuid;
+export const DEFAULT_USERINFO: UserInfo = {
+  key: 'userinfo',
+  uuid: null
 }
 
-export async function async_initUserInfoUuid(): Promise<string | null> {
-  const stored = await db.userInfo.get('uuid');
-  if (stored?.value) {
-    cachedUserInfoUuid = stored.value;
-    return stored.value;
-  } else {
-    cachedUserInfoUuid = null;
-    return null;
+export async function async_getUserInfo(): Promise<UserInfo> {
+  try {
+    const stored = await db.userInfo.get('userinfo');
+    if (stored) {
+      return { ...DEFAULT_USERINFO, ...stored };
+    } else {
+      await db.userInfo.put(DEFAULT_USERINFO);
+      return DEFAULT_USERINFO;
+    }
+  } catch (err) {
+    console.log("catch error: ", err);
+    return DEFAULT_USERINFO;
   }
 }
 
-export async function async_newUserInfoUuid(newUuid: string): Promise<void> {
-  let oldUserUuid = await async_initUserInfoUuid();
-  if (oldUserUuid === newUuid) {
-    console.log("!! same user info !!");
-  } else {
-    console.log("!! creating new user info with logged-in user uuid !!");
+export async function async_updatePartialUserInfo(update: Partial<Omit<UserInfo, 'key'>>) {
+  try {
+    await db.userInfo.update('userinfo', update);
+    console.log("updated userInfo with: ", update);
+  } catch (err) {
+    console.log("err! update userInfo: ", err);
   }
-  await db.userInfo.put({ key: 'uuid', value: newUuid });
-  cachedUserInfoUuid = newUuid;
 }
 
 export const DEFAULT_SYNCINFO: SyncInfo = {
@@ -185,8 +185,12 @@ export async function async_getSyncInfo(): Promise<SyncInfo> {
 }
 
 export async function async_updatePartialSyncInfo(update: Partial<Omit<SyncInfo, 'key'>>) {
-  await db.syncInfo.update('syncinfo', update);
-  console.log("updated syncInfo.lastRemoteSyncIsoTime to: ", update.lastRemoteSyncIsoTime);
+  try {
+    await db.syncInfo.update('syncinfo', update);
+    console.log("updated syncInfo.lastRemoteSyncIsoTime to: ", update.lastRemoteSyncIsoTime);
+  } catch (err) {
+    console.log("err! updated syncInfo: ", err);
+  }
 }
 
 export { db };

@@ -124,10 +124,10 @@ export interface DeviceInfo {
   value: string;   // the UUID
 }
 
-// temporary values to fill when user login first time
+// to hold user info, when he login for the first time
 export interface UserInfo {
-  key: string;     // user_flag, uuid, email, ...
-  value: string;   // the UUID of the logged-in user
+  key: 'userinfo';
+  uuid: string | null;
 }
 
 // to hold sync parameters (for incremental sync)

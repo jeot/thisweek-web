@@ -1,4 +1,4 @@
-import { async_getSyncInfo, async_updatePartialSyncInfo, db, getUserInfoUuid } from "./db"; // your Dexie instance
+import { async_getSyncInfo, async_getUserInfo, async_updatePartialSyncInfo, db } from "./db";
 import { ItemType } from "@/types/types";
 import { supabase_client } from "./supabase/client";
 import { DbInsertItemType, DbItemType, mapDbToItem, mapItemToDbInsert } from "./supabase/mapper";
@@ -21,11 +21,11 @@ async function fetchServerItemsSinceInOrder(since: string, limit: number): Promi
 }
 
 // push local changes
-async function pushLocalChangesToServer(changes: ItemType[]): Promise<DbItemType[]> {
+async function pushLocalChangesToServer(changes: ItemType[], uuid: string): Promise<DbItemType[]> {
   if (changes.length === 0) return [];
   // modify some parameters for the server (like userId)
   // note the syncedAt will be update by the server
-  const newChanges = changes.map((v) => ({ ...v, userId: getUserInfoUuid() }));
+  const newChanges = changes.map((v) => ({ ...v, userId: uuid }));
   // Strip local-only fields like Dexie id
   const payload: DbInsertItemType[] = newChanges.map(mapItemToDbInsert);
   const { data, error } = await supabase_client
@@ -44,7 +44,6 @@ async function markLocalWithAppliedChanges(changes: DbItemType[]) {
   await db.transaction("rw", db.items, async () => {
     for (const change of changes) {
       await db.items.where("uuid").equals(change.uuid).modify({
-        userId: change.user_id,
         syncedAt: change.synced_at,
       });
     }
@@ -83,7 +82,7 @@ async function reconcile(serverUpdates: DbItemType[]) {
   return;
 }
 
-async function checkClientIsValid() {
+async function checkClientIsValid(userUuid: string) {
   const { data, error } = await supabase_client.auth.getSession();
   if (data === null || error !== null) {
     throw new Error("Auth error! sync canceled. no auth data or auth error.");
@@ -91,7 +90,7 @@ async function checkClientIsValid() {
   if (data !== null && data.session === null) {
     throw new Error("Auth error! sync canceled. no session.");
   }
-  if (data !== null && data.session !== null && data.session.user.id !== getUserInfoUuid()) {
+  if (data !== null && data.session !== null && data.session.user.id !== userUuid) {
     throw new Error("FATAL! Auth error! sync canceled. invalid user id.");
   }
   return true;
@@ -135,7 +134,10 @@ async function getServerTime() {
 // run one full sync cycle
 export async function runSync() {
   // double check the client id
-  const clientOk = await checkClientIsValid();
+  const userInfo = await async_getUserInfo();
+  const userUuid = userInfo.uuid;
+  if (!userUuid) throw new Error("bad userInfo (uuid)!");
+  const clientOk = await checkClientIsValid(userUuid);
   if (!clientOk) throw new Error("bad client!");
 
   useDataSyncStore.getState().setSyncState("idle");
@@ -205,7 +207,7 @@ export async function runSync() {
     try {
       // Push to server (upsert)
       // 5. Push local changes to server (upsert)
-      const applied = await pushLocalChangesToServer(localBatch);
+      const applied = await pushLocalChangesToServer(localBatch, userUuid);
       console.log("returned data (applied changes: ", applied.length, "): ", applied);
 
       // 6. Update syncedAt and userId locally for pushed items
