@@ -64,6 +64,7 @@ export function LoginSheet() {
         {session && showLoginInfoModal === 'update-password' && <UpdatePasswordForm onSwitch={handleOnSwitch} />}
         {!session && showLoginInfoModal === null && <LoginForm onSwitch={handleOnSwitch} />}
         {!session && showLoginInfoModal === "login" && <LoginForm onSwitch={handleOnSwitch} />}
+        {!session && showLoginInfoModal === "logged-in" && <LoginForm onSwitch={handleOnSwitch} />}
         {!session && showLoginInfoModal === "sign-up" && <SignUpForm onSwitch={handleOnSwitch} />}
         {!session && showLoginInfoModal === "forgot-password" && <ForgotPasswordForm onSwitch={handleOnSwitch} />}
         {!session && showLoginInfoModal === "update-password" && <ForgotPasswordForm onSwitch={handleOnSwitch} />}

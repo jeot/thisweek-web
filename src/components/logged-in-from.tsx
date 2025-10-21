@@ -57,6 +57,7 @@ export function LoggedinForm({ className, user, onSwitch, ...props }: React.Comp
 
     // 4) Your app: reset auth state / redirect
     // e.g. setUser(null); router.push('/login');
+    if (onSwitch) onSwitch("login")
 
     setIsLoggingOut(false);
   }
