@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { async_ensureValidAppConfig, async_getAppConfigFromIDB, async_saveAppConfigToIDBPartial } from './lib/appConfigDb';
 import { useCalendarConfig } from "@/store/calendarConfig";
 import { useKeymapsConfig } from "@/store/keymapConfig";
-import { async_checkDraftIntegrity, async_checkUuidIntegrity, async_getDraftItem, async_getItemsCount, async_insertOnboardingTasks } from './lib/items';
+import { async_checkDraftIntegrity, async_checkUuidIntegrity, async_getDraftItem, async_getItemsCount } from './lib/items';
 import { async_initDeviceId } from './lib/db';
 import { useThemeConfig } from '@/store/themeConfig';
 import { useOtherConfigs } from '@/store/otherConfigs';
@@ -50,7 +50,7 @@ export function AppInitializer({ children }: { children: React.ReactNode }) {
         // ... do for other configs
         // check if it's not seeded bofore (first time user)
         if (!config.hasSeededOnboarding && !hasItems) {
-          await async_insertOnboardingTasks();
+          // await async_insertOnboardingTasks();
           await async_saveAppConfigToIDBPartial({ hasSeededOnboarding: true });
         }
         // only load the drafts once in startup

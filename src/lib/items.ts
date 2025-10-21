@@ -315,6 +315,8 @@ export async function async_getItemsCount(): Promise<number> {
   }
 }
 
+/*
+  * don't like these. they also get synced everytime when loging in with new device!
 const list: Array<{
   id: number;
   title: string;
@@ -354,3 +356,4 @@ export async function async_insertOnboardingTasks() {
     }
   }
 }
+*/
