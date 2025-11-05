@@ -103,48 +103,49 @@ export function Item({ className, item, editing, editingPosition, selected, isMo
   }, [editing]);
 
   // Regex to detect URLs
+  const lineRegex = /\r?\n/;
   const urlRegex = /(https?:\/\/[^\s]+)/g;
   const renderWithLinks = (input: string) => {
-    return input.split(urlRegex).map((part, i) => {
-
-      if (urlRegex.test(part)) {
-        return (
-          <a
-            key={i}
-            href={part}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline break-all text-indigo-900 dark:text-indigo-200 hover:underline underline-offset-2 decoration-muted-foreground"
-          >
-            {part}
-          </a>
-        );
-      }
-
-      // return (<span
-      //   key={i}
-      //   className="inline text-primary"
-      // >
-      //   {part}
-      // </span>);
-
-      // Split non-link text by newlines
-      const lines = part.split(/\r?\n/);
+    const lines = input.split(lineRegex);
+    return lines.map((line, i) => {
+      const dir = getSmartTextDirection(line);
+      const align = dir === 'rtl' ? 'text-right' : 'text-left';
+      const parts = line.split(urlRegex);
       return (
-        <span key={i} className="inline text-primary">
-          {lines.map((line, j) => {
-            const dir = getSmartTextDirection(line);
-            const align = dir === 'rtl' ? 'text-right' : 'text-left';
-            return (
-              <React.Fragment key={j}>
-                <span className={`p-0 m-0 block ${align} whitespace-pre-wrap`} dir={dir}>{line}</span>
-              </React.Fragment>
-            );
-          })
-          }
-        </span >
-      );
+        <React.Fragment key={i}>
+          <span className={`block ${align}`} dir={dir}>
+            {
+              line.trim() === '' ? '\u00A0'
+                :
+                parts.map((part, j) => {
+                  if (urlRegex.test(part)) {
+                    return (
+                      <a
+                        key={j}
+                        href={part}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline break-all text-indigo-900 dark:text-indigo-200 hover:underline underline-offset-2 decoration-muted-foreground"
+                      >
+                        {part}
+                      </a>
+                    );
+                  } else {
+                    return (<span
+                      key={j}
+                      className="inline text-primary"
+                    >
+                      {part}
+                    </span>);
+                  }
 
+                })
+            }
+          </span>
+          {/* Add <br /> for every line except the last */}
+          {/* {i < lines.length - 1 && <br />} */}
+        </React.Fragment>
+      );
     });
   };
 
