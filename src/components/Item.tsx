@@ -7,6 +7,7 @@ import { CheckIcon, XIcon } from "lucide-react";
 import TextareaAutosize from 'react-textarea-autosize';
 import { useThemeConfig } from "@/store/themeConfig";
 import { useAppLogic } from "@/store/appLogic";
+import React from "react";
 
 export type ItemActionType = "None" | "Edit" | "Copy" | "Paste" | "Delete" | "Update" | "UpdateEdit" | "Apply" | "Cancel" | "ContextMenuOpened" | "Move Up" | "Move Down" | "Move Next" | "Move Previous" | "Move Today" | "Toggle Type";
 
@@ -104,26 +105,47 @@ export function Item({ className, item, editing, editingPosition, selected, isMo
   // Regex to detect URLs
   const urlRegex = /(https?:\/\/[^\s]+)/g;
   const renderWithLinks = (input: string) => {
-    return input.split(urlRegex).map((part, i) =>
-      urlRegex.test(part) ? (
-        <a
-          key={i}
-          href={part}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline break-all text-indigo-900 dark:text-indigo-200 hover:underline underline-offset-2 decoration-muted-foreground"
-        >
-          {part}
-        </a>
-      ) : (
-        <span
-          key={i}
-          className="inline text-primary"
-        >
-          {part}
-        </span>
-      )
-    );
+    return input.split(urlRegex).map((part, i) => {
+
+      if (urlRegex.test(part)) {
+        return (
+          <a
+            key={i}
+            href={part}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline break-all text-indigo-900 dark:text-indigo-200 hover:underline underline-offset-2 decoration-muted-foreground"
+          >
+            {part}
+          </a>
+        );
+      }
+
+      // return (<span
+      //   key={i}
+      //   className="inline text-primary"
+      // >
+      //   {part}
+      // </span>);
+
+      // Split non-link text by newlines
+      const lines = part.split(/\r?\n/);
+      return (
+        <span key={i} className="inline text-primary">
+          {lines.map((line, j) => {
+            const dir = getSmartTextDirection(line);
+            const align = dir === 'rtl' ? 'text-right' : 'text-left';
+            return (
+              <React.Fragment key={j}>
+                <span className={`p-0 m-0 block ${align} whitespace-pre-wrap`} dir={dir}>{line}</span>
+              </React.Fragment>
+            );
+          })
+          }
+        </span >
+      );
+
+    });
   };
 
   const handleKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (event: React.KeyboardEvent) => {
