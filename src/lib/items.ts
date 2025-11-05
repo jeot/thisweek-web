@@ -3,7 +3,9 @@ import { db, getDeviceId } from "@/lib/db.ts";
 import { useAppLogic } from "@/store/appLogic";
 import { useCalendarConfig } from "@/store/calendarConfig";
 import { timeToISO } from "./utils";
+import { getWeekdayNumber } from "./week";
 
+const ORDERING_STEP = 100000;
 type editingKeyType = 'editing_new' | 'editing_existing';
 
 // save editing item for temporary edit
@@ -152,7 +154,7 @@ export async function async_getItemsInUtcIsoTimeRange(startUtcIso: string, endUt
 
 export async function async_checkAndFixOrdering(items: ItemType[]) {
   if (!items.length) return;
-  let needOrderingFix = items.some(item => (item.ordering === null) || (item.ordering?.weekly) === undefined || isNaN(item.ordering.weekly) || (item.ordering.weekly >= 1000000) || (item.ordering.weekly <= -1000000));
+  let needOrderingFix = items.some(item => (item.ordering === null) || (item.ordering?.weekly) === undefined || isNaN(item.ordering.weekly) || (item.ordering.weekly >= (10000 * ORDERING_STEP)) || (item.ordering.weekly <= -(10000 * ORDERING_STEP)));
   if (!needOrderingFix) {
     // check for duplicates
     items.forEach((item, i) => {
@@ -166,11 +168,12 @@ export async function async_checkAndFixOrdering(items: ItemType[]) {
   if (!needOrderingFix) return;
   console.log("this list needs ordering fix...");
   try {
+    const ORDER_SHIFT = getOrderingShiftBasedOnStartWeekday();
     const updated = items
       .map((item, index) => {
         return {
           ...item,
-          ordering: { ...item.ordering, weekly: (index + 1) * 1000.0 },
+          ordering: { ...item.ordering, weekly: ((index + 1) * ORDERING_STEP) + ORDER_SHIFT },
           version: item.version + 1,
           modifiedBy: getDeviceId(),
           modifiedAt: timeToISO(), // this is a must for between device syncing
@@ -183,6 +186,12 @@ export async function async_checkAndFixOrdering(items: ItemType[]) {
   } catch (err) {
     console.log("error while ordering items:", err);
   }
+}
+
+function getOrderingShiftBasedOnStartWeekday() {
+  const startWeekday = useCalendarConfig.getState().mainCal.weekStartsOn;
+  const ORDER_SHIFT = getWeekdayNumber(startWeekday) * ORDERING_STEP / 100;
+  return ORDER_SHIFT;
 }
 
 export async function async_saveAsNewItem(item: ItemType): Promise<number | null> {
@@ -291,18 +300,19 @@ export async function async_checkUuidIntegrity() {
 }
 
 export function getNewOrderingNumber(items: ItemType[], index: number, nextIndex: number, section: 'weekly' | 'project'): number {
+  const ORDER_SHIFT = getOrderingShiftBasedOnStartWeekday();
   const len = items.length;
-  if (len === 0) return 1000;
-  const top = (items[0]?.ordering?.[section] || 0) - 1000;
-  const bot = (items[len - 1]?.ordering?.[section] || 0) + 1000;
+  if (len === 0) return ORDERING_STEP + ORDER_SHIFT;
+  const top = (items[0]?.ordering?.[section] || 0) - ORDERING_STEP + ORDER_SHIFT;
+  const bot = (items[len - 1]?.ordering?.[section] || 0) + ORDERING_STEP + ORDER_SHIFT;
   if (index < 0 || nextIndex < 0) {
     return top;
   }
   if (index >= len || nextIndex >= len) {
     return bot;
   }
-  const x = items[index]?.ordering?.[section] || 0;
-  const y = items[nextIndex]?.ordering?.[section] || 1000;
+  const x = items[index]?.ordering?.[section] || (0 + ORDER_SHIFT);
+  const y = items[nextIndex]?.ordering?.[section] || (ORDERING_STEP + ORDER_SHIFT);
   return (x + y) / 2;
 }
 

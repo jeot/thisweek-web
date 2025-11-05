@@ -259,7 +259,7 @@ export function buildFullWeekView(refMillisUTC: number, mainCal: CalendarLocaleT
   return result;
 }
 
-function getWeekdayNumber(weekStartsOn: WeekdayType): WeekdayNumbers {
+export function getWeekdayNumber(weekStartsOn: WeekdayType): WeekdayNumbers {
   let weekStartsOnNumber: WeekdayNumbers = 0;
   if (typeof weekStartsOn === 'string') { // value is of type WeekdayString
     // console.log('Got a string weekday:', weekStartsOn);
