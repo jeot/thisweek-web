@@ -18,7 +18,7 @@ export function getSmartTextDirection(text: string): 'ltr' | 'rtl' {
   if (!text || text.length === 0) return defaultDirection;
 
   // Regex to match "non-directional" characters: numbers, symbols, emojis, etc.
-  const ignoreRegex = /[\s\d!-\/:-@\[\\\]_{-~\u200C-\u200F\u{1F000}-\u{1FFFF}\u0660-\u0669\u06F0-\u06F9\u060C\uFEFF\u061B\u061F]/gu;
+  const ignoreRegex = /[\s\d!-\/:-@\[\\\]_{-~\u200C-\u200F\u2000-\u27BF\u{1F000}-\u{1FFFF}\u0660-\u0669\u06F0-\u06F9\u060C\uFEFF\u061B\u061F\u00A9\u00AE\uFE0F?]/gu;
 
   // Remove ignored characters from the start
   const meaningfulText = text.trim().replace(ignoreRegex, '');
