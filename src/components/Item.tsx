@@ -51,8 +51,9 @@ export function Item({ className, item, editing, editingPosition, selected, isMo
     }
   }, [title, editing]);
 
-  const checkedColor = theme.mode === 'dark' ? "#00aa00" : "#20aa20";
+  const checkedColor = theme.mode === 'dark' ? "#10aa10" : "#10aa10";
   const plainColor = theme.mode === 'dark' ? "#333333" : "#dddddd";
+  const noteIconColor = theme.mode === 'dark' ? "#888888" : "#888888";
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   // form: https://heroicons.com/outline
@@ -62,7 +63,7 @@ export function Item({ className, item, editing, editingPosition, selected, isMo
   const CircleCheckEmpty = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke={plainColor} className="size-6">
     <path strokeLinecap="round" strokeLinejoin="round" d="M21 12 a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
   </svg>
-  const NoteIconFilled = () => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={plainColor} className="size-6">
+  const NoteIconFilled = () => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={noteIconColor} className="size-6">
     <path fillRule="evenodd" d="M5.625 1.5c-1.036 0-1.875.84-1.875 1.875v17.25c0 1.035.84 1.875 1.875 1.875h12.75c1.035 0 1.875-.84 1.875-1.875V12.75A3.75 3.75 0 0 0 16.5 9h-1.875a1.875 1.875 0 0 1-1.875-1.875V5.25A3.75 3.75 0 0 0 9 1.5H5.625ZM7.5 15a.75.75 0 0 1 .75-.75h7.5a.75.75 0 0 1 0 1.5h-7.5A.75.75 0 0 1 7.5 15Zm.75 2.25a.75.75 0 0 0 0 1.5H12a.75.75 0 0 0 0-1.5H8.25Z" clipRule="evenodd" />
     <path d="M12.971 1.816A5.23 5.23 0 0 1 14.25 5.25v1.875c0 .207.168.375.375.375H16.5a5.23 5.23 0 0 1 3.434 1.279 9.768 9.768 0 0 0-6.963-6.963Z" />
   </svg>
@@ -207,14 +208,26 @@ export function Item({ className, item, editing, editingPosition, selected, isMo
                 const completedAt = newStatus === 'done' ? timeToISO() : null;
                 if (editing) onItemActionCallback('UpdateEdit', { ...item, status: newStatus, completedAt: completedAt });
                 else onItemActionCallback('Update', { ...item, status: newStatus, completedAt: completedAt });
-              }}>
+              }}
+              onContextMenu={(event) => {
+                event.stopPropagation();
+                event.preventDefault();
+                onItemActionCallback('Toggle Type', item);
+              }}
+            >
               {item.status === 'done' ? <CircleCheckFilled /> : <CircleCheckEmpty />}
             </Button>}
           {item.type === 'note' &&
             <Button variant="noHover" className="mt-[0.2rem]" size="shk"
               onClick={(event) => {
                 event.stopPropagation();
-              }}>
+              }}
+              onContextMenu={(event) => {
+                event.stopPropagation();
+                event.preventDefault();
+                onItemActionCallback('Toggle Type', item);
+              }}
+            >
               <NoteIconFilled />
             </Button>}
 
