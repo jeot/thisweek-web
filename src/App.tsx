@@ -54,6 +54,8 @@ function preloadFont(href: string, type = 'font/woff2') {
 function useSyncLoop() {
   const session = useAuthStore((s) => s.session);
   const startSync = useDataSyncStore((s) => s.startSync);
+  const unsyncedCount = useAppLogic((state) => state.unsyncedItemsCount);
+
   useEffect(() => {
     if (!session) return;
     let intervalId: NodeJS.Timeout | null = null;
@@ -72,13 +74,22 @@ function useSyncLoop() {
           shouldContinue = true;
           startSync(); // normal funtion (not async)!
         } else if (loggedInUserId !== null && lastUserId !== null && loggedInUserId !== lastUserId) {
+          // todo: this section will be implemented in the future!
+          // note: here the previously signed-in user is now trying to sign in with different account.
+          // we should definately remove everything from local storage and then proceed the new sign-in
+          // in the future future, it is good to do some considerations.
+          // like warning of any unsynced item yet (they will be lost)
+          // it is better NOT to ask if they want to merge or not in this situation.
+          // the merge operation is very risky and should be done seperately in settings
           console.log("!!!! TODO !!!! new user! uuid changed! ", lastUserId, " -> ", loggedInUserId)
           console.log("should clear old user stuff first!")
           // await async_updatePartialUserInfo({ uuid: loggedInUserId });
           shouldContinue = false;
-          return; // todo: don't sync for now. this section will be implemented in the future!
+          return; // note: don't sync for now.
         } else if (loggedInUserId !== null && lastUserId !== null && loggedInUserId === lastUserId) {
-          console.log("welcome same old user!");
+          // note: when all the changes get synced and counts change to zero, it will triger another cycle of redundant syncing!
+          if (unsyncedCount === 0) console.log("welcome back dear user!");
+          else console.log("syncing changed items...");
           // continue to sync...
           shouldContinue = true;
           startSync(); // normal funtion (not async)!
@@ -105,7 +116,7 @@ function useSyncLoop() {
         console.log("Stopped background sync loop");
       }
     };
-  }, [session, startSync]);
+  }, [session, startSync, unsyncedCount]);
 }
 
 function App() {
