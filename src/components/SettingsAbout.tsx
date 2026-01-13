@@ -66,11 +66,11 @@ Feedback is always welcome.`
 
 function List({ className }: { className?: string }) {
   const items = list.map((i) => {
-    let item = createNewItem();
+    let item = createNewItem('project');
     item = { ...item, category: "project", ...i }
     return item;
   });
-  return <ListOfItemsContainer className={className} items={items} header="What is ThisWeek App?" />
+  return <ListOfItemsContainer className={className} items={items} category='project' header="What is ThisWeek App?" />
 }
 
 export function SettingsAbout() {

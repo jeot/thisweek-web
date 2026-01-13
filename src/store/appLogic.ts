@@ -1,6 +1,6 @@
-import { ItemType, PageViewType, ProjectType } from '@/types/types';
+import { CategoryType, ItemType, ModalViewType, PageViewType, ProjectType } from '@/types/types';
 import { create } from 'zustand';
-import { async_saveDraftItem, async_deleteDraftItem, async_deleteItemSoft, async_saveAsNewItem, async_saveItem, createNewItem, getNewOrderingNumber } from '@/lib/items';
+import { async_saveDraftItem, async_deleteDraftItem, async_deleteItemSoft, async_saveAsNewItem, async_saveItem, createNewItem, getNewOrderingNumber, async_createNewProject } from '@/lib/items';
 import { Action } from '@/types/types';
 import { useCalendarConfig } from './calendarConfig';
 import { useThemeConfig } from './themeConfig';
@@ -15,6 +15,7 @@ type AppLogic = {
 	showLoginInfoModal: LoginInfoModalType;
 	setShowLoginInfoModal: (t: LoginInfoModalType) => void;
 	pageView: PageViewType;
+	modalView: ModalViewType;
 	settingPage: SettingPageType;
 	weekReference: string;
 	internalCopiedItem: ItemType | null;
@@ -39,6 +40,8 @@ type AppLogic = {
 	setEditingNewItemsForced: (item: ItemType | null) => void;
 	setEditingExistingItemsForced: (item: ItemType | null) => void;
 	setUnsyncedItemsCount: (count: number) => void;
+	getItemsReference: () => ItemType[];
+	getCategoryBasedOnPageView: () => CategoryType;
 
 	// helper functions
 	findItemInList: (item: ItemType) => ItemType | null;
@@ -51,13 +54,15 @@ type AppLogic = {
 	// components requesting some action
 	requestPageViewChange: (page: PageViewType) => void;
 	requestSettingPageChange: (page: SettingPageType) => void;
-	requestBeginEditingNewItem: (firstIndex: number, secondIndex: number, category?: 'weekly' | 'project') => void;
+	requestBeginEditingNewItem: (firstIndex: number, secondIndex: number) => void;
 	requestBeginEditingExistingItem: (item: ItemType, caretPosition?: 'caret_start' | 'caret_end' | 'caret_select_all') => void;
 	moveItemScheduleTimeByWeeks: (item: ItemType, weekOffset: number, follow?: boolean, select?: boolean) => void;
 	moveItemScheduleTimeToThisWeek: (item: ItemType, weekOffset?: number, follow?: boolean, select?: boolean) => void;
 	requestGoToToday: () => void;
 	requestWeekChange: (weekOffset: number) => void;
 	requestProjectChange: (projectUuid: string | null) => void;
+	requestCreateNewProject: (projectTitle: string | null) => void;
+	requestCreateNewProjectModal: () => void;
 	requestChangeSelectedItemById: (id: number | null) => void;
 	requestMoveItemUpOrDown: (item: ItemType, offset: number) => void;
 	requestDeleteItem: (item: ItemType) => void;
@@ -86,6 +91,7 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 	showLoginInfoModal: null,
 	setShowLoginInfoModal: (t) => set({ showLoginInfoModal: t }),
 	pageView: 'This Week',
+	modalView: null,
 	settingPage: 'Calendars',
 	weekReference: timeToISO(),
 	internalCopiedItem: null,
@@ -115,16 +121,29 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 		if (item) set({ weekReference: item.scheduledAt });
 	},
 	setUnsyncedItemsCount: (count: number) => set({ unsyncedItemsCount: count }),
+	getItemsReference: () => {
+		const logic = get();
+		const category = logic.getCategoryBasedOnPageView();
+		if (category === "weekly") return logic.weeklyItems;
+		if (category === "project") return logic.projectItems;
+		return [];
+	},
+	getCategoryBasedOnPageView: () => {
+		const logic = get();
+		if (logic.pageView === "This Week") return 'weekly';
+		if (logic.pageView === "Projects") return 'project';
+		return 'daily'; // an undefined value!
+	},
 
 	// helper functions
 
 	findItemInList: (item) => {
-		const logic = get();
-		return (logic.weeklyItems.find((i) => (i.id === item.id && i.uuid === item.uuid)) || null);
+		const itemsRef = get().getItemsReference();
+		return (itemsRef.find((i) => (i.id === item.id && i.uuid === item.uuid)) || null);
 	},
 	findItemIndex: (item) => {
-		const logic = get();
-		const index = logic.weeklyItems.findIndex((i) => (i.id === item.id && i.uuid === item.uuid));
+		const itemsRef = get().getItemsReference();
+		const index = itemsRef.findIndex((i) => (i.id === item.id && i.uuid === item.uuid));
 		if (index < 0) return null;
 		else return index;
 	},
@@ -152,7 +171,8 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 	},
 	cancelEditingItemIfNotChanged: () => {
 		const logic = get();
-		const originalItemTitle = logic.weeklyItems.find((i) => (i.id === logic.editingExistingItem?.id))?.title;
+		const itemsRef = logic.getItemsReference();
+		const originalItemTitle = itemsRef.find((i) => (i.id === logic.editingExistingItem?.id))?.title;
 		if (logic.editingExistingItem && logic.editingExistingItem.title === originalItemTitle) {
 			logic.setEditingExistingItemsForced(null);
 			async_deleteDraftItem('editing_existing');
@@ -190,12 +210,24 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 		if (!logic.easyCheckForCancelingUnchangedEditingItemOrWiggle()) return;
 		if (logic.pageView === 'Settings') set({ settingPage: page });
 	},
-	requestBeginEditingNewItem: (firstIndex, secondIndex, category = 'weekly') => {
+	requestBeginEditingNewItem: (firstIndex, secondIndex) => {
 		const logic = get();
 		if (!logic.easyCheckForCancelingUnchangedEditingItemOrWiggle()) return;
-		const ordering = getNewOrderingNumber(logic.weeklyItems, firstIndex, secondIndex, category);
-		const newItem = createNewItem(ordering, category);
-		logic.setEditingNewItemsForced(newItem);
+		if (logic.pageView === 'This Week') {
+			const category = "weekly";
+			const ordering = getNewOrderingNumber(logic.weeklyItems, firstIndex, secondIndex, category);
+			const newItem = createNewItem(category, ordering);
+			logic.setEditingNewItemsForced(newItem);
+		} else if (logic.pageView === "Projects" && logic.activeProjectUuid) {
+			const category = "project";
+			const ordering = getNewOrderingNumber(logic.projectItems, firstIndex, secondIndex, category);
+			const newItem = createNewItem(category, ordering);
+			newItem.projectId = logic.activeProjectUuid;
+			logic.setEditingNewItemsForced(newItem);
+		} else {
+			console.error("fatal! should not happen");
+			return;
+		}
 	},
 	requestBeginEditingExistingItem: (item, caretPosition = 'caret_end') => {
 		const logic = get();
@@ -206,6 +238,7 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 	},
 	moveItemScheduleTimeByWeeks: (item, weekOffset, follow = true, select = true) => {
 		const logic = get();
+		if (logic.pageView !== 'This Week') return;
 		if (!logic.findItemInList(item)) return;
 		if (!logic.easyCheckForCancelingUnchangedEditingItemOrWiggle()) return;
 		const newSchedule = timeToISO(item.scheduledAt, weekOffset);
@@ -249,6 +282,31 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 		set({ activeProjectUuid: projectUuid })
 		set({ selectedId: null });
 	},
+	requestCreateNewProject: (projectTitle: string | null) => {
+		const logic = get();
+		if (!logic.easyCheckForCancelingUnchangedEditingItemOrWiggle()) {
+			console.error("@requestCreateNewProject: fatal error! this should not happen!");
+			set({ modalView: null });
+			return;
+		}
+		if (projectTitle && logic.pageView === 'Projects' && logic.modalView === 'CreateNewProject') {
+			async_createNewProject(projectTitle)
+				.then((uuid) => {
+					if (uuid === null) return;
+					set({ modalView: null, activeProjectUuid: uuid });
+				})
+				.catch((err) => console.log("err:", err));
+			set({ modalView: null });
+		} else {
+			set({ modalView: null });
+		}
+	},
+	requestCreateNewProjectModal: () => {
+		const logic = get();
+		if (!logic.easyCheckForCancelingUnchangedEditingItemOrWiggle()) return;
+		if (logic.pageView === 'Projects') set({ modalView: 'CreateNewProject' });
+		else set({ modalView: null });
+	},
 	requestChangeSelectedItemById: (id) => {
 		const logic = get();
 		if (!logic.easyCheckForCancelingUnchangedEditingItemOrWiggle()) return;
@@ -256,13 +314,15 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 	},
 	requestMoveItemUpOrDown: (item: ItemType, offset: number) => {
 		const logic = get();
+		const itemsRef = logic.getItemsReference();
+		const category = logic.getCategoryBasedOnPageView();
 		if (!logic.findItemInList(item)) return;
 		if (!logic.easyCheckForCancelingUnchangedEditingItemOrWiggle()) return;
 		const index = logic.findItemIndex(item); if (index === null) return;
 		console.log("⬆️⬇️");
 		const nextOffset = offset >= 0 ? offset + 1 : offset - 1;
-		const newOrder = getNewOrderingNumber(logic.weeklyItems, index + offset, index + nextOffset, "weekly")
-		item.ordering = { ...item.ordering, weekly: newOrder };
+		const newOrder = getNewOrderingNumber(itemsRef, index + offset, index + nextOffset, category)
+		item.ordering = { ...item.ordering, [category]: newOrder };
 		async_saveItem(item)
 			.then(() => { })
 			.catch((err) => console.log("err:", err));
@@ -382,15 +442,23 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 				}
 				// some more code...
 				const logic = get();
+				const itemsRef = logic.getItemsReference();
 				if (!logic.easyCheckForCancelingUnchangedEditingItemOrWiggle()) return;
 				const normalize = (str: string) => str.replace(/\r\n/g, '\n');
 				const internalCopy = (logic.internalCopiedItem && (normalize(text) === normalize(logic.internalCopiedItem.title))) || false;
-				const newItemPosition = getNewOrderingNumber(logic.weeklyItems, index, index + 1, "weekly")
+				const newItemPosition = getNewOrderingNumber(itemsRef, index, index + 1, "weekly")
 				if (internalCopy && logic.internalCopiedItem) {
 					let newItem = logic.internalCopiedItem;
-					newItem.category = "weekly";
-					newItem.ordering = { ...newItem.ordering, weekly: newItemPosition };
-					newItem.scheduledAt = logic.weekReference;
+					if (logic.pageView === "This Week") {
+						newItem.category = "weekly";
+						newItem.ordering = { ...newItem.ordering, weekly: newItemPosition };
+						newItem.scheduledAt = logic.weekReference;
+					} else if (logic.pageView === "Projects" && logic.activeProjectUuid) {
+						newItem.category = "project";
+						newItem.projectId = logic.activeProjectUuid;
+						newItem.ordering = { ...newItem.ordering, project: newItemPosition };
+						newItem.scheduledAt = timeToISO();
+					}
 					async_saveAsNewItem(newItem)
 						.then((id) => {
 							if (id === null) return;
@@ -398,11 +466,18 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 						})
 						.catch((err) => console.log("err:", err));
 				} else if (!internalCopy) {
-					let newItem = createNewItem();
+					let newItem = createNewItem("weekly");
 					newItem.title = text;
-					newItem.category = "weekly";
-					newItem.ordering = { ...newItem.ordering, weekly: newItemPosition };
-					newItem.scheduledAt = logic.weekReference;
+					if (logic.pageView === "This Week") {
+						newItem.category = "weekly";
+						newItem.ordering = { ...newItem.ordering, weekly: newItemPosition };
+						newItem.scheduledAt = logic.weekReference;
+					} else if (logic.pageView === "Projects" && logic.activeProjectUuid) {
+						newItem.category = "project";
+						newItem.projectId = logic.activeProjectUuid;
+						newItem.ordering = { ...newItem.ordering, project: newItemPosition };
+						newItem.scheduledAt = timeToISO();
+					}
 					async_saveAsNewItem(newItem)
 						.then((id) => {
 							if (id === null) return;
@@ -475,10 +550,11 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 			return;
 		}
 		const ltr = (useCalendarConfig.getState().mainCal.locale.direction === 'ltr');
-		const itemsLength = logic.weeklyItems.length || 0;
-		const selectedIndex: number = logic.weeklyItems.findIndex((item) => (item.id === logic.selectedId));
+		const itemsRef = logic.getItemsReference();
+		const itemsLength = itemsRef.length;
+		const selectedIndex: number = itemsRef.findIndex((item) => (item.id === logic.selectedId));
 		const selectedIndexNotValid = ((selectedIndex < 0) || (selectedIndex >= itemsLength));
-		const selectedItem = logic.weeklyItems.find((item) => (item.id === logic.selectedId)) || null;
+		const selectedItem = itemsRef.find((item) => (item.id === logic.selectedId)) || null;
 		if (!action) {
 		} else if (action === "TODAY") {
 			logic.requestGoToToday();
@@ -491,7 +567,7 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 			else if (action === "DOWN" && selectedIndex === itemsLength - 1) return;
 			else if (action === "DOWN") newIndex = selectedIndex + 1;
 			else return;
-			const id = logic.weeklyItems[newIndex].id ?? null;
+			const id = itemsRef[newIndex].id ?? null;
 			logic.requestChangeSelectedItemById(id);
 		} else if (action === "LEFT") {
 			if (ltr) logic.requestWeekChange(-1); else logic.requestWeekChange(+1);

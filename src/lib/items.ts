@@ -44,7 +44,7 @@ export async function async_getDraftItem(editingKey: editingKeyType): Promise<It
   }
 }
 
-export function createNewItem(orderingNumber?: number, category?: CategoryType): ItemType {
+export function createNewItem(category: CategoryType, orderingNumber?: number): ItemType {
   // todo: use function argument for these states:
   const schedule = useAppLogic.getState().weekReference;
   const calendar = useCalendarConfig.getState().mainCal.calendar;
@@ -52,9 +52,8 @@ export function createNewItem(orderingNumber?: number, category?: CategoryType):
   const uuid: string = crypto.randomUUID();
   const tzOffset = new Date().getTimezoneOffset();
   const tzIANA = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Local';
-  const _category = category ?? 'weekly';
   let ordering: OrderType = {};
-  if (orderingNumber !== undefined) ordering[_category] = orderingNumber;
+  if (orderingNumber !== undefined) ordering[category] = orderingNumber;
   const modifiedBy = getDeviceId();
 
   const newItem: ItemType = {
@@ -65,7 +64,7 @@ export function createNewItem(orderingNumber?: number, category?: CategoryType):
     title: "",
     type: 'todo',
     status: 'undone',
-    category: _category,
+    category: category,
     projectId: null,
 
     calendar: calendar,
@@ -114,8 +113,32 @@ export function createNewItemFrom(item: ItemType): ItemType {
   item.isEncrypted = false;
   item.ciphertext = null;
   item.keyVersion = 1;
-
   return item;
+}
+
+export function createNewProjectType(title: string | null): ProjectType {
+  const currentTime = timeToISO();
+  const modifiedBy = getDeviceId();
+  const project: ProjectType = {
+    uuid: crypto.randomUUID(),
+    title: title || "Hello world!",
+    userId: null,
+    parent: null,
+    ordering: 100,
+    pinned: false,
+    meta: null,
+    iv: null,
+    isEncrypted: false,
+    ciphertext: null,
+    keyVersion: 1,
+    createdAt: currentTime,
+    modifiedAt: currentTime,
+    deletedAt: null,
+    version: 1,
+    syncedAt: null,
+    modifiedBy: modifiedBy,
+  };
+  return project;
 }
 
 export async function async_getUnsyncedItemsCount(): Promise<number> {
@@ -135,15 +158,15 @@ export async function async_getProjects(): Promise<ProjectType[]> {
     const projects = await db.projects
       .toArray(); // pull array first
 
-    const sortedProjects = projects
-      .filter((p) => p.deletedAt !== null)
+    const sorted = projects
+      .filter((p) => p.deletedAt === null)
       .sort((a, b) => {
         const aVal = a.ordering ?? 0;
         const bVal = b.ordering ?? 0;
         return aVal - bVal;
       });
 
-    return sortedProjects;
+    return sorted;
   } catch (err) {
     console.log("error getting list of project:", err);
     return [];
@@ -154,19 +177,20 @@ export async function async_getItemsInProject(projectUuid: string | null): Promi
   try {
     if (projectUuid === null) return [];
     const items = await db.items
-      .where('uuid')
+      .where('projectId')
       .equals(projectUuid)
       .and((x) => x.deletedAt === null)
       .and((x) => x.category === 'project')
       .toArray(); // pull array first
 
-    const sortedItems = items.sort((a, b) => {
+    // we have to sort this. because appLogic selection indexing works based on this
+    const sorted = items.sort((a, b) => {
       const aVal = a.ordering?.project ?? 0;
       const bVal = b.ordering?.project ?? 0;
       return aVal - bVal;
     });
 
-    return sortedItems;
+    return sorted;
   } catch (err) {
     console.log("error getting items in project:", err);
     return [];
@@ -182,26 +206,33 @@ export async function async_getItemsInUtcIsoTimeRange(startUtcIso: string, endUt
       .and((x) => x.category === 'weekly')
       .toArray(); // pull array first
 
-    const sortedItems = items.sort((a, b) => {
+    // we have to sort this. because appLogic selection indexing works based on this
+    const sorted = items.sort((a, b) => {
       const aVal = a.ordering?.weekly ?? 0;
       const bVal = b.ordering?.weekly ?? 0;
       return aVal - bVal;
     });
 
-    return sortedItems;
+    return sorted;
   } catch (err) {
     console.log("error getting items in time range:", err);
     return [];
   }
 }
 
-export async function async_checkAndFixOrdering(items: ItemType[]) {
+export async function async_checkAndFixOrdering(items: ItemType[], category: CategoryType) {
   if (!items.length) return;
-  let needOrderingFix = items.some(item => (item.ordering === null) || (item.ordering?.weekly) === undefined || isNaN(item.ordering.weekly) || (item.ordering.weekly >= (10000 * ORDERING_STEP)) || (item.ordering.weekly <= -(10000 * ORDERING_STEP)));
+  let needOrderingFix = items.some(item =>
+    (item.ordering === null)
+    || (item.ordering?.[category] === undefined)
+    || isNaN(item.ordering[category])
+    || (item.ordering[category] >= (10000 * ORDERING_STEP))
+    || (item.ordering[category] <= -(10000 * ORDERING_STEP)));
+
   if (!needOrderingFix) {
     // check for duplicates
     items.forEach((item, i) => {
-      const xi = items.findIndex(x => x.ordering?.weekly === item.ordering?.weekly)
+      const xi = items.findIndex(x => x.ordering?.[category] === item.ordering?.[category])
       if (xi != i) {
         console.log("duplicate ordering found!");
         needOrderingFix = true;
@@ -214,9 +245,12 @@ export async function async_checkAndFixOrdering(items: ItemType[]) {
     const ORDER_SHIFT = getOrderingShiftBasedOnStartWeekday();
     const updated = items
       .map((item, index) => {
+        let newOrdering = { ...item.ordering };
+        if (category === "weekly") newOrdering.weekly = ((index + 1) * ORDERING_STEP) + ORDER_SHIFT;
+        if (category === "project") newOrdering.project = ((index + 1) * ORDERING_STEP) + ORDER_SHIFT;
         return {
           ...item,
-          ordering: { ...item.ordering, weekly: ((index + 1) * ORDERING_STEP) + ORDER_SHIFT },
+          ordering: { ...newOrdering },
           version: item.version + 1,
           modifiedBy: getDeviceId(),
           modifiedAt: timeToISO(), // this is a must for between device syncing
@@ -235,6 +269,20 @@ function getOrderingShiftBasedOnStartWeekday() {
   const startWeekday = useCalendarConfig.getState().mainCal.weekStartsOn;
   const ORDER_SHIFT = getWeekdayNumber(startWeekday) * ORDERING_STEP / 100;
   return ORDER_SHIFT;
+}
+
+export async function async_createNewProject(title: string): Promise<string | null> {
+  try {
+    console.log("create new project...");
+    const newProject = createNewProjectType(title);
+    console.log("new project:", newProject);
+    const insertedUuid = await db.projects.add(newProject);
+    console.log("new project creation successful. uuid: ", insertedUuid);
+    return insertedUuid;
+  } catch (err) {
+    console.log("error: ", err);
+    return null;
+  }
 }
 
 export async function async_saveAsNewItem(item: ItemType): Promise<number | null> {
@@ -342,20 +390,20 @@ export async function async_checkUuidIntegrity() {
   console.log(`assigned new uuid to ${len} items with duplicate uuids!`);
 }
 
-export function getNewOrderingNumber(items: ItemType[], index: number, nextIndex: number, section: 'weekly' | 'project'): number {
+export function getNewOrderingNumber(items: ItemType[], index: number, nextIndex: number, category: CategoryType): number {
   const ORDER_SHIFT = getOrderingShiftBasedOnStartWeekday();
   const len = items.length;
   if (len === 0) return ORDERING_STEP + ORDER_SHIFT;
-  const top = (items[0]?.ordering?.[section] || 0) - ORDERING_STEP + ORDER_SHIFT;
-  const bot = (items[len - 1]?.ordering?.[section] || 0) + ORDERING_STEP + ORDER_SHIFT;
+  const top = (items[0]?.ordering?.[category] || 0) - ORDERING_STEP + ORDER_SHIFT;
+  const bot = (items[len - 1]?.ordering?.[category] || 0) + ORDERING_STEP + ORDER_SHIFT;
   if (index < 0 || nextIndex < 0) {
     return top;
   }
   if (index >= len || nextIndex >= len) {
     return bot;
   }
-  const x = items[index]?.ordering?.[section] || (0 + ORDER_SHIFT);
-  const y = items[nextIndex]?.ordering?.[section] || (ORDERING_STEP + ORDER_SHIFT);
+  const x = items[index]?.ordering?.[category] || (0 + ORDER_SHIFT);
+  const y = items[nextIndex]?.ordering?.[category] || (ORDERING_STEP + ORDER_SHIFT);
   return (x + y) / 2;
 }
 

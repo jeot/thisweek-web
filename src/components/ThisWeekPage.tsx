@@ -39,7 +39,7 @@ export function ThisWeekPage() {
         <WeekDatesCard />
       </div>
       {/* container for list of items */}
-      <ListOfItemsContainer className="" items={items} newEdit={editingNewItem} existingEdit={editingExistingItem} modifiable />
+      <ListOfItemsContainer className="" items={items} newEdit={editingNewItem} existingEdit={editingExistingItem} modifiable category='weekly' />
     </div>
   );
 }

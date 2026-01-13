@@ -2,7 +2,7 @@ import { Item, ItemActionType } from "@/components/Item"
 import { useEffect } from "react";
 import { Button } from "./ui/button";
 import { CirclePlus } from "lucide-react";
-import { ItemType } from "@/types/types";
+import { CategoryType, ItemType } from "@/types/types";
 import { useAppLogic } from "@/store/appLogic";
 import { cn } from "@/lib/utils";
 
@@ -41,9 +41,10 @@ interface ListOfItemsProps {
   newEdit?: ItemType | null;
   existingEdit?: ItemType | null;
   modifiable?: boolean;
+  category: CategoryType | 'pinned';
 }
 
-export function ListOfItems({ className, items, newEdit, existingEdit, modifiable }: ListOfItemsProps) {
+export function ListOfItems({ className, items, newEdit, existingEdit, modifiable, category }: ListOfItemsProps) {
   const selectedId = useAppLogic((state) => state.selectedId);
   const wiggleId = useAppLogic((state) => state.wiggleId);
   const isMobile = useAppLogic((state) => state.isMobile);
@@ -76,7 +77,7 @@ export function ListOfItems({ className, items, newEdit, existingEdit, modifiabl
       item.id === existingEdit?.id ? existingEdit : item
     );
   }
-  allItems.sort((a, b) => ((a?.ordering?.weekly || 0) - (b?.ordering?.weekly || 0)));
+  allItems.sort((a, b) => ((a?.ordering?.[category] || 0) - (b?.ordering?.[category] || 0)));
 
   const itemsLength = items.length || 0;
   const selectedIndex: number = items.findIndex((item) => (item.id === selectedId));
@@ -112,9 +113,9 @@ export function ListOfItems({ className, items, newEdit, existingEdit, modifiabl
     if (action === "ContextMenuOpened") { eventItemContextMenuOpened(item); }
     if (action === "Move Up") { requestMoveItemUpOrDown(item, -1); }
     if (action === "Move Down") { requestMoveItemUpOrDown(item, +1); }
-    if (action === "Move Next") { moveItemScheduleTimeByWeeks(item, +1) }
-    if (action === "Move Previous") { moveItemScheduleTimeByWeeks(item, -1) }
-    if (action === "Move Today") { moveItemScheduleTimeToThisWeek(item); }
+    if (action === "Move Next") { if (category === 'weekly') moveItemScheduleTimeByWeeks(item, +1) }
+    if (action === "Move Previous") { if (category === 'weekly') moveItemScheduleTimeByWeeks(item, -1) }
+    if (action === "Move Today") { if (category === 'weekly') moveItemScheduleTimeToThisWeek(item); }
     if (action === "Toggle Type") { requestToggleItemType(item); }
   }
 
@@ -140,6 +141,7 @@ export function ListOfItems({ className, items, newEdit, existingEdit, modifiabl
             isMobile={isMobile}
             disableContextMenu={editing}
             onItemActionCallback={handleOnItemActionCallback}
+            category={category}
             onClick={(event) => { event.stopPropagation(); handleOnItemClick(item); }}
           />
         );
@@ -160,13 +162,13 @@ export function ListOfItems({ className, items, newEdit, existingEdit, modifiabl
   );
 }
 
-export function ListOfItemsContainer({ className, items, newEdit, existingEdit, modifiable, header }: { header?: string } & ListOfItemsProps) {
+export function ListOfItemsContainer({ className, items, newEdit, existingEdit, modifiable, category, header }: { header?: string } & ListOfItemsProps) {
   return (
     <div className={cn("flex flex-col min-w-64 w-full items-center p-2 gap-2",
       "max-w-full @sm:max-w-md @md:max-w-xl",
       className)}>
       {header && <h3 className="text-primary/30">{header}</h3>}
-      <ListOfItems items={items} newEdit={newEdit} existingEdit={existingEdit} modifiable={modifiable} />
+      <ListOfItems items={items} newEdit={newEdit} existingEdit={existingEdit} modifiable={modifiable} category={category} />
     </ div>
   );
 }

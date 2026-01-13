@@ -50,7 +50,7 @@ export function useLocalDbSyncItems() {
 
   // Update zustand when Dexie emits new results
   useEffect(() => {
-    async_checkAndFixOrdering(weeklyItems).then(() => {
+    async_checkAndFixOrdering(weeklyItems, 'weekly').then(() => {
       console.log("ordering done");
     }).catch((e) => {
       console.log("ordering error:", e);
@@ -61,13 +61,17 @@ export function useLocalDbSyncItems() {
 
   // projects list
   useEffect(() => {
-    // todo: ordering?
     setProjectsForced(projects);
   }, [projects]);
 
   // project items
   useEffect(() => {
-    // todo: ordering like we did on weekly items?
+    async_checkAndFixOrdering(projectsItems, 'project').then(() => {
+      console.log("ordering done");
+    }).catch((e) => {
+      console.log("ordering error:", e);
+    });
+
     setProjectItemsForced(projectsItems);
   }, [projectsItems]);
 }

@@ -1,5 +1,5 @@
 import { cn, getSmartTextDirection, timeToISO } from "@/lib/utils";
-import { ItemType } from "@/types/types";
+import { CategoryType, ItemType } from "@/types/types";
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuSub, ContextMenuSubContent, ContextMenuSubTrigger, ContextMenuTrigger } from "@/components/ui/context-menu";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "./ui/button";
@@ -19,8 +19,8 @@ type ContextMenuType = {
   action: ItemActionType;
 };
 
-export function Item({ className, item, editing, editingPosition, selected, isMobile, disableContextMenu, onItemActionCallback, ...props }:
-  { item: ItemType, editing: boolean, editingPosition: any, selected?: boolean, isMobile?: boolean, disableContextMenu?: boolean, onItemActionCallback: (action: ItemActionType, item: ItemType) => void } & React.ComponentProps<"div">) {
+export function Item({ className, item, editing, editingPosition, selected, isMobile, disableContextMenu, onItemActionCallback, category, ...props }:
+  { item: ItemType, editing: boolean, editingPosition: any, selected?: boolean, isMobile?: boolean, disableContextMenu?: boolean, onItemActionCallback: (action: ItemActionType, item: ItemType) => void, category: CategoryType | 'pinned' } & React.ComponentProps<"div">) {
 
   const contextMenus: Array<ContextMenuType> = [
     { name: "Edit", variant: "default", action: 'Edit' },
@@ -264,8 +264,9 @@ export function Item({ className, item, editing, editingPosition, selected, isMo
             </div>
           }
 
-          {toggleDebugInfo && <div dir="ltr" className="flex absolute right-0 top-0 text-xxs px-1 border-1 border-border">
-            <span className="right-0 top-0 rounded-md">{item.ordering?.weekly}</span>
+          {toggleDebugInfo && <div dir="ltr"
+            className={cn("flex absolute right-0 top-0 text-xxs px-1 border-1 border-border")}>
+            <span className={cn("right-0 top-0 rounded-md", category === "project" && "text-blue-700")}>{item.ordering?.[category]}</span>
             &nbsp;
             <span className={cn(
               item.syncedAt && "text-green-500" || "text-orange-500",
