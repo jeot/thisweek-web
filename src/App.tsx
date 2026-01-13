@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import '@/App.css'
 import { SidebarLayout } from '@/components/SidebarLayout'
 import { ThisWeekPage } from '@/components/ThisWeekPage';
+import { ProjectsPage } from '@/components/ProjectsPage';
 import { SettingsPage } from '@/components/SettingsPage';
 import { lorem } from '@/assets/lorem'
 import { useCalendarConfig } from "@/store/calendarConfig";
@@ -229,8 +230,6 @@ function App() {
   }, [mainCal, secondCalendar]);
 
   const ThisYearPage = () => <div className='p-4'><h1>ThisYearPage</h1><p>Maybe in the future!</p><p>{lorem}</p></div>;
-  const ProjectsPage = () => <div className='p-4'><h1>Projects/ListPage</h1><p>Maybe in the future!</p><p>{lorem}</p></div>;
-
 
   return (
     <div className="font-global">

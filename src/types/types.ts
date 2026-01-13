@@ -97,27 +97,39 @@ export interface ItemType {
   ciphertext: string | null; // for encryption
   keyVersion: number; // for encryption
 
-  // future: syncing
+  // syncing
   createdAt: string;
   modifiedAt: string;
-  deletedAt: string | null; // future: for deleting items with syncing
+  deletedAt: string | null; // for deleting items with syncing
   version: number; // future: for syncing, conflict resolution, versioning, colaboration.
   syncedAt: string | null; // only for debugging
   modifiedBy: string // device ID
 }
 
-// future: projects table
-/*
-interface ProjectType {
-  id: number;        // primary key
-  uuid: string;      // optional: for syncing if needed
+// projects table
+export interface ProjectType {
+  uuid: string;      // for syncing (main reference uuid)
   title: string;
-  color: string;     // optional, for UI
-  icon: string;      // optional
-  createdAt: number;
-  modifiedAt: number;
+
+  parent: string | null; // future: reference to uuid. is this project a child (sub-project) of another project?
+  ordering: number | null;    // future
+  pinned: boolean; // future
+  meta: Json | null; // future: for rare/experimental fields, e.g., colors, icon,...
+
+  // future: encryption
+  iv: string | null; // iv for encryption
+  isEncrypted: boolean; // for encryption
+  ciphertext: string | null; // for encryption
+  keyVersion: number; // for encryption
+
+  // syncing
+  createdAt: string;
+  modifiedAt: string;
+  deletedAt: string | null;
+  version: number;
+  syncedAt: string | null; // only for debugging
+  modifiedBy: string // device ID
 }
-*/
 
 export interface DeviceInfo {
   key: string;     // always "deviceId" (you could use enum too)

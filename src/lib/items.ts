@@ -1,4 +1,4 @@
-import { CategoryType, ItemType, OrderType } from "@/types/types";
+import { CategoryType, ItemType, OrderType, ProjectType } from "@/types/types";
 import { db, getDeviceId } from "@/lib/db.ts";
 import { useAppLogic } from "@/store/appLogic";
 import { useCalendarConfig } from "@/store/calendarConfig";
@@ -127,6 +127,49 @@ export async function async_getUnsyncedItemsCount(): Promise<number> {
   } catch (err) {
     console.log("error getting unsynced items count:", err);
     return 0;
+  }
+}
+
+export async function async_getProjects(): Promise<ProjectType[]> {
+  try {
+    const projects = await db.projects
+      .toArray(); // pull array first
+
+    const sortedProjects = projects
+      .filter((p) => p.deletedAt !== null)
+      .sort((a, b) => {
+        const aVal = a.ordering ?? 0;
+        const bVal = b.ordering ?? 0;
+        return aVal - bVal;
+      });
+
+    return sortedProjects;
+  } catch (err) {
+    console.log("error getting list of project:", err);
+    return [];
+  }
+}
+
+export async function async_getItemsInProject(projectUuid: string | null): Promise<ItemType[]> {
+  try {
+    if (projectUuid === null) return [];
+    const items = await db.items
+      .where('uuid')
+      .equals(projectUuid)
+      .and((x) => x.deletedAt === null)
+      .and((x) => x.category === 'project')
+      .toArray(); // pull array first
+
+    const sortedItems = items.sort((a, b) => {
+      const aVal = a.ordering?.project ?? 0;
+      const bVal = b.ordering?.project ?? 0;
+      return aVal - bVal;
+    });
+
+    return sortedItems;
+  } catch (err) {
+    console.log("error getting items in project:", err);
+    return [];
   }
 }
 

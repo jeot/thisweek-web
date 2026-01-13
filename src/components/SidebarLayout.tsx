@@ -2,7 +2,8 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetTrigger, SheetContent, SheetClose, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet"
 import { Menu, CheckCheck, Settings } from "lucide-react"
-// import { CalendarHeart, ListTodo } from "lucide-react"
+import { ListTodo } from "lucide-react"
+// import { CalendarHeart } from "lucide-react"
 import { Moon, Sun } from 'lucide-react';
 import HeaderContent from "./HeaderContent";
 import { PageViewType } from "@/types/types";
@@ -29,8 +30,8 @@ export function SidebarLayout({ children, activeView, title }: { children: React
 
   const menuItems = [
     { icon: CheckCheck, label: "This Week", onClick: () => { requestPageViewChange('This Week') } },
+    { icon: ListTodo, label: "Projects", onClick: () => { requestPageViewChange('Projects') } },
     // { icon: CalendarHeart, label: "Year 2025", onClick: () => { requestPageViewChange('This Year') } },
-    // { icon: ListTodo, label: "Projects", onClick: () => { requestPageViewChange('Projects') } },
     { icon: null, label: "Spacer", onClick: () => { } },
     { icon: Settings, label: "Settings", onClick: () => { requestPageViewChange('Settings') } },
     { icon: ThemeIcon, label: theme.mode === 'light' ? 'Dark' : 'Light', onClick: () => toggleTheme() },

@@ -1,16 +1,18 @@
 import { useLiveQuery } from "dexie-react-hooks";
 import { useAppLogic } from "@/store/appLogic";
 import { useCalendarConfig } from "@/store/calendarConfig";
-import { async_checkAndFixOrdering, async_getItemsInUtcIsoTimeRange, async_getUnsyncedItemsCount } from "./items";
+import { async_checkAndFixOrdering, async_getItemsInUtcIsoTimeRange, async_getUnsyncedItemsCount, async_getItemsInProject, async_getProjects } from "./items";
 import { getUtcIsoRangeForLocalWeekByRefUtcIso } from "./week";
 import { useEffect } from "react";
 
 export function useLocalDbSyncItems() {
   const mainCal = useCalendarConfig((state) => state.mainCal);
   const weekReference = useAppLogic((state) => state.weekReference);
+  const activeProjectUuid = useAppLogic((state) => state.activeProjectUuid);
   const [startUtcIso, endUtcIso] = getUtcIsoRangeForLocalWeekByRefUtcIso(mainCal.weekStartsOn, weekReference);
   const setWeeklyItemsForced = useAppLogic((state) => state.setWeeklyItemsForced);
   const setProjectItemsForced = useAppLogic((state) => state.setProjectItemsForced);
+  const setProjectsForced = useAppLogic((state) => state.setProjectsForced);
   const setUnsyncedItemsCount = useAppLogic((state) => state.setUnsyncedItemsCount);
 
   // This will re-run whenever the table or range changes
@@ -20,6 +22,20 @@ export function useLocalDbSyncItems() {
     },
     // specify vars that affect query:
     [startUtcIso, endUtcIso]
+  ) || [];
+
+  const projects = useLiveQuery(
+    async () => {
+      return (await async_getProjects());
+    },
+    []
+  ) || [];
+
+  const projectsItems = useLiveQuery(
+    async () => {
+      return (await async_getItemsInProject(activeProjectUuid));
+    },
+    [activeProjectUuid]
   ) || [];
 
   // get unsynced items count
@@ -34,17 +50,24 @@ export function useLocalDbSyncItems() {
 
   // Update zustand when Dexie emits new results
   useEffect(() => {
-    // check if it needs reordering
-    // todo: this should not happen inbetween the syncs!
     async_checkAndFixOrdering(weeklyItems).then(() => {
       console.log("ordering done");
     }).catch((e) => {
       console.log("ordering error:", e);
     });
 
-    // Only skip when items === undefined (initial/loading state)
-    if (weeklyItems === undefined || setWeeklyItemsForced === undefined) return;
     setWeeklyItemsForced(weeklyItems);
-    setProjectItemsForced([]);
-  }, [weeklyItems, setWeeklyItemsForced]);
+  }, [weeklyItems]);
+
+  // projects list
+  useEffect(() => {
+    // todo: ordering?
+    setProjectsForced(projects);
+  }, [projects]);
+
+  // project items
+  useEffect(() => {
+    // todo: ordering like we did on weekly items?
+    setProjectItemsForced(projectsItems);
+  }, [projectsItems]);
 }

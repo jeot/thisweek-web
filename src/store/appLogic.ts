@@ -1,4 +1,4 @@
-import { ItemType, PageViewType } from '@/types/types';
+import { ItemType, PageViewType, ProjectType } from '@/types/types';
 import { create } from 'zustand';
 import { async_saveDraftItem, async_deleteDraftItem, async_deleteItemSoft, async_saveAsNewItem, async_saveItem, createNewItem, getNewOrderingNumber } from '@/lib/items';
 import { Action } from '@/types/types';
@@ -28,11 +28,14 @@ type AppLogic = {
 	// data
 	weeklyItems: ItemType[];
 	projectItems: ItemType[];
+	projects: ProjectType[];
+	activeProjectUuid: string | null;
 	editingNewItem: ItemType | null;
 	editingExistingItem: ItemType | null;
 	unsyncedItemsCount: number;
 	setWeeklyItemsForced: (items: ItemType[]) => void;
 	setProjectItemsForced: (items: ItemType[]) => void;
+	setProjectsForced: (items: ProjectType[]) => void;
 	setEditingNewItemsForced: (item: ItemType | null) => void;
 	setEditingExistingItemsForced: (item: ItemType | null) => void;
 	setUnsyncedItemsCount: (count: number) => void;
@@ -54,6 +57,7 @@ type AppLogic = {
 	moveItemScheduleTimeToThisWeek: (item: ItemType, weekOffset?: number, follow?: boolean, select?: boolean) => void;
 	requestGoToToday: () => void;
 	requestWeekChange: (weekOffset: number) => void;
+	requestProjectChange: (projectUuid: string | null) => void;
 	requestChangeSelectedItemById: (id: number | null) => void;
 	requestMoveItemUpOrDown: (item: ItemType, offset: number) => void;
 	requestDeleteItem: (item: ItemType) => void;
@@ -70,6 +74,7 @@ type AppLogic = {
 
 	// some events from components
 	eventWeekPageClicked: () => void;
+	eventProjectPageClicked: () => void;
 	eventItemWasClicked: (item: ItemType) => void;
 	eventItemContextMenuOpened: (item: ItemType) => void;
 
@@ -92,12 +97,15 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 
 	weeklyItems: [],
 	projectItems: [],
+	projects: [],
+	activeProjectUuid: null,
 	editingNewItem: null,
 	editingExistingItem: null,
 	editingCaretPosition: null,
 	unsyncedItemsCount: 0,
 	setWeeklyItemsForced: (items) => set({ weeklyItems: items }),
 	setProjectItemsForced: (items) => set({ projectItems: items }),
+	setProjectsForced: (projects: ProjectType[]) => set({ projects: projects }),
 	setEditingNewItemsForced: (item) => {
 		set({ editingNewItem: item });
 		if (item) set({ weekReference: item.scheduledAt });
@@ -233,6 +241,12 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 		const logic = get();
 		if (!logic.easyCheckForCancelingUnchangedEditingItemOrWiggle()) return;
 		set({ weekReference: timeToISO(logic.weekReference, weekOffset) })
+		set({ selectedId: null });
+	},
+	requestProjectChange: (projectUuid) => {
+		const logic = get();
+		if (!logic.easyCheckForCancelingUnchangedEditingItemOrWiggle()) return;
+		set({ activeProjectUuid: projectUuid })
 		set({ selectedId: null });
 	},
 	requestChangeSelectedItemById: (id) => {
@@ -425,6 +439,11 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 
 	// some events from components
 	eventWeekPageClicked: () => {
+		const logic = get();
+		if (!logic.easyCheckForCancelingUnchangedEditingItemOrWiggle()) return;
+		logic.requestChangeSelectedItemById(null);
+	},
+	eventProjectPageClicked: () => {
 		const logic = get();
 		if (!logic.easyCheckForCancelingUnchangedEditingItemOrWiggle()) return;
 		logic.requestChangeSelectedItemById(null);

@@ -1,5 +1,5 @@
 import Dexie, { type EntityTable } from 'dexie';
-import { DeviceInfo, EncryptionKeyEntry, ItemType, SyncInfo, UserInfo } from "@/types/types"
+import { DeviceInfo, EncryptionKeyEntry, ItemType, SyncInfo, UserInfo, ProjectType } from "@/types/types"
 
 const db = new Dexie('ThisWeekDatabase') as Dexie & {
   items: EntityTable<
@@ -14,6 +14,7 @@ const db = new Dexie('ThisWeekDatabase') as Dexie & {
   userInfo: EntityTable<UserInfo, 'key'>;
   syncInfo: EntityTable<SyncInfo, 'key'>;
   encryptionKeys: EntityTable<EncryptionKeyEntry, 'id'>;
+  projects: EntityTable<ProjectType, 'uuid'>;
 };
 
 db.version(2).stores({
@@ -93,6 +94,10 @@ db.version(10).upgrade((tx) => {
     item.deletedAt = convertToISO(item.deletedAt);
     item.syncedAt = convertToISO(item.syncedAt);
   });
+});
+
+db.version(11).stores({
+  projects: 'uuid'
 });
 
 // use this for being fast and not async
