@@ -434,30 +434,34 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 		//	.catch((err) => console.log("err:", err));
 		console.log("trying to get the text from clipboard...");
 		navigator.clipboard.readText()
-			.then((text) => {
+			.then((clipboardText) => {
+				const text = clipboardText.trim();
 				console.log("pasting text: ", text);
-				if (text.trim().length == 0) {
+				if (text.length == 0) {
 					console.log("no text to paste. ignored");
 					return;
 				}
 				// some more code...
 				const logic = get();
-				const itemsRef = logic.getItemsReference();
 				if (!logic.easyCheckForCancelingUnchangedEditingItemOrWiggle()) return;
 				const normalize = (str: string) => str.replace(/\r\n/g, '\n');
 				const internalCopy = (logic.internalCopiedItem && (normalize(text) === normalize(logic.internalCopiedItem.title))) || false;
-				const newItemPosition = getNewOrderingNumber(itemsRef, index, index + 1, "weekly")
+				const category = logic.getCategoryBasedOnPageView();
+				const itemsRef = logic.getItemsReference();
+				const newItemPosition = getNewOrderingNumber(itemsRef, index, index + 1, category)
 				if (internalCopy && logic.internalCopiedItem) {
 					let newItem = logic.internalCopiedItem;
-					if (logic.pageView === "This Week") {
-						newItem.category = "weekly";
+					newItem.category = category;
+					if (category === "weekly") {
 						newItem.ordering = { ...newItem.ordering, weekly: newItemPosition };
 						newItem.scheduledAt = logic.weekReference;
-					} else if (logic.pageView === "Projects" && logic.activeProjectUuid) {
-						newItem.category = "project";
+					} else if (category === "project" && logic.activeProjectUuid) {
 						newItem.projectId = logic.activeProjectUuid;
 						newItem.ordering = { ...newItem.ordering, project: newItemPosition };
 						newItem.scheduledAt = timeToISO();
+					} else {
+						console.error("fatal! invalid category: ", category);
+						return;
 					}
 					async_saveAsNewItem(newItem)
 						.then((id) => {
@@ -466,17 +470,19 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 						})
 						.catch((err) => console.log("err:", err));
 				} else if (!internalCopy) {
-					let newItem = createNewItem("weekly");
+					let newItem = createNewItem(category);
+					newItem.category = category;
 					newItem.title = text;
-					if (logic.pageView === "This Week") {
-						newItem.category = "weekly";
+					if (category === "weekly") {
 						newItem.ordering = { ...newItem.ordering, weekly: newItemPosition };
 						newItem.scheduledAt = logic.weekReference;
-					} else if (logic.pageView === "Projects" && logic.activeProjectUuid) {
-						newItem.category = "project";
+					} else if (category === "project" && logic.activeProjectUuid) {
 						newItem.projectId = logic.activeProjectUuid;
 						newItem.ordering = { ...newItem.ordering, project: newItemPosition };
 						newItem.scheduledAt = timeToISO();
+					} else {
+						console.error("fatal! invalid category: ", category);
+						return;
 					}
 					async_saveAsNewItem(newItem)
 						.then((id) => {
