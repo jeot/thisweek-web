@@ -2,7 +2,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetTrigger, SheetContent, SheetClose, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet"
 import { Menu, CheckCheck, Settings } from "lucide-react"
-import { ListTodo } from "lucide-react"
+import { BriefcaseBusiness } from "lucide-react"
 // import { CalendarHeart } from "lucide-react"
 import { Moon, Sun } from 'lucide-react';
 import HeaderContent from "./HeaderContent";
@@ -30,7 +30,7 @@ export function SidebarLayout({ children, activeView, title }: { children: React
 
   const menuItems = [
     { icon: CheckCheck, label: "This Week", onClick: () => { requestPageViewChange('This Week') } },
-    { icon: ListTodo, label: "Projects", onClick: () => { requestPageViewChange('Projects') } },
+    { icon: BriefcaseBusiness, label: "Projects", onClick: () => { requestPageViewChange('Projects') } },
     // { icon: CalendarHeart, label: "Year 2025", onClick: () => { requestPageViewChange('This Year') } },
     { icon: null, label: "Spacer", onClick: () => { } },
     { icon: Settings, label: "Settings", onClick: () => { requestPageViewChange('Settings') } },
@@ -48,7 +48,7 @@ export function SidebarLayout({ children, activeView, title }: { children: React
         <Button
           variant="ghost"
           size="icon"
-          className="w-auto justify-center px-2 py-6 rounded-none"
+          className="w-auto justify-center px-2 py-6 rounded-none text-muted"
           onClick={() => {
             setCollapsed(!collapsed)
             // hack: the TextareaAutosize used in <Item> only listens to resize event

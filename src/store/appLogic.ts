@@ -556,6 +556,7 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 			return;
 		}
 		const ltr = (useCalendarConfig.getState().mainCal.locale.direction === 'ltr');
+		const category = logic.getCategoryBasedOnPageView();
 		const itemsRef = logic.getItemsReference();
 		const itemsLength = itemsRef.length;
 		const selectedIndex: number = itemsRef.findIndex((item) => (item.id === logic.selectedId));
@@ -563,7 +564,9 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 		const selectedItem = itemsRef.find((item) => (item.id === logic.selectedId)) || null;
 		if (!action) {
 		} else if (action === "TODAY") {
-			logic.requestGoToToday();
+			if (category == "weekly") {
+				logic.requestGoToToday();
+			}
 		} else if (action === "UP" || action === "DOWN") {
 			let newIndex = 0;
 			if (action === "UP" && selectedIndexNotValid) newIndex = itemsLength - 1; // last
@@ -576,9 +579,13 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 			const id = itemsRef[newIndex].id ?? null;
 			logic.requestChangeSelectedItemById(id);
 		} else if (action === "LEFT") {
-			if (ltr) logic.requestWeekChange(-1); else logic.requestWeekChange(+1);
+			if (category == "weekly") {
+				if (ltr) logic.requestWeekChange(-1); else logic.requestWeekChange(+1);
+			}
 		} else if (action === "RIGHT") {
-			if (ltr) logic.requestWeekChange(+1); else logic.requestWeekChange(-1);
+			if (category == "weekly") {
+				if (ltr) logic.requestWeekChange(+1); else logic.requestWeekChange(-1);
+			}
 		} else if (action === "MOVE_UP") {
 			if (selectedItem) logic.requestMoveItemUpOrDown(selectedItem, -1);
 		} else if (action === "MOVE_DOWN") {

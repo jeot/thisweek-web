@@ -52,8 +52,7 @@ export function ProjectsPage() {
             </Button>}
         </div>
       </div>
-      <div
-        className="flex-3 p-4 w-1 overflow-y-auto">
+      <div className="flex-3 p-4 w-1 overflow-y-auto">
         <div
           className="flex flex-col w-full min-h-full flex-1 gap-2 items-center"
           onClick={(event) => {
