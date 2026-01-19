@@ -8,6 +8,16 @@ export function CreateNewProjectCard() {
   const requestCreateNewProject = useAppLogic((state) => state.requestCreateNewProject);
   const [newProjectTitle, setNewProjectTitle] = useState("");
 
+  const handleKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter' && newProjectTitle.trim() !== "") {
+      requestCreateNewProject(newProjectTitle);
+      console.log("applyed");
+    } else if (event.key === 'Escape') {
+      requestCreateNewProject(null);
+      console.log("cancel");
+    } else { }
+  }
+
   return (
     <Card className="p-1 gap-0">
       <CardHeader className="p-0">
@@ -19,8 +29,10 @@ export function CreateNewProjectCard() {
       <CardContent className="p-1">
         <div className="flex flex-col justify-start items-start gap-2">
           <p>Project or List Name?</p>
-          <Input placeholder="my new project..." autoFocus value={newProjectTitle}
+          <Input placeholder="my new project..." autoFocus
+            value={newProjectTitle}
             onChange={(e) => setNewProjectTitle(e.target.value)}
+            onKeyDown={handleKeyDown}
           />
           <div className="flex gap-2">
             <Button

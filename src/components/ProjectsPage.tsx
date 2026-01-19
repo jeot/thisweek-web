@@ -18,7 +18,8 @@ export function ProjectsPage() {
 
   return (
     <div className="flex flex-row justify-self-stretch h-full">
-      <div className="flex-1 px-0 py-2 min-w-32 max-w-48 flex flex-col gap-0 border-e font-normal text-sm"
+      {/* the left projects list (sidebar) */}
+      <div className="flex-1 p-0 pb-2 min-w-32 max-w-48 flex flex-col gap-0 border-e font-normal text-sm overflow-y-auto"
         onClick={() => {
           console.log("project list-page click...");
           eventProjectPageClicked();
@@ -52,6 +53,7 @@ export function ProjectsPage() {
             </Button>}
         </div>
       </div>
+      {/* the right project content */}
       <div className="flex-3 p-4 w-1 overflow-y-auto">
         <div
           className="flex flex-col w-full min-h-full flex-1 gap-2 items-center"
