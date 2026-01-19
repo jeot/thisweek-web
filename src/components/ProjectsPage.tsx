@@ -64,7 +64,7 @@ export function ProjectsPage() {
           }}
         >
           {/* container for list of items */}
-          {activeProjectUuid && <ListOfItemsContainer className="" items={items} newEdit={editingNewItem} existingEdit={editingExistingItem} modifiable category='project' />}
+          {activeProjectUuid && <ListOfItemsContainer className="" items={items} newEdit={editingNewItem} existingEdit={editingExistingItem} modifiable category='project' /> || <p className="m-auto text-muted-foreground">Select a Project/List</p>}
         </div>
 
       </div>

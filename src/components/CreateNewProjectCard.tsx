@@ -19,7 +19,7 @@ export function CreateNewProjectCard() {
   }
 
   return (
-    <Card className="p-1 gap-0">
+    <Card className="bg-card p-1 gap-0">
       <CardHeader className="p-0">
         <CardTitle hidden>Project/List Title?</CardTitle>
         <CardDescription hidden>
@@ -36,7 +36,7 @@ export function CreateNewProjectCard() {
           />
           <div className="flex gap-2">
             <Button
-              variant={"secondary"}
+              variant={"outline"}
               onClick={() => {
                 if (newProjectTitle.trim() === "") return;
                 requestCreateNewProject(newProjectTitle.trim());

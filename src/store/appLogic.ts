@@ -516,8 +516,10 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 			logic.requestCancelEditingItem();
 		} else if (logic.selectedId !== null) {
 			logic.requestChangeSelectedItemById(null);
+		} else if (logic.activeProjectUuid !== null) {
+			logic.requestProjectChange(null);
 		} else {
-			console.log("error! should not happen!");
+			console.log("🤷‍♂");
 		}
 	},
 

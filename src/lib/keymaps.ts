@@ -90,7 +90,7 @@ export const init = (initGroup: string) => {
     event.preventDefault()
     if (hotkeys.getScope() !== INITKEYSCOPE)
       hotkeys.setScope(INITKEYSCOPE);
-    console.log("cancelling sequence!");
+    // console.log("cancelling sequence!");
   });
 
   KEYMAPS.forEach(({ group, key, sequence, fastTyping = [], action }) => {
