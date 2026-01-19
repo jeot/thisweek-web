@@ -1,5 +1,5 @@
 import { getCalendarLocaleWeekStartDay } from '@/types/calendarLocales';
-import { CalendarLocaleType, WeekdayType } from '@/types/types';
+import { CalendarLocaleType, PageViewType, WeekdayType } from '@/types/types';
 import { DBSchema, openDB } from 'idb';
 
 export const DEFAULT_MAIN_CAL_LOC: CalendarLocaleType = getCalendarLocaleWeekStartDay('gregory')!;
@@ -9,7 +9,7 @@ const APP_CONFIG_DB = "app-config-db";
 const CONFIG_STORE = "app-config-store";
 const USER_APP_CONFIG_KEY = "user-app-config";
 
-interface AppConfig {
+export interface AppConfig {
   theme: {
     mode: 'light' | 'dark';
     custom?: {
@@ -31,6 +31,8 @@ interface AppConfig {
     customDays: WeekdayType[];
     autoFetchEnabled: boolean;
   };
+  currentPage: PageViewType,
+  currentProject: string | null, // uuid
   sidebarCollapsed: boolean;
   hasSeededOnboarding: boolean;
 }
@@ -60,6 +62,8 @@ const DEFAULT_APP_CONFIG: AppConfig = {
     customDays: [],
     autoFetchEnabled: false
   },
+  currentPage: "This Week",
+  currentProject: null,
   sidebarCollapsed: true,
   hasSeededOnboarding: false,
 };
@@ -124,7 +128,7 @@ export async function async_ensureValidAppConfig() {
   }
 }
 
-export async function async_saveAppConfigToIDBPartial(partial: Partial<AppConfig>) {
+export async function async_savePartialAppConfig(partial: Partial<AppConfig>) {
   try {
     const current = await async_getAppConfigFromIDB();
     if (current) {

@@ -1,6 +1,6 @@
 // AppInitializer.tsx
 import { useEffect, useRef, useState } from 'react';
-import { async_ensureValidAppConfig, async_getAppConfigFromIDB, async_saveAppConfigToIDBPartial } from './lib/appConfigDb';
+import { async_ensureValidAppConfig, async_getAppConfigFromIDB, async_savePartialAppConfig } from './lib/appConfigDb';
 import { useCalendarConfig } from "@/store/calendarConfig";
 import { useKeymapsConfig } from "@/store/keymapConfig";
 import { async_checkDraftIntegrity, async_checkUuidIntegrity, async_getDraftItem, async_getItemsCount } from './lib/items';
@@ -17,8 +17,10 @@ export function AppInitializer({ children }: { children: React.ReactNode }) {
   const setSecondCalEnabled = useCalendarConfig((state) => state.setSecondCalEnabled);
   const setKeymap = useKeymapsConfig((state) => state.setKeymap);
   const setTheme = useThemeConfig((state) => state.setTheme);
-  const setSidebarCollapsed = useOtherConfigs((state) => state.setSidebarCollapsed);
+  const setOtherConfigs = useOtherConfigs((state) => state.setOtherConfigs);
   const requestGoToToday = useAppLogic((state) => state.requestGoToToday);
+  const requestPageViewChange = useAppLogic((state) => state.requestPageViewChange);
+  const requestProjectChange = useAppLogic((state) => state.requestProjectChange);
   const setEditingExistingItemsForced = useAppLogic((state) => state.setEditingExistingItemsForced);
   const setEditingNewItemsForced = useAppLogic((state) => state.setEditingNewItemsForced);
   const setIsMobile = useAppLogic((state) => state.setIsMobile);
@@ -45,13 +47,13 @@ export function AppInitializer({ children }: { children: React.ReactNode }) {
         setSecondCal(config.secondCalendar, false);
         setSecondCalEnabled(config.secondCalendarEnabled, false);
         setKeymap(config.keymap, false);
-        setSidebarCollapsed(config.sidebarCollapsed, false);
+        setOtherConfigs(config, false);
         setTheme(config.theme, false);
         // ... do for other configs
         // check if it's not seeded bofore (first time user)
         if (!config.hasSeededOnboarding && !hasItems) {
           // await async_insertOnboardingTasks();
-          await async_saveAppConfigToIDBPartial({ hasSeededOnboarding: true });
+          await async_savePartialAppConfig({ hasSeededOnboarding: true });
         }
         // only load the drafts once in startup
         const existingDraft = await async_getDraftItem('editing_existing');
@@ -63,6 +65,8 @@ export function AppInitializer({ children }: { children: React.ReactNode }) {
           setEditingNewItemsForced(newDraft);
         }
         requestGoToToday();
+        requestPageViewChange(config.currentPage);
+        requestProjectChange(config.currentProject);
       } else {
         console.log("no config found!");
       }

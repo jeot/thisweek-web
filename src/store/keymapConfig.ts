@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { async_saveAppConfigToIDBPartial } from '@/lib/appConfigDb';
+import { async_savePartialAppConfig } from '@/lib/appConfigDb';
 
 interface KeymapType {
 	generalShortcutsEnabled: boolean;
@@ -21,7 +21,7 @@ export const useKeymapsConfig = create<KeymapsConfig>((set) => ({
 	},
 	setKeymap: (value, save = true) => {
 		set({ keymap: value });
-		if (save) async_saveAppConfigToIDBPartial({ keymap: value });
+		if (save) async_savePartialAppConfig({ keymap: value });
 	}
 }));
 

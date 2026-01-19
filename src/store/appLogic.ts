@@ -6,6 +6,7 @@ import { useCalendarConfig } from './calendarConfig';
 import { useThemeConfig } from './themeConfig';
 import { timeToISO } from '@/lib/utils';
 import { useDataSyncStore } from './dataSyncStore';
+import { useOtherConfigs } from './otherConfigs';
 
 export type SettingPageType = 'General' | 'Calendars' | 'Keymaps' | 'About';
 export type LoginInfoModalType = 'login' | 'sign-up' | 'forgot-password' | 'logged-in' | 'update-password' | null;
@@ -203,6 +204,7 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 	requestPageViewChange: (page) => {
 		const logic = get();
 		if (!logic.easyCheckForCancelingUnchangedEditingItemOrWiggle()) return;
+		useOtherConfigs.getState().setCurrentPage(page, true);
 		set({ pageView: page });
 	},
 	requestSettingPageChange: (page: SettingPageType) => {
@@ -279,7 +281,8 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 	requestProjectChange: (projectUuid) => {
 		const logic = get();
 		if (!logic.easyCheckForCancelingUnchangedEditingItemOrWiggle()) return;
-		set({ activeProjectUuid: projectUuid })
+		useOtherConfigs.getState().setCurrentProject(projectUuid, true);
+		set({ activeProjectUuid: projectUuid });
 		set({ selectedId: null });
 	},
 	requestCreateNewProject: (projectTitle: string | null) => {
