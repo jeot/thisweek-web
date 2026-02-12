@@ -24,18 +24,18 @@ function WeekDates({ weekView, className, ...props }: WeekDatesProps) {
             <Button
               variant="ghost"
               // variant="outline"
-              className={cn("px-1 py-6 justify-center w-full rounded-2xl",
+              className={cn("px-1 py-6 justify-center w-full rounded-3xl",
                 dv.today ? "bg-indigo-200 dark:bg-indigo-900" : ""
               )}
             >
               <div className="">
-                <div className="text-base font-semibold">
+                <div className="h-[1.4rem] text-base font-semibold">
                   {dv.parts.day}
                 </div>
 
                 {weekView.dates2 && <Separator />}
                 {weekView.dates2 &&
-                  <div className="text-sm text-primary/50">
+                  <div className="h-[1.1rem] text-sm text-primary/50">
                     {weekView.dates2[i].parts.day}
                   </div>
                 }
