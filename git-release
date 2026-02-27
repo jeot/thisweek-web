@@ -13,6 +13,12 @@ if [ -n "$(git status --porcelain)" ]; then
   exit 1
 fi
 
+# Check if we are at dev branch
+if [ "$(git rev-parse --abbrev-ref HEAD)" != "dev" ]; then
+  echo "❌ Current branch is not dev. Switch back to dev first."
+  exit 1
+fi
+
 # Update version in package.json
 echo "📝 Updating package.json version to $VERSION..."
 jq --arg v "$VERSION" '.version = $v' package.json > package.tmp.json && mv package.tmp.json package.json
@@ -50,7 +56,7 @@ echo "🚀 Releasing version $VERSION..."
 git checkout main || exit 1
 git merge --ff-only dev || exit 1
 git tag "$VERSION" || exit 1
-git push github main --tags || exit 1
+git push origin main --tags || exit 1
 git checkout dev
 
 echo "🎉 Release $VERSION completed."

@@ -32,7 +32,7 @@ Plan your todos, set goals, and take notes — all in one clean interface.
 ✅ Works offline — data is stored in your browser  
 ✅ Multiple calendars and locales 🌐  
 ✅ Display secondary calendar dates  
-🔲 Sync across multiple devices 📱 🔄 💻  
+✅ Sync across multiple devices 📱 🔄 💻  
 🔲 Nested todos/notes  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;🔲 Add sub-items to individual todos/notes  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;🔲 Group items under custom headings  
