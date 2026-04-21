@@ -116,11 +116,13 @@ export function createNewItemFrom(item: ItemType): ItemType {
   return item;
 }
 
-export function createNewProjectType(title: string | null): ProjectType {
+export function createNewProjectType(title: string | null, uuid: string | null = null): ProjectType {
   const currentTime = timeToISO();
   const modifiedBy = getDeviceId();
+  let version = 1;
+  if (uuid !== null) version = 0;
   const project: ProjectType = {
-    uuid: crypto.randomUUID(),
+    uuid: uuid || crypto.randomUUID(),
     title: title || "Hello world!",
     userId: null,
     parent: null,
@@ -134,7 +136,7 @@ export function createNewProjectType(title: string | null): ProjectType {
     createdAt: currentTime,
     modifiedAt: currentTime,
     deletedAt: null,
-    version: 1,
+    version: version,
     syncedAt: null,
     modifiedBy: modifiedBy,
   };
@@ -271,13 +273,14 @@ function getOrderingShiftBasedOnStartWeekday() {
   return ORDER_SHIFT;
 }
 
-export async function async_createNewProject(title: string): Promise<string | null> {
+export async function async_createNewProject(title: string, uuid: string | null = null): Promise<string | null> {
   try {
-    console.log("create new project...");
-    const newProject = createNewProjectType(title);
-    console.log("new project:", newProject);
+    if (uuid) console.log("create missing project with uuid: ", uuid);
+    else console.log("create new project...");
+    const newProject = createNewProjectType(title, uuid);
+    console.log("project:", newProject);
     const insertedUuid = await db.projects.add(newProject);
-    console.log("new project creation successful. uuid: ", insertedUuid);
+    console.log("project creation successful. uuid: ", insertedUuid);
     return insertedUuid;
   } catch (err) {
     console.log("error: ", err);
@@ -378,7 +381,11 @@ export async function async_checkUuidIntegrity() {
 
   // now find duplicates
   const duplicates = Array.from(seen.values()).filter(arr => arr.length > 1);
-  if (duplicates.length === 0) return;
+  if (duplicates.length === 0) {
+    console.log("Items Integrity OK. ✅");
+    return;
+  }
+  console.log("Items Integrity failed. ❌");
   console.log("error! duplicates uuid:", duplicates);
   const flatDuplicates = duplicates.flat();
   const len = flatDuplicates.length;
@@ -388,6 +395,58 @@ export async function async_checkUuidIntegrity() {
     await db.items.put(item);
   }
   console.log(`assigned new uuid to ${len} items with duplicate uuids!`);
+}
+
+export async function async_checkProjectsIntegrity() {
+  const allProjectItems = await db.items
+    .where('category')
+    .equals("project")
+    .toArray();
+  // console.log("all projects items:", allProjectItems);
+
+  const allProjects = await db.projects.toArray();
+  // console.log("all projects:", allProjects);
+
+  const missingProjects = new Map<string, ItemType[]>();
+  for (const item of allProjectItems) {
+    let missing = true;
+    for (const project of allProjects) {
+      if (project.uuid === item.projectId) {
+        missing = false;
+        break;
+      }
+    }
+    if (item.projectId === null) {
+      /* note: for now, we don't care about the null prjects
+      //console.log("item with null project ref:", item);
+      if (!missingProjects.has("null")) {
+        missingProjects.set("null", []);
+      }
+      missingProjects.get("null")!.push(item);
+      */
+    } else if (missing) {
+      // console.log("project missing:", item.projectId);
+      if (!missingProjects.has(item.projectId)) {
+        missingProjects.set(item.projectId, []);
+      }
+      missingProjects.get(item.projectId)!.push(item);
+
+    } else {
+      // console.log("project available:", item.projectId);
+    }
+  }
+  if (missingProjects.size === 0) {
+    console.log("Projects Integrity OK. ✅");
+    return;
+  }
+  console.log("Projects Integrity failed. ❌");
+  console.log("missing project count:", missingProjects.size);
+  console.log("missing projects:", missingProjects);
+  const uuids = Array.from(missingProjects.keys());
+  for (const u of uuids) {
+    try { await async_createNewProject("UNKNOWN PROJECT", u); }
+    catch (err) { console.log("err:", err); }
+  }
 }
 
 export function getNewOrderingNumber(items: ItemType[], index: number, nextIndex: number, category: CategoryType): number {

@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { async_ensureValidAppConfig, async_getAppConfigFromIDB, async_savePartialAppConfig } from './lib/appConfigDb';
 import { useCalendarConfig } from "@/store/calendarConfig";
 import { useKeymapsConfig } from "@/store/keymapConfig";
-import { async_checkDraftIntegrity, async_checkUuidIntegrity, async_getDraftItem, async_getItemsCount } from './lib/items';
+import { async_checkDraftIntegrity, async_checkProjectsIntegrity, async_checkUuidIntegrity, async_getDraftItem, async_getItemsCount } from './lib/items';
 import { async_initDeviceId } from './lib/db';
 import { useThemeConfig } from '@/store/themeConfig';
 import { useOtherConfigs } from '@/store/otherConfigs';
@@ -39,6 +39,7 @@ export function AppInitializer({ children }: { children: React.ReactNode }) {
       await async_ensureValidAppConfig();
       await async_checkDraftIntegrity();
       await async_checkUuidIntegrity();
+      await async_checkProjectsIntegrity();
       const config = await async_getAppConfigFromIDB();
       const hasItems = (await async_getItemsCount()) > 0;
       console.log("saved config: ", config);
