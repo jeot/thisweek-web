@@ -1,4 +1,4 @@
-import { runSync } from '@/lib/sync';
+import { runSync2 } from '@/lib/sync2';
 import { create } from 'zustand'
 
 export type SyncStateType = 'idle' | 'fetching' | 'pushing' | 'success' | 'error';
@@ -29,7 +29,7 @@ export const useDataSyncStore = create<DataSyncState>((set, get) => ({
 			return;
 		}
 		set({ syncing: true, errorMessage: null });
-		runSync()
+		runSync2()
 			.then(() => {
 				set({ syncing: false, errorMessage: null });
 			})
@@ -71,5 +71,4 @@ export const useDataSyncStore = create<DataSyncState>((set, get) => ({
 	},
 	*/
 }));
-
 

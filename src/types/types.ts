@@ -146,7 +146,7 @@ export interface UserInfo {
 
 // to hold sync parameters (for incremental sync)
 export interface SyncInfo {
-  key: 'syncinfo';
+  key: string;
   lastRemoteSyncIsoTime: string;
 }
 
@@ -156,4 +156,3 @@ export interface EncryptionKeyEntry {
   encryptedKey: string; // base64 string
   iv: string;           // base64 string
 }
-

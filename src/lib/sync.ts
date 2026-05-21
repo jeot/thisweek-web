@@ -1,4 +1,4 @@
-import { async_getSyncInfo, async_getUserInfo, async_updatePartialSyncInfo, db } from "./db";
+import { async_getSyncInfoByKey, async_getUserInfo, async_updatePartialSyncInfoByKey, db } from "./db";
 import { ItemType } from "@/types/types";
 import { supabase_client } from "./supabase/client";
 import { DbInsertItemType, DbItemType, mapDbToItem, mapItemToDbInsert } from "./supabase/mapper";
@@ -142,7 +142,7 @@ export async function runSync() {
 
   useDataSyncStore.getState().setSyncState("idle");
   // 0. Get the last successful remote fetched item sync time
-  const syncInfo = await async_getSyncInfo(); // 0 if first time!
+  const syncInfo = await async_getSyncInfoByKey("items"); // 0 if first time!
   let lastSync = syncInfo.lastRemoteSyncIsoTime;
   console.log("sync: last sync timestamp: ", lastSync);
   // 1. Get the server time (to use as a limit for fetching items)
@@ -173,9 +173,9 @@ export async function runSync() {
     // Advance cursor: highest synced_at seen
     lastSync = remoteBatch[remoteBatch.length - 1].synced_at;
     if (new Date(lastSync).getTime() < new Date(serverTime).getTime())
-      await async_updatePartialSyncInfo({ lastRemoteSyncIsoTime: lastSync });
+      await async_updatePartialSyncInfoByKey("items", { lastRemoteSyncIsoTime: lastSync });
     else
-      await async_updatePartialSyncInfo({ lastRemoteSyncIsoTime: serverTime });
+      await async_updatePartialSyncInfoByKey("items", { lastRemoteSyncIsoTime: serverTime });
 
     // If fewer than limit → finished
     if (remoteBatch.length < LIMIT) {
@@ -184,7 +184,7 @@ export async function runSync() {
   }
 
   // Save the server time as last sync time (safe because time was sent from server)
-  await async_updatePartialSyncInfo({ lastRemoteSyncIsoTime: serverTime });
+  await async_updatePartialSyncInfoByKey("items", { lastRemoteSyncIsoTime: serverTime });
 
   useDataSyncStore.getState().setSyncState("pushing");
   // --- Local → Remote loop ---
@@ -223,4 +223,3 @@ export async function runSync() {
   useDataSyncStore.getState().setSyncState("success");
   console.log("sync done.");
 }
-

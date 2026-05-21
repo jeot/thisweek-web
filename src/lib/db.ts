@@ -169,30 +169,35 @@ export async function async_updatePartialUserInfo(update: Partial<Omit<UserInfo,
   }
 }
 
-export const DEFAULT_SYNCINFO: SyncInfo = {
-  key: 'syncinfo',
-  lastRemoteSyncIsoTime: '1985-10-26T08:21:00.000Z'
+const FIRST_REMOTE_SYNC_ISO_TIME = '1985-10-26T08:21:00.000Z';
+
+function getDefaultSyncInfo(key: string): SyncInfo {
+  return {
+    key,
+    lastRemoteSyncIsoTime: FIRST_REMOTE_SYNC_ISO_TIME,
+  };
 }
 
-export async function async_getSyncInfo(): Promise<SyncInfo> {
+export async function async_getSyncInfoByKey(key: string): Promise<SyncInfo> {
   try {
-    const stored = await db.syncInfo.get('syncinfo');
+    const stored = await db.syncInfo.get(key);
     if (stored) {
-      return { ...DEFAULT_SYNCINFO, ...stored };
+      return { ...getDefaultSyncInfo(key), ...stored };
     } else {
-      await db.syncInfo.put(DEFAULT_SYNCINFO);
-      return DEFAULT_SYNCINFO;
+      const defaultSyncInfo = getDefaultSyncInfo(key);
+      await db.syncInfo.put(defaultSyncInfo);
+      return defaultSyncInfo;
     }
   } catch (err) {
     console.log("catch error: ", err);
-    return DEFAULT_SYNCINFO;
+    return getDefaultSyncInfo(key);
   }
 }
 
-export async function async_updatePartialSyncInfo(update: Partial<Omit<SyncInfo, 'key'>>) {
+export async function async_updatePartialSyncInfoByKey(key: string, update: Partial<Omit<SyncInfo, 'key'>>) {
   try {
-    await db.syncInfo.update('syncinfo', update);
-    console.log("updated syncInfo.lastRemoteSyncIsoTime to: ", update.lastRemoteSyncIsoTime);
+    await db.syncInfo.put({ ...(await async_getSyncInfoByKey(key)), ...update, key });
+    console.log(`updated ${key}.lastRemoteSyncIsoTime to: `, update.lastRemoteSyncIsoTime);
   } catch (err) {
     console.log("err! updated syncInfo: ", err);
   }

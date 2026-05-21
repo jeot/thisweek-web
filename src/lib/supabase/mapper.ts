@@ -1,4 +1,4 @@
-import { ItemType } from "@/types/types";
+import { ItemType, ProjectType } from "@/types/types";
 import { Database } from "./database.types";
 
 
@@ -6,6 +6,46 @@ import { Database } from "./database.types";
 export type DbItemType = Database["public"]["Tables"]["items"]["Row"];
 export type DbInsertItemType = Database["public"]["Tables"]["items"]["Insert"];
 export type DbUpdateItemType = Database["public"]["Tables"]["items"]["Update"];
+
+export type DbProjectType = {
+  uuid: string;
+  title: string;
+  user_id: string | null;
+  parent: string | null;
+  ordering: number | null;
+  pinned: boolean;
+  meta: ProjectType["meta"];
+  iv: string | null;
+  is_encrypted: boolean;
+  ciphertext: string | null;
+  key_version: number;
+  created_at: string;
+  modified_at: string;
+  deleted_at: string | null;
+  version: number;
+  synced_at: string;
+  modified_by: string;
+};
+
+export type DbInsertProjectType = {
+  uuid: string;
+  title: string;
+  user_id?: string | null;
+  parent?: string | null;
+  ordering?: number | null;
+  pinned?: boolean;
+  meta?: ProjectType["meta"];
+  iv?: string | null;
+  is_encrypted?: boolean;
+  ciphertext?: string | null;
+  key_version?: number;
+  created_at?: string;
+  modified_at?: string;
+  deleted_at?: string | null;
+  version?: number;
+  synced_at?: string;
+  modified_by: string;
+};
 
 // Mapper functions
 export function mapDbToItem(row: DbItemType): ItemType {
@@ -113,5 +153,49 @@ export function mapItemToDbUpdate(item: ItemType): DbUpdateItemType {
     version: item.version,
     synced_at: item.syncedAt || undefined,
     modified_by: item.modifiedBy,
+  };
+}
+
+export function mapDbToProject(row: DbProjectType): ProjectType {
+  return {
+    uuid: row.uuid,
+    title: row.title,
+    userId: row.user_id,
+    parent: row.parent,
+    ordering: row.ordering,
+    pinned: row.pinned,
+    meta: row.meta,
+    iv: row.iv,
+    isEncrypted: row.is_encrypted,
+    ciphertext: row.ciphertext,
+    keyVersion: row.key_version,
+    createdAt: row.created_at,
+    modifiedAt: row.modified_at,
+    deletedAt: row.deleted_at,
+    version: row.version,
+    syncedAt: row.synced_at,
+    modifiedBy: row.modified_by,
+  };
+}
+
+export function mapProjectToDbInsert(project: ProjectType): DbInsertProjectType {
+  return {
+    uuid: project.uuid,
+    title: project.title,
+    user_id: project.userId,
+    parent: project.parent,
+    ordering: project.ordering,
+    pinned: project.pinned,
+    meta: project.meta,
+    iv: project.iv,
+    is_encrypted: project.isEncrypted,
+    ciphertext: project.ciphertext,
+    key_version: project.keyVersion,
+    created_at: project.createdAt,
+    modified_at: project.modifiedAt,
+    deleted_at: project.deletedAt,
+    version: project.version,
+    synced_at: project.syncedAt || undefined,
+    modified_by: project.modifiedBy,
   };
 }
