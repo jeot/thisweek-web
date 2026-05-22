@@ -94,14 +94,14 @@ type AppLogic = {
 	activeProjectUuid: string | null;
 	editingNewItem: ItemType | null;
 	editingExistingItem: ItemType | null;
-	unsyncedItemsCount: number;
+	unsyncedCount: { items: number, projects: number };
 	setWeeklyItemsForced: (items: ItemType[]) => void;
 	setProjectItemsForced: (items: ItemType[]) => void;
 	setProjectsForced: (items: ProjectType[]) => void;
 	setTrashedProjectsForced: (items: ProjectType[]) => void;
 	setEditingNewItemsForced: (item: ItemType | null) => void;
 	setEditingExistingItemsForced: (item: ItemType | null) => void;
-	setUnsyncedItemsCount: (count: number) => void;
+	setUnsyncedCount: (count: { items: number, projects: number }) => void;
 	getItemsReference: () => ItemType[];
 	getCategoryBasedOnPageView: () => CategoryType;
 
@@ -181,7 +181,7 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 	editingNewItem: null,
 	editingExistingItem: null,
 	editingCaretPosition: null,
-	unsyncedItemsCount: 0,
+	unsyncedCount: { items: 0, projects: 0 },
 	setWeeklyItemsForced: (items) => set({ weeklyItems: items }),
 	setProjectItemsForced: (items) => set({ projectItems: items }),
 	setProjectsForced: (projects: ProjectType[]) => set({ projects: projects }),
@@ -194,7 +194,11 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 		set({ editingExistingItem: item });
 		if (item) set({ weekReference: item.scheduledAt });
 	},
-	setUnsyncedItemsCount: (count: number) => set({ unsyncedItemsCount: count }),
+		setUnsyncedCount: (count: { items: number, projects: number }) => {
+			const current = get().unsyncedCount;
+			if (current.items === count.items && current.projects === count.projects) return;
+			set({ unsyncedCount: count });
+		},
 	getItemsReference: () => {
 		const logic = get();
 		const category = logic.getCategoryBasedOnPageView();

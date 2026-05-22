@@ -143,15 +143,18 @@ export function createNewProjectType(title: string | null, uuid: string | null =
   return project;
 }
 
-export async function async_getUnsyncedItemsCount(): Promise<number> {
+export async function async_getUnsyncedCount(): Promise<{ items: number, projects: number }> {
   try {
-    const unsyncedCount = await db.items
+    const is = await db.items
       .filter(item => item.syncedAt === null) // means never synced or new modification
       .count();
-    return unsyncedCount;
+    const ps = await db.projects
+      .filter(p => p.syncedAt === null) // means never synced or new modification
+      .count();
+    return { items: is, projects: ps };
   } catch (err) {
     console.log("error getting unsynced items count:", err);
-    return 0;
+    return { items: 0, projects: 0 };
   }
 }
 

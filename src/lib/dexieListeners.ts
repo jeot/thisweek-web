@@ -12,6 +12,8 @@ import {
 import { getUtcIsoRangeForLocalWeekByRefUtcIso } from "./week";
 import { useEffect } from "react";
 
+const EMPTY_UNSYNCED_COUNT = { items: 0, projects: 0 };
+
 export function useLocalDbSyncItems() {
   const mainCal = useCalendarConfig((state) => state.mainCal);
   const weekReference = useAppLogic((state) => state.weekReference);
@@ -21,7 +23,7 @@ export function useLocalDbSyncItems() {
   const setProjectItemsForced = useAppLogic((state) => state.setProjectItemsForced);
   const setProjectsForced = useAppLogic((state) => state.setProjectsForced);
   const setTrashedProjectsForced = useAppLogic((state) => state.setTrashedProjectsForced);
-  const setUnsyncedItemsCount = useAppLogic((state) => state.setUnsyncedItemsCount);
+  const setUnsyncedCount = useAppLogic((state) => state.setUnsyncedCount);
 
   // This will re-run whenever the table or range changes
   const weeklyItems = useLiveQuery(
@@ -56,15 +58,21 @@ export function useLocalDbSyncItems() {
   // get unsynced items count
   const unsyncedCount = useLiveQuery(
     async () => {
-      return (await async_getUnsyncedItemsCount());
-    }, []) || 0;
+      return (await async_getUnsyncedCount());
+    }, []);
 
   useEffect(() => {
-    setUnsyncedItemsCount(unsyncedCount);
-  }, [unsyncedCount]);
+    if (!unsyncedCount) {
+      setUnsyncedCount(EMPTY_UNSYNCED_COUNT);
+      return;
+    }
+    console.log("setting unsyncedCount.");
+    setUnsyncedCount(unsyncedCount);
+  }, [unsyncedCount, setUnsyncedCount]);
 
   // Update zustand when Dexie emits new results
   useEffect(() => {
+    console.log("checking...");
     async_checkAndFixOrdering(weeklyItems, 'weekly').then(() => {
       console.log("ordering done");
     }).catch((e) => {

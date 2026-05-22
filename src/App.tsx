@@ -55,7 +55,8 @@ function preloadFont(href: string, type = 'font/woff2') {
 function useSyncLoop() {
   const session = useAuthStore((s) => s.session);
   const startSync = useDataSyncStore((s) => s.startSync);
-  const unsyncedCount = useAppLogic((state) => state.unsyncedItemsCount);
+  const unsyncedItemsCount = useAppLogic((state) => state.unsyncedCount.items);
+  const unsyncedProjectsCount = useAppLogic((state) => state.unsyncedCount.projects);
 
   useEffect(() => {
     if (!session) return;
@@ -89,7 +90,7 @@ function useSyncLoop() {
           return; // note: don't sync for now.
         } else if (loggedInUserId !== null && lastUserId !== null && loggedInUserId === lastUserId) {
           // note: when all the changes get synced and counts change to zero, it will triger another cycle of redundant syncing!
-          if (unsyncedCount === 0) console.log("welcome back dear user!");
+          if (unsyncedItemsCount === 0 && unsyncedProjectsCount === 0) console.log("welcome back dear user!");
           else console.log("syncing changed items...");
           // continue to sync...
           shouldContinue = true;
@@ -117,7 +118,7 @@ function useSyncLoop() {
         console.log("Stopped background sync loop");
       }
     };
-  }, [session, startSync, unsyncedCount]);
+  }, [session, startSync, unsyncedItemsCount, unsyncedProjectsCount]);
 }
 
 function App() {
@@ -126,7 +127,7 @@ function App() {
 
   const setShowLoginInfoModal = useAppLogic((state) => state.setShowLoginInfoModal);
   const pageView = useAppLogic((state) => state.pageView);
-  const unsyncedItemsCount = useAppLogic((state) => state.unsyncedItemsCount);
+  const unsyncedCount = useAppLogic((state) => state.unsyncedCount);
   const toggleDebugInfo = useAppLogic((s) => s.toggleDebugInfo);
 
   const mainCal = useCalendarConfig((state) => state.mainCal);
@@ -246,8 +247,9 @@ function App() {
         {pageView === 'Settings' && <SettingsPage />}
         {/* and so on */}
       </SidebarLayout>
-      {toggleDebugInfo && <div className="absolute bottom-1 right-1 px-1 text-xs border border-border">
-        Unsynced: {unsyncedItemsCount > 0 && <span className="text-orange-600">{unsyncedItemsCount}</span> || "0"}
+      {toggleDebugInfo && <div className="absolute bottom-1 right-1 px-1 text-xs border border-border flex flex-col">
+        <span className={unsyncedCount.items > 0 && "text-orange-600" || ""}>Unsynced Items: {unsyncedCount.items}</span>
+        <span className={unsyncedCount.projects > 0 && "text-orange-600" || ""}>Unsynced Projects: {unsyncedCount.projects}</span>
       </div>}
     </div >
   )
