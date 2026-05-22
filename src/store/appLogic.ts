@@ -1,15 +1,71 @@
 import { CategoryType, ItemType, ModalViewType, PageViewType, ProjectType } from '@/types/types';
 import { create } from 'zustand';
-import { async_saveDraftItem, async_deleteDraftItem, async_deleteItemSoft, async_saveAsNewItem, async_saveItem, createNewItem, getNewOrderingNumber, async_createNewProject } from '@/lib/items';
+import {
+	async_saveDraftItem,
+	async_deleteDraftItem,
+	async_deleteItemSoft,
+	async_saveAsNewItem,
+	async_saveItem,
+	createNewItem,
+	getNewOrderingNumber,
+	async_createNewProject,
+	async_getProjectByUuid,
+	async_saveProject,
+	async_deleteProjectSoft,
+	async_restoreProjectSoft,
+	async_deleteProjectHard
+} from '@/lib/items';
 import { Action } from '@/types/types';
 import { useCalendarConfig } from './calendarConfig';
 import { useThemeConfig } from './themeConfig';
 import { timeToISO } from '@/lib/utils';
 import { useDataSyncStore } from './dataSyncStore';
 import { useOtherConfigs } from './otherConfigs';
+import { Json } from '@/lib/supabase/database.types';
 
 export type SettingPageType = 'General' | 'Calendars' | 'Keymaps' | 'About';
 export type LoginInfoModalType = 'login' | 'sign-up' | 'forgot-password' | 'logged-in' | 'update-password' | null;
+export type ProjectEditorModeType = 'create' | 'edit';
+export type ProjectSidebarViewType = 'active' | 'trash';
+
+const PROJECT_NAME_MIN_LENGTH = 2;
+const PROJECT_NAME_MAX_LENGTH = 60;
+
+type ProjectMetaType = {
+	description?: string;
+	color?: string;
+	icon?: string;
+};
+
+function buildProjectMeta(meta: ProjectMetaType): Json {
+	return {
+		description: meta.description || "",
+		color: meta.color || "",
+		icon: meta.icon || "",
+	} as Json;
+}
+
+function validateProjectName(
+	nameInput: string,
+	projects: ProjectType[],
+	currentUuid: string | null = null
+): string | null {
+	const trimmed = nameInput.trim();
+	if (trimmed.length < PROJECT_NAME_MIN_LENGTH) {
+		return `Name should be at least ${PROJECT_NAME_MIN_LENGTH} characters.`;
+	}
+	if (trimmed.length > PROJECT_NAME_MAX_LENGTH) {
+		return `Name should be at most ${PROJECT_NAME_MAX_LENGTH} characters.`;
+	}
+	const normalized = trimmed.toLocaleLowerCase();
+	const duplicate = projects.find((p) =>
+		p.deletedAt === null
+		&& p.uuid !== currentUuid
+		&& p.title.trim().toLocaleLowerCase() === normalized
+	);
+	if (duplicate) return "A project with this name already exists.";
+	return null;
+}
 
 type AppLogic = {
 	// ui
@@ -17,6 +73,9 @@ type AppLogic = {
 	setShowLoginInfoModal: (t: LoginInfoModalType) => void;
 	pageView: PageViewType;
 	modalView: ModalViewType;
+	projectEditorMode: ProjectEditorModeType;
+	projectEditorProjectUuid: string | null;
+	projectSidebarView: ProjectSidebarViewType;
 	settingPage: SettingPageType;
 	weekReference: string;
 	internalCopiedItem: ItemType | null;
@@ -31,6 +90,7 @@ type AppLogic = {
 	weeklyItems: ItemType[];
 	projectItems: ItemType[];
 	projects: ProjectType[];
+	trashedProjects: ProjectType[];
 	activeProjectUuid: string | null;
 	editingNewItem: ItemType | null;
 	editingExistingItem: ItemType | null;
@@ -38,6 +98,7 @@ type AppLogic = {
 	setWeeklyItemsForced: (items: ItemType[]) => void;
 	setProjectItemsForced: (items: ItemType[]) => void;
 	setProjectsForced: (items: ProjectType[]) => void;
+	setTrashedProjectsForced: (items: ProjectType[]) => void;
 	setEditingNewItemsForced: (item: ItemType | null) => void;
 	setEditingExistingItemsForced: (item: ItemType | null) => void;
 	setUnsyncedItemsCount: (count: number) => void;
@@ -64,6 +125,13 @@ type AppLogic = {
 	requestProjectChange: (projectUuid: string | null) => void;
 	requestCreateNewProject: (projectTitle: string | null) => void;
 	requestCreateNewProjectModal: () => void;
+	requestEditProjectModal: (projectUuid: string) => void;
+	requestCloseProjectModal: () => void;
+	requestSaveProjectEditor: (payload: { title: string, description?: string, color?: string, icon?: string }) => void;
+	requestMoveProjectToTrash: (projectUuid: string) => void;
+	requestRestoreProjectFromTrash: (projectUuid: string) => void;
+	requestDeleteProjectPermanently: (projectUuid: string) => void;
+	requestProjectSidebarViewChange: (view: ProjectSidebarViewType) => void;
 	requestChangeSelectedItemById: (id: number | null) => void;
 	requestMoveItemUpOrDown: (item: ItemType, offset: number) => void;
 	requestDeleteItem: (item: ItemType) => void;
@@ -93,6 +161,9 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 	setShowLoginInfoModal: (t) => set({ showLoginInfoModal: t }),
 	pageView: 'This Week',
 	modalView: null,
+	projectEditorMode: 'create',
+	projectEditorProjectUuid: null,
+	projectSidebarView: 'active',
 	settingPage: 'Calendars',
 	weekReference: timeToISO(),
 	internalCopiedItem: null,
@@ -105,6 +176,7 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 	weeklyItems: [],
 	projectItems: [],
 	projects: [],
+	trashedProjects: [],
 	activeProjectUuid: null,
 	editingNewItem: null,
 	editingExistingItem: null,
@@ -113,6 +185,7 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 	setWeeklyItemsForced: (items) => set({ weeklyItems: items }),
 	setProjectItemsForced: (items) => set({ projectItems: items }),
 	setProjectsForced: (projects: ProjectType[]) => set({ projects: projects }),
+	setTrashedProjectsForced: (projects: ProjectType[]) => set({ trashedProjects: projects }),
 	setEditingNewItemsForced: (item) => {
 		set({ editingNewItem: item });
 		if (item) set({ weekReference: item.scheduledAt });
@@ -281,6 +354,7 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 	requestProjectChange: (projectUuid) => {
 		const logic = get();
 		if (!logic.easyCheckForCancelingUnchangedEditingItemOrWiggle()) return;
+		set({ projectSidebarView: 'active' });
 		useOtherConfigs.getState().setCurrentProject(projectUuid, true);
 		set({ activeProjectUuid: projectUuid });
 		set({ selectedId: null });
@@ -289,26 +363,171 @@ export const useAppLogic = create<AppLogic>((set, get) => ({
 		const logic = get();
 		if (!logic.easyCheckForCancelingUnchangedEditingItemOrWiggle()) {
 			console.error("@requestCreateNewProject: fatal error! this should not happen!");
-			set({ modalView: null });
+			set({ modalView: null, projectEditorProjectUuid: null });
 			return;
 		}
-		if (projectTitle && logic.pageView === 'Projects' && logic.modalView === 'CreateNewProject') {
-			async_createNewProject(projectTitle)
+		if (projectTitle && logic.pageView === 'Projects' && logic.modalView === 'ProjectEditor') {
+			const title = projectTitle.trim();
+			const error = validateProjectName(title, logic.projects, null);
+			if (error) return;
+			async_createNewProject(title)
 				.then((uuid) => {
 					if (uuid === null) return;
-					set({ modalView: null, activeProjectUuid: uuid });
+					set({
+						modalView: null,
+						projectEditorProjectUuid: null,
+						projectSidebarView: 'active',
+						activeProjectUuid: uuid
+					});
 				})
 				.catch((err) => console.log("err:", err));
-			set({ modalView: null });
 		} else {
-			set({ modalView: null });
+			set({ modalView: null, projectEditorProjectUuid: null });
 		}
 	},
 	requestCreateNewProjectModal: () => {
 		const logic = get();
 		if (!logic.easyCheckForCancelingUnchangedEditingItemOrWiggle()) return;
-		if (logic.pageView === 'Projects') set({ modalView: 'CreateNewProject' });
-		else set({ modalView: null });
+		if (logic.pageView === 'Projects') {
+			set({
+				modalView: 'ProjectEditor',
+				projectEditorMode: 'create',
+				projectEditorProjectUuid: null,
+			});
+		}
+		else set({ modalView: null, projectEditorProjectUuid: null });
+	},
+	requestEditProjectModal: (projectUuid: string) => {
+		const logic = get();
+		if (!logic.easyCheckForCancelingUnchangedEditingItemOrWiggle()) return;
+		if (logic.pageView !== 'Projects') return;
+		const project = logic.projects.find((p) => p.uuid === projectUuid && p.deletedAt === null) || null;
+		if (!project) return;
+		set({
+			modalView: 'ProjectEditor',
+			projectEditorMode: 'edit',
+			projectEditorProjectUuid: projectUuid
+		});
+	},
+	requestCloseProjectModal: () => {
+		set({ modalView: null, projectEditorProjectUuid: null });
+	},
+	requestSaveProjectEditor: (payload) => {
+		const logic = get();
+		if (!logic.easyCheckForCancelingUnchangedEditingItemOrWiggle()) return;
+		if (logic.pageView !== 'Projects') return;
+		if (logic.modalView !== 'ProjectEditor') return;
+
+		const title = payload.title.trim();
+		const description = (payload.description || "").trim();
+		const color = (payload.color || "").trim();
+		const icon = (payload.icon || "").trim();
+		const editingUuid = logic.projectEditorMode === 'edit' ? logic.projectEditorProjectUuid : null;
+		const error = validateProjectName(title, logic.projects, editingUuid);
+		if (error) return;
+
+		if (logic.projectEditorMode === 'create') {
+			async_createNewProject(title)
+				.then((uuid) => {
+					if (uuid === null) return;
+					async_getProjectByUuid(uuid)
+						.then((createdProject) => {
+							if (!createdProject) {
+								set({
+									modalView: null,
+									projectEditorProjectUuid: null,
+									projectSidebarView: 'active',
+									activeProjectUuid: uuid
+								});
+								return;
+							}
+							createdProject.meta = buildProjectMeta({ description, color, icon });
+							async_saveProject(createdProject)
+								.then(() => {
+									set({
+										modalView: null,
+										projectEditorProjectUuid: null,
+										projectSidebarView: 'active',
+										activeProjectUuid: uuid
+									});
+								})
+								.catch((err) => console.log("err:", err));
+						})
+						.catch((err) => console.log("err:", err));
+				})
+				.catch((err) => console.log("err:", err));
+			return;
+		}
+
+		const projectUuid = logic.projectEditorProjectUuid;
+		if (!projectUuid) return;
+		const project = logic.projects.find((p) => p.uuid === projectUuid && p.deletedAt === null) || null;
+		if (!project) return;
+		project.title = title;
+		project.meta = buildProjectMeta({ description, color, icon });
+		async_saveProject(project)
+			.then((result) => {
+				if (!result) return;
+				set({ modalView: null, projectEditorProjectUuid: null });
+			})
+			.catch((err) => console.log("err:", err));
+	},
+	requestMoveProjectToTrash: (projectUuid: string) => {
+		const logic = get();
+		if (!logic.easyCheckForCancelingUnchangedEditingItemOrWiggle()) return;
+		const project = logic.projects.find((p) => p.uuid === projectUuid && p.deletedAt === null) || null;
+		if (!project) return;
+		async_deleteProjectSoft(project)
+			.then((result) => {
+				if (!result) return;
+				const shouldClearSelection = (logic.activeProjectUuid === projectUuid);
+				set({
+					modalView: null,
+					projectEditorProjectUuid: null,
+					activeProjectUuid: shouldClearSelection ? null : logic.activeProjectUuid,
+					selectedId: shouldClearSelection ? null : logic.selectedId
+				});
+			})
+			.catch((err) => console.log("err:", err));
+	},
+	requestRestoreProjectFromTrash: (projectUuid: string) => {
+		const logic = get();
+		if (!logic.easyCheckForCancelingUnchangedEditingItemOrWiggle()) return;
+		const project = logic.trashedProjects.find((p) => p.uuid === projectUuid && p.deletedAt !== null) || null;
+		if (!project) return;
+		const titleError = validateProjectName(project.title, logic.projects, project.uuid);
+		if (titleError) {
+			console.log("restore blocked due to duplicate title.");
+			return;
+		}
+		async_restoreProjectSoft(project)
+			.then((result) => {
+				if (!result) return;
+				set({ projectSidebarView: 'active' });
+			})
+			.catch((err) => console.log("err:", err));
+	},
+	requestDeleteProjectPermanently: (projectUuid: string) => {
+		const logic = get();
+		if (!logic.easyCheckForCancelingUnchangedEditingItemOrWiggle()) return;
+		const project = logic.trashedProjects.find((p) => p.uuid === projectUuid) || null;
+		if (!project) return;
+		async_deleteProjectHard(project)
+			.then((result) => {
+				if (!result) return;
+				if (logic.projectEditorProjectUuid === projectUuid) {
+					set({ modalView: null, projectEditorProjectUuid: null });
+				}
+			})
+			.catch((err) => console.log("err:", err));
+	},
+	requestProjectSidebarViewChange: (view) => {
+		const logic = get();
+		if (!logic.easyCheckForCancelingUnchangedEditingItemOrWiggle()) return;
+		set({ projectSidebarView: view });
+		if (view === 'trash') {
+			set({ activeProjectUuid: null, selectedId: null });
+		}
 	},
 	requestChangeSelectedItemById: (id) => {
 		const logic = get();

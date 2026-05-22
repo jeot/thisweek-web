@@ -1,7 +1,14 @@
 import { useLiveQuery } from "dexie-react-hooks";
 import { useAppLogic } from "@/store/appLogic";
 import { useCalendarConfig } from "@/store/calendarConfig";
-import { async_checkAndFixOrdering, async_getItemsInUtcIsoTimeRange, async_getUnsyncedItemsCount, async_getItemsInProject, async_getProjects } from "./items";
+import {
+  async_checkAndFixOrdering,
+  async_getItemsInUtcIsoTimeRange,
+  async_getUnsyncedCount,
+  async_getItemsInProject,
+  async_getProjects,
+  async_getProjectsInTrash
+} from "./items";
 import { getUtcIsoRangeForLocalWeekByRefUtcIso } from "./week";
 import { useEffect } from "react";
 
@@ -13,6 +20,7 @@ export function useLocalDbSyncItems() {
   const setWeeklyItemsForced = useAppLogic((state) => state.setWeeklyItemsForced);
   const setProjectItemsForced = useAppLogic((state) => state.setProjectItemsForced);
   const setProjectsForced = useAppLogic((state) => state.setProjectsForced);
+  const setTrashedProjectsForced = useAppLogic((state) => state.setTrashedProjectsForced);
   const setUnsyncedItemsCount = useAppLogic((state) => state.setUnsyncedItemsCount);
 
   // This will re-run whenever the table or range changes
@@ -27,6 +35,13 @@ export function useLocalDbSyncItems() {
   const projects = useLiveQuery(
     async () => {
       return (await async_getProjects());
+    },
+    []
+  ) || [];
+
+  const trashedProjects = useLiveQuery(
+    async () => {
+      return (await async_getProjectsInTrash());
     },
     []
   ) || [];
@@ -63,6 +78,10 @@ export function useLocalDbSyncItems() {
   useEffect(() => {
     setProjectsForced(projects);
   }, [projects]);
+
+  useEffect(() => {
+    setTrashedProjectsForced(trashedProjects);
+  }, [trashedProjects]);
 
   // project items
   useEffect(() => {

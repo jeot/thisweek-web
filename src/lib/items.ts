@@ -175,6 +175,36 @@ export async function async_getProjects(): Promise<ProjectType[]> {
   }
 }
 
+export async function async_getProjectsInTrash(): Promise<ProjectType[]> {
+  try {
+    const projects = await db.projects
+      .toArray();
+
+    const sorted = projects
+      .filter((p) => p.deletedAt !== null)
+      .sort((a, b) => {
+        const aTime = a.deletedAt || "";
+        const bTime = b.deletedAt || "";
+        return bTime.localeCompare(aTime);
+      });
+
+    return sorted;
+  } catch (err) {
+    console.log("error getting trashed projects:", err);
+    return [];
+  }
+}
+
+export async function async_getProjectByUuid(uuid: string): Promise<ProjectType | null> {
+  try {
+    const project = await db.projects.get(uuid);
+    return project || null;
+  } catch (err) {
+    console.log("error getting project by uuid:", err);
+    return null;
+  }
+}
+
 export async function async_getItemsInProject(projectUuid: string | null): Promise<ItemType[]> {
   try {
     if (projectUuid === null) return [];
@@ -285,6 +315,66 @@ export async function async_createNewProject(title: string, uuid: string | null 
   } catch (err) {
     console.log("error: ", err);
     return null;
+  }
+}
+
+export async function async_saveProject(project: ProjectType): Promise<boolean> {
+  let result = false;
+  try {
+    const existingProject = await db.projects.get(project.uuid);
+    if (!existingProject || existingProject.uuid !== project.uuid) {
+      console.log("error! strict existing/uuid check failed!");
+      return false;
+    }
+    project.version++;
+    project.modifiedAt = timeToISO();
+    project.modifiedBy = getDeviceId();
+    project.syncedAt = null;
+    await db.projects.put(project);
+    console.log("project update successful.");
+    result = true;
+  } catch (err) {
+    console.log("error saving project. err:", err);
+  }
+  return result;
+}
+
+export async function async_deleteProjectSoft(project: ProjectType): Promise<boolean> {
+  try {
+    project.deletedAt = timeToISO();
+    console.log("soft deleting project...");
+    return await async_saveProject(project);
+  } catch (err) {
+    console.log("soft project delete failed. err:", err);
+    return false;
+  }
+}
+
+export async function async_restoreProjectSoft(project: ProjectType): Promise<boolean> {
+  try {
+    project.deletedAt = null;
+    console.log("restoring project...");
+    return await async_saveProject(project);
+  } catch (err) {
+    console.log("restore project failed. err:", err);
+    return false;
+  }
+}
+
+export async function async_deleteProjectHard(project: ProjectType): Promise<boolean> {
+  try {
+    await db.transaction("rw", db.projects, db.items, async () => {
+      await db.items
+        .where("projectId")
+        .equals(project.uuid)
+        .delete();
+      await db.projects.delete(project.uuid);
+    });
+    console.log("hard delete project done. uuid:", project.uuid);
+    return true;
+  } catch (err) {
+    console.log("hard delete project failed. err:", err);
+    return false;
   }
 }
 

@@ -3,7 +3,7 @@ import { CalendarType } from "./calendarLocales";
 
 
 export type PageViewType = 'This Week' | 'This Year' | 'Projects' | 'Settings';
-export type ModalViewType = 'CreateNewProject' | null;
+export type ModalViewType = 'ProjectEditor' | null;
 
 // export type Action = 'today' | 'up' | 'down' | 'left' | 'right' | 'move_up' | 'move_down' | 'move_left' | 'move_right' | 'delete' | 'edit_start' | 'edit_end' | 'edit_select_all' | 'copy' | 'paste' | 'copy_all_items_text' | 'toggle_theme' | 'toggle_status' | 'toggle_type' | 'paste_above' | 'cancel' | 'create' | 'create_above' | 'todo';
 export const actions = [
