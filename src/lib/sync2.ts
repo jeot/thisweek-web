@@ -310,6 +310,7 @@ async function syncTable<
 }
 
 export async function runSync2() {
+  console.log("===== sync2 started.");
   const userInfo = await async_getUserInfo();
   const userUuid = userInfo.uuid;
   if (!userUuid) throw new Error("bad userInfo (uuid)!");
@@ -332,5 +333,5 @@ export async function runSync2() {
   }
 
   useDataSyncStore.getState().setSyncState("success");
-  console.log("sync2 done.");
+  console.log("===== sync2 done.");
 }
