@@ -320,8 +320,16 @@ export async function runSync2() {
   useDataSyncStore.getState().setSyncState("idle");
   const serverTime = await getServerTime();
 
-  await syncTable(projectsConfig, userUuid, serverTime);
-  await syncTable(itemsConfig, userUuid, serverTime);
+  try {
+    await syncTable(projectsConfig, userUuid, serverTime);
+  } catch (err) {
+    console.error("Error syncing projects table:", err);
+  }
+  try {
+    await syncTable(itemsConfig, userUuid, serverTime);
+  } catch (err) {
+    console.error("Error syncing items table:", err);
+  }
 
   useDataSyncStore.getState().setSyncState("success");
   console.log("sync2 done.");
