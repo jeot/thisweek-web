@@ -27,9 +27,9 @@ const buttonVariants = cva(
         shk:
           "hover:shadow-xs hover:border hover:border-s-4 border-indigo-500 hover:text-accent-foreground overflow-hidden",
         project_inactive:
-          "border-none font-normal hover:shadow-xs border-none hover:bg-secondary overflow-hidden transition-none",
+          "border-none font-normal md:text-base hover:shadow-xs border-none overflow-hidden transition-none",
         project_active:
-          "border-none bg-primary text-primary-foreground font-bold shadow-xs overflow-hidden transition-none",
+          "border-none font-bold md:text-base shadow-xs overflow-hidden transition-none",
       },
       size: {
         shk: "h-9 w-9 px-2 py-2 has-[>svg]:px-2",

@@ -45,23 +45,36 @@ export function ProjectsPage() {
       >
         {projects.map((p) => {
           const meta = getProjectMeta(p.meta);
+          const isActive = activeProjectUuid === p.uuid;
           const variant = activeProjectUuid === p.uuid ? "project_active" : "project_inactive";
           return (
-            <div key={p.uuid} className="relative flex items-center border-b border-border/30 last:border-b-0">
+            <div
+              key={p.uuid}
+              className={cn("relative flex border-b border-border/30 last:border-b-0",
+                "hover:bg-linear-to-r from-secondary",
+                isActive && `bg-linear-to-r from-blue-400 dark:from-blue-900`
+              )}
+            >
+              <div
+                className="w-1 shrink-0"
+                style={{ backgroundColor: meta.color || "transparent" }}
+              />
               <Button
                 size="project"
-                className="text-sm flex-1 justify-start" variant={variant}
+                className="text-base flex-1 justify-start"
+                variant={variant}
                 onClick={(event) => {
                   event.stopPropagation();
                   requestProjectChange(p.uuid)
                 }}>
                 {meta.icon && <span>{meta.icon}</span>}
-                {meta.color && (
+                {/*
+                  meta.color && (
                   <span
                     className="inline-block size-2.5 rounded-full border border-border/60"
                     style={{ backgroundColor: meta.color }}
                   />
-                )}
+                )*/}
                 <span className="truncate">{p.title}</span>
               </Button>
               <Button
