@@ -143,7 +143,7 @@ export function ProjectEditorModal() {
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium" htmlFor="project-title">Name</label>
+        <label className="text-sm font-medium" htmlFor="project-title">Name {nameError && <span className="text-xs text-destructive font-normal">({nameError})</span>}</label>
         <Input
           id="project-title"
           value={draft.title}
@@ -151,7 +151,7 @@ export function ProjectEditorModal() {
           placeholder="Project name..."
           onChange={(e) => setDraft((x) => ({ ...x, title: e.target.value }))}
         />
-        {nameError && <p className="text-xs text-destructive">{nameError}</p>}
+
       </div>
 
       <div className="flex flex-col gap-1">
