@@ -20,6 +20,7 @@ export function SettingsKeymap() {
             .replace("right", "Right")
             .replace("left", "Left")
             .replace("ctrl", "Ctrl")
+            .replace("command", "Command")
             .replace("shift", "Shift")
             .replace("+", " + ")}
         </Badge>

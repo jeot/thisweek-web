@@ -25,10 +25,10 @@ export const KEYMAPS: Array<KeyMap> = [
   { group: "GENERAL", key: "right", fastTyping: ["left+right"], action: 'RIGHT', desc: "Go to Next Week/Year/Section" },
   { group: "GENERAL", key: "escape", action: 'CANCEL', desc: "Cancel Editing/Selection" },
   { group: "GENERAL", key: "enter", action: 'EDIT_END', desc: "Edit Selected Item" },
-  { group: "GENERAL", key: "ctrl+up", fastTyping: ["ctrl+down+up"], action: 'MOVE_UP', desc: "Move Selected Item Up" },
-  { group: "GENERAL", key: "ctrl+down", fastTyping: ["ctrl+up+down"], action: 'MOVE_DOWN', desc: "Move Selected Item Down" },
-  { group: "GENERAL", key: "ctrl+left", fastTyping: ["ctrl+right+left"], action: 'MOVE_LEFT', desc: "Move Selected Item to Previous Week/Year/Section" },
-  { group: "GENERAL", key: "ctrl+right", fastTyping: ["ctrl+left+right"], action: 'MOVE_RIGHT', desc: "Move Selected Item to Next Week/Year/Section" },
+  { group: "GENERAL", key: ["ctrl+up", "command+up"], fastTyping: ["ctrl+down+up"], action: 'MOVE_UP', desc: "Move Selected Item Up" },
+  { group: "GENERAL", key: ["ctrl+down", "command+down"], fastTyping: ["ctrl+up+down"], action: 'MOVE_DOWN', desc: "Move Selected Item Down" },
+  { group: "GENERAL", key: ["ctrl+left", "command+left"], fastTyping: ["ctrl+right+left"], action: 'MOVE_LEFT', desc: "Move Selected Item to Previous Week/Year/Section" },
+  { group: "GENERAL", key: ["ctrl+right", "command+right"], fastTyping: ["ctrl+left+right"], action: 'MOVE_RIGHT', desc: "Move Selected Item to Next Week/Year/Section" },
   { group: "GENERAL", key: ["ctrl+e"], fastTyping: [], action: 'EDIT_END', desc: "Edit Selected Item" },
   { group: "GENERAL", key: ["ctrl+c"], fastTyping: [], action: 'COPY', desc: "Copy Selected Item" },
   { group: "GENERAL", key: ["ctrl+v"], fastTyping: [], action: 'PASTE', desc: "Paste Copied Item or Text from Clipboard" },
@@ -154,4 +154,3 @@ export const deinit = () => {
   console.log("unbinding hotkeys...");
   hotkeys.unbind();
 }
-
